@@ -12,6 +12,7 @@ public:
 	bool Init() override;
 	void Update(float dt) override;
 	void Draw() override;
+	void OnMouseDown(WPARAM btnState, int x, int y) override;
 private:
 
 };
@@ -76,4 +77,9 @@ void SimpleApp::Draw()
 		m_swapChain->Present(0, 0);
 	}
 
+}
+
+void SimpleApp::OnMouseDown(WPARAM btnState, int x, int y)
+{
+	MessageBox(0, L"TEST", 0, 0);
 }

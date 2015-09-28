@@ -2,7 +2,7 @@
 
 //Releases COM Pointers
 template<typename T>
-void ReleaseCOM(T* p_COM)
+inline void ReleaseCOM(T& p_COM)
 {
 	if (p_COM != NULL)
 	{

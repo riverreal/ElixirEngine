@@ -7,6 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <Windows.h>
+#include <windowsx.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <sstream>
@@ -38,6 +39,11 @@ public:
 	void Run();
 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	virtual void OnMouseDown(WPARAM btnState, int x, int y){}
+	virtual void OnMouseUp(WPARAM btnState, int x, int y) {}
+	virtual void OnMouseMove(WPARAM btnState, int x, int y) {}
+
 protected:
 	bool InitWindow();
 	bool InitD3D();
@@ -59,11 +65,10 @@ protected:
 	LPCWSTR m_appName;
 	LPCWSTR m_caption;
 
-	bool m_resizing;
+	bool m_resizing; //not used
 	bool m_appPaused;
 
 	Timer m_gameTimer;
-
 	static int m_frameCnt;
 	static float m_timeElapsed;
 

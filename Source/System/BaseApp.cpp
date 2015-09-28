@@ -512,7 +512,8 @@ bool BaseApp::InitD3D()
 	{
 		return false;
 	}
-
+	
+	//default Rasterizer mode
 	m_d3dDeviceContext->RSSetState(m_solidRS);
 
 	//Viewport
@@ -588,6 +589,21 @@ LRESULT BaseApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				PostQuitMessage(0);
 				return 0;
 			}
+		}
+		case WM_LBUTTONDOWN:
+		{
+			OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return 0;
+		}
+		case WM_LBUTTONUP:
+		{
+			OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return 0;
+		}
+		case WM_MOUSEMOVE:
+		{
+			OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return 0;
 		}
 	}
 
