@@ -9,15 +9,21 @@
 #include <Windows.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <sstream>
+#include <vector>
+#include "Timer.h"
 
 using namespace DirectX;
 
-const bool FULL_SCREEN = false;
+const bool FULL_SCREEN = false; //experimental --> has issues
 //const bool RESIZEABLE = false; ------------- Feature Not Added
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
-const bool VSYNC_ENABLED = true;
+const bool VSYNC_ENABLED = false;
 const bool MSAA_ENABLED = false; //4X MSAA
+const float FPS_CAP = 60.0f; //When Vsync is disabled
+const bool ENABLE_FPS_CAP = false;
+const bool HIDE_CURSOR = false;
 
 class BaseApp
 {
@@ -28,12 +34,14 @@ public:
 	virtual bool Init();
 	virtual void Update(float dt) = 0;
 	virtual void Draw() = 0;
+	virtual void Frame();
 	void Run();
 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 protected:
 	bool InitWindow();
 	bool InitD3D();
+	void displayFPS(); //in Caption
 
 protected:
 	HINSTANCE m_instance;
@@ -49,9 +57,16 @@ protected:
 	UINT m_4xMsaaQuality;
 
 	LPCWSTR m_appName;
+	LPCWSTR m_caption;
 
 	bool m_resizing;
 	bool m_appPaused;
+
+	Timer m_gameTimer;
+
+	static int m_frameCnt;
+	static float m_timeElapsed;
+
 
 	//d3d related
 	IDXGISwapChain* m_swapChain;

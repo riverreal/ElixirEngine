@@ -1,0 +1,3 @@
+Core i7-4710MQ, nvidia GTX 880M, 8Gb RAM
+Rendering ---- FPS
+Nothing ---- 3000

@@ -6,6 +6,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return g_baseApp->MsgProc(hwnd, msg, wParam, lParam);
 }
 
+int BaseApp::m_frameCnt = 0;
+float BaseApp::m_timeElapsed = 0.0f;
+
 BaseApp::BaseApp(HINSTANCE instance, int width, int height)
 	:m_instance(instance),
 	m_width(width),
@@ -73,6 +76,8 @@ void BaseApp::Run()
 
 	ZeroMemory(&msg, sizeof(MSG));
 
+	m_gameTimer.Reset();
+
 	while (msg.message != WM_QUIT)
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -82,11 +87,25 @@ void BaseApp::Run()
 		}
 		else
 		{
+			m_gameTimer.Tick();
+
 			if (!m_appPaused)
 			{
 				//do stuff
-				Update(1.0f);
-				Draw();
+				displayFPS();
+
+				//fps capping
+				if (ENABLE_FPS_CAP)
+				{
+					if (m_frameCnt < FPS_CAP)
+					{
+						Frame();
+					}
+				}
+				else
+				{
+					Frame();
+				}
 			}
 			else
 			{
@@ -94,6 +113,13 @@ void BaseApp::Run()
 			}
 		}
 	}
+}
+
+void BaseApp::Frame()
+{
+	m_frameCnt++;
+	Update(m_gameTimer.DeltaTime());
+	Draw();
 }
 
 bool BaseApp::InitWindow()
@@ -146,7 +172,7 @@ bool BaseApp::InitWindow()
 		posY = (totalHeight - m_height) / 2;
 	}
 
-	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_appName, m_appName, WS_POPUP | WS_VISIBLE | WS_SYSMENU, posX, posY, m_width, m_height, NULL, NULL, m_instance, NULL);
+	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_appName, m_appName, WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION, posX, posY, m_width, m_height, NULL, NULL, m_instance, NULL);
 	if (!m_hWnd)
 	{
 		
@@ -156,7 +182,8 @@ bool BaseApp::InitWindow()
 	ShowWindow(m_hWnd, SW_SHOW);
 	SetForegroundWindow(m_hWnd);
 	SetFocus(m_hWnd);
-	ShowCursor(false);
+	if(HIDE_CURSOR)
+		ShowCursor(false);
 
 	return true;
 }
@@ -169,6 +196,7 @@ bool BaseApp::InitD3D()
 	HRESULT result;
 	IDXGIFactory* factory;
 	IDXGIAdapter* adapter;
+	std::vector <IDXGIAdapter*> vAdapters;
 	IDXGIOutput* adapterOutput;
 	unsigned int numModes, i, numerator, denominator;
 	unsigned long long stringLength;
@@ -189,41 +217,22 @@ bool BaseApp::InitD3D()
 	//Get PC Information
 	//-------------------------------------------------------------------
 
-	if (MSAA_ENABLED)
-	{
-		//temporarily create device to get multisampling quality
-		result = D3D11CreateDevice(0, D3D_DRIVER_TYPE_HARDWARE, 0, 0, 0, 0, 
-			D3D11_SDK_VERSION, &m_d3dDevice, &featureLevel, &m_d3dDeviceContext);
-		if (FAILED(result))
-		{
-			return false;
-		}
-
-		result = (m_d3dDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m_4xMsaaQuality));
-		if (FAILED(result))
-		{
-			return false;
-		}
-		assert(m_4xMsaaQuality > 0);
-
-		ReleaseCOM(m_d3dDeviceContext);
-		ReleaseCOM(m_d3dDevice);
-	}
-	
-
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	result = factory->EnumAdapters(0, &adapter);
-	if (FAILED(result))
+	for (UINT j = 0; factory->EnumAdapters(j, &adapter) != DXGI_ERROR_NOT_FOUND; ++j)
 	{
-		return false;
+		vAdapters.push_back(adapter);
+		std::wostringstream outs;
+		outs.precision(0);
+		outs << j;
+		//MessageBox(0, outs.str().c_str(), L"Iteration", MB_OK);
 	}
 
-	result = adapter->EnumOutputs(0, &adapterOutput);
+	result = vAdapters[0]->EnumOutputs(0, &adapterOutput);
 	if (FAILED(result))
 	{
 		return false;
@@ -260,17 +269,44 @@ bool BaseApp::InitD3D()
 		}
 	}
 
-	result = adapter->GetDesc(&adapterDesc);
+	result = vAdapters[0]->GetDesc(&adapterDesc);
 	if (FAILED(result))
 	{
 		return false;
+	}
+
+	//MSAA support quality
+	if (MSAA_ENABLED)
+	{
+		//temporarily create device to get multisampling quality
+		result = D3D11CreateDevice(0, D3D_DRIVER_TYPE_HARDWARE, 0, 0, 0, 0,
+			D3D11_SDK_VERSION, &m_d3dDevice, &featureLevel, &m_d3dDeviceContext);
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		if (featureLevel != D3D_FEATURE_LEVEL_11_0)
+		{
+			MessageBox(0, L"D3D Feature Level 11 not supported", L"Error", MB_OK);
+			return false;
+		}
+
+		result = (m_d3dDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m_4xMsaaQuality));
+		if (FAILED(result))
+		{
+			return false;
+		}
+		assert(m_4xMsaaQuality > 0);
+
+		ReleaseCOM(m_d3dDeviceContext);
+		ReleaseCOM(m_d3dDevice);
 	}
 
 	//convert to megabytes
 	m_gpuMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 	//get GPU name
 	wcstombs(m_gpuDesc, adapterDesc.Description, 128);
-	
 	
 	//Releasing
 	//*********
@@ -281,6 +317,11 @@ bool BaseApp::InitD3D()
 	ReleaseCOM(adapterOutput);
 	ReleaseCOM(adapter);
 	ReleaseCOM(factory);
+
+	std::wostringstream outs;
+	outs.precision(0);
+	outs << L"GPU: " << m_gpuDesc << L"   " << m_gpuMemory << L"MB";
+	//MessageBox(0, outs.str().c_str(), L"Info", MB_OK);
 
 	//-------------------------------------------------------------------
 	//Swap Chain
@@ -515,10 +556,12 @@ LRESULT BaseApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (LOWORD(wParam) == WA_INACTIVE)
 			{
 				m_appPaused = true;
+				m_gameTimer.Stop();
 			}
 			else
 			{
 				m_appPaused = false;
+				m_gameTimer.Start();
 			}
 			return 0;
 		}
@@ -538,8 +581,34 @@ LRESULT BaseApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			((MINMAXINFO*)lParam)->ptMinTrackSize.y = 300;
 			return 0;
 		}
-
+		case WM_KEYDOWN:
+		{
+			if (wParam == VK_ESCAPE)
+			{
+				PostQuitMessage(0);
+				return 0;
+			}
+		}
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+void BaseApp::displayFPS()
+{
+	if (m_gameTimer.TotalTime() - m_timeElapsed >= 1.0f)
+	{
+		float fps = (float)m_frameCnt;
+		float mspf = 1000.0f / fps;
+
+		std::wostringstream outs;
+		outs.precision(0);
+		outs << m_appName << L"    "
+			<< L"FPS: " << fps << L"     "
+			<< L"GPU: " << m_gpuDesc;
+		SetWindowText(m_hWnd, outs.str().c_str());
+
+		m_frameCnt = 0;
+		m_timeElapsed += 1.0f;
+	}
 }

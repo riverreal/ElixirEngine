@@ -4,6 +4,10 @@
 template<typename T>
 void ReleaseCOM(T* p_COM)
 {
-	p_COM->Release();
-	p_COM = 0;
+	if (p_COM != NULL)
+	{
+		p_COM->Release();
+		p_COM = 0;
+	}
+	
 }
