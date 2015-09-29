@@ -38,7 +38,7 @@ void ColorShader::Shutdown()
 }
 
 bool ColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount,
-	DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj)
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj)
 {
 	bool result;
 
@@ -108,16 +108,17 @@ void ColorShader::ShutdownShader()
 }
 
 bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj)
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	unsigned int bufferNumber;
+	XMMATRIX worldCpy, viewCpy, projCpy;
 
-	world = XMMatrixTranspose(world);
-	view = XMMatrixTranspose(view);
-	proj = XMMatrixTranspose(proj);
+	worldCpy = XMMatrixTranspose(world);
+	viewCpy = XMMatrixTranspose(view);
+	projCpy = XMMatrixTranspose(proj);
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -126,9 +127,9 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	}
 
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
-	dataPtr->world = world;
-	dataPtr->view = view;
-	dataPtr->projection = proj;
+	dataPtr->world = worldCpy;
+	dataPtr->view = viewCpy;
+	dataPtr->projection = projCpy;
 
 	deviceContext->Unmap(m_matrixBuffer, 0);
 

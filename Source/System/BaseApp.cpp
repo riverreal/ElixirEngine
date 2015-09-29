@@ -199,10 +199,8 @@ bool BaseApp::InitD3D()
 	std::vector <IDXGIAdapter*> vAdapters;
 	IDXGIOutput* adapterOutput;
 	unsigned int numModes, i, numerator, denominator;
-	unsigned long long stringLength;
 	DXGI_MODE_DESC* displayModelList;
 	DXGI_ADAPTER_DESC adapterDesc;
-	int error;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	D3D_FEATURE_LEVEL featureLevel;
 	ID3D11Texture2D* backBufferPtr;

@@ -17,16 +17,13 @@ public:
 
 	bool Initialize(ID3D11Device* device, HWND window);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext* deviceContext, int, 
-		DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
-
+	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, const DirectX::XMMATRIX &world, const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj);
 
 private:
 	bool InitializeShader(ID3D11Device* device, HWND window);
 	void ShutdownShader();
 
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, 
-		DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
+	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world, const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj);
 	void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount);
 
 	struct MatrixBufferType
