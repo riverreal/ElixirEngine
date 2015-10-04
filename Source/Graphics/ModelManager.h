@@ -3,11 +3,21 @@
 #include "../Helper/GeneralHelper.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include "Terrain.h"
+
+enum BasicModel
+{
+	MODEL_TYPE_CUBE,
+	MODEL_TYPE_SPHERE,
+	MODEL_TYPE_GEOSPHERE,
+	MODEL_TYPE_CYLINDER,
+	MODEL_TYPE_PLAIN
+};
 
 class Model
 {
 public:
-	Model();
+	Model(int modelType);
 	Model(const Model& other);
 	~Model();
 
@@ -29,6 +39,7 @@ private:
 	};
 
 private:
+	int m_modelType;
 	ID3D11Buffer* m_vertexBuffer;
 	ID3D11Buffer* m_indexBuffer;
 	int m_vertexCount;

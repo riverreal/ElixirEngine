@@ -9,5 +9,4 @@ inline void ReleaseCOM(T& p_COM)
 		p_COM->Release();
 		p_COM = 0;
 	}
-	
 }

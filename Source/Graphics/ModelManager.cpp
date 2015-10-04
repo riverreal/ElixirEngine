@@ -2,9 +2,10 @@
 
 using namespace DirectX;
 
-Model::Model()
+Model::Model(int modelType)
 	:m_vertexBuffer(0),
-	m_indexBuffer(0)
+	m_indexBuffer(0),
+	m_modelType(modelType)
 {
 }
 
@@ -53,9 +54,45 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 
 	HRESULT result;
 
-	m_vertexCount = 8;
-	m_indexCount = 36;
+	Terrain plainTerrain;
+	Terrain::MeshData meshData;
+	plainTerrain.CreatePlane(560.0f, 560.0f, 150, 150, meshData);
 
+	m_vertexCount = meshData.Vertices.size();
+	m_indexCount = meshData.Indices.size();
+
+	//Plain Terrain
+	std::vector<VertexType> vertices(meshData.Vertices.size());
+	for (size_t i = 0; i < meshData.Vertices.size(); ++i)
+	{
+		XMFLOAT3 position = meshData.Vertices[i].Position;
+		position.y = 0.3f*(position.z*sinf(0.1f*position.x) + position.x*cosf(0.1f*position.z));
+
+		vertices[i].position = position;
+		if (position.y < -10.0f)
+		{
+			vertices[i].color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
+		}
+		else if (position.y < 5.0f)
+		{
+			vertices[i].color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
+		}
+		else if (position.y < 12.0f)
+		{
+			vertices[i].color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
+		}
+		else if (position.y < 20.0f)
+		{
+			vertices[i].color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
+		}
+		else
+		{
+			vertices[i].color = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+		}
+	}
+
+	//Box
+	/* 
 	VertexType vertices[8];
 
 	vertices[0] = { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)};
@@ -87,15 +124,23 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 		4, 0, 3,
 		4, 3, 7
 	}; // 36 indices
+	*/
 
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	std::vector<UINT> indices(m_indexCount);
+	for (size_t i = 0; i < m_indexCount; ++i)
+	{
+		indices[i] = meshData.Indices[i];
+	}
+
+
+	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	vertexBufferDesc.ByteWidth = sizeof(VertexType)* m_vertexCount;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 
-	vertexData.pSysMem = vertices;
+	vertexData.pSysMem = &vertices[0];
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -105,14 +150,14 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+	indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	indexBufferDesc.ByteWidth = sizeof(unsigned int) * m_indexCount;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
 	indexBufferDesc.StructureByteStride = 0;
 
-	indexData.pSysMem = indices;
+	indexData.pSysMem = &indices[0];
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 

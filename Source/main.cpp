@@ -51,9 +51,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 	:BaseApp(instance, width, height),
-	m_radius(5.0f),
-	m_phi(0.25*M_PI),
-	m_theta(1.5f*M_PI)
+	m_box(BasicModel::MODEL_TYPE_PLAIN),
+	m_radius(0),
+	m_phi(0),
+	m_theta(0)
 {
 }
 
@@ -71,7 +72,7 @@ bool SimpleApp::Init()
 	}
 	//additional init
 
-	m_camera.SetPosition(0.0f, 0.0f, -5.0f);
+	m_camera.SetPosition(0.0f, 130.0f, -130.0f);
 
 	if (!m_box.Initialize(m_d3dDevice))
 	{
@@ -88,9 +89,9 @@ bool SimpleApp::Init()
 
 void SimpleApp::Update(float dt)
 {
-	float x = m_radius*sinf(m_phi)*cosf(m_theta);
-	float z = m_radius*sinf(m_phi)*sinf(m_theta);
-	float y = m_radius*cosf(m_phi);
+	float x = m_radius;
+	float z = m_phi;
+	float y = m_theta;
 
 	m_camera.SetRotation(x, y, z);
 }
@@ -142,18 +143,18 @@ void SimpleApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
-		float dx = XMConvertToRadians(0.25f* static_cast<float>(x - m_lastMousePos.x));
-		float dy = XMConvertToRadians(0.25f* static_cast<float>(y - m_lastMousePos.y));
+		float dx = XMConvertToRadians(static_cast<float>(x - m_lastMousePos.x));
+		float dy = XMConvertToRadians(static_cast<float>(y - m_lastMousePos.y));
 
-		m_theta += dx;
-		m_phi += dy;
+		m_theta -= dx;
+		m_radius += dy;
 	}
 	else if( (btnState & MK_RBUTTON) != 0)
 	{
-		float dx = 0.005f*static_cast<float>(x - m_lastMousePos.x);
-		float dy = 0.005f*static_cast<float>(y - m_lastMousePos.y);
+		//float dx = 0.005f*static_cast<float>(x - m_lastMousePos.x);
+		//float dy = 0.005f*static_cast<float>(y - m_lastMousePos.y);
 
-		m_radius += dx - dy;
+		//m_radius += dx - dy;
 	}
 
 	m_lastMousePos.x = x;

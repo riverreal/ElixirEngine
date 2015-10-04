@@ -21,9 +21,9 @@ const bool FULL_SCREEN = false; //experimental --> has issues
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
 const bool VSYNC_ENABLED = true;
-const bool MSAA_ENABLED = false; //4X MSAA
-const float FPS_CAP = 60.0f; //When Vsync is disabled
-const bool ENABLE_FPS_CAP = false;
+const bool MSAA_ENABLED = false; //4X MSAA ---- NOT WORKING
+const float FPS_CAP = 60.0f; //When Vsync is disabled --- NOT WORKING
+const bool ENABLE_FPS_CAP = false; //NOT WORKING
 const bool HIDE_CURSOR = false;
 
 class BaseApp
@@ -60,6 +60,7 @@ protected:
 	int m_gpuMemory;
 	//stores gpu name
 	char m_gpuDesc[128];
+	//stores 4xMSAA quality
 	UINT m_4xMsaaQuality;
 
 	LPCWSTR m_appName;
