@@ -55,7 +55,7 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	HRESULT result;
 
 	Terrain plainTerrain;
-	Terrain::MeshData meshData;
+	MeshData meshData;
 	plainTerrain.CreatePlane(560.0f, 560.0f, 150, 150, meshData);
 
 	m_vertexCount = meshData.Vertices.size();
