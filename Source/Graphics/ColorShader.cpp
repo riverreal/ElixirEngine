@@ -37,8 +37,8 @@ void ColorShader::Shutdown()
 	ShutdownShader();
 }
 
-bool ColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj)
+bool ColorShader::Render(ID3D11DeviceContext* deviceContext,
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, int indexCount, UINT indexOffset, UINT vertexOffset)
 {
 	bool result;
 
@@ -48,7 +48,7 @@ bool ColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount,
 		return false;
 	}
 
-	RenderShader(deviceContext, indexCount);
+	RenderShader(deviceContext, indexCount, indexOffset, vertexOffset);
 
 	return true;
 }
@@ -140,12 +140,12 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	return true;
 }
 
-void ColorShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void ColorShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount, UINT indexOffset, UINT vertexOffset)
 {
 	deviceContext->IASetInputLayout(m_layout);
 
 	deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader, nullptr, 0);
 
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	deviceContext->DrawIndexed(indexCount, indexOffset, vertexOffset);
 }

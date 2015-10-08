@@ -2,10 +2,15 @@
 
 using namespace DirectX;
 
-Model::Model(int modelType)
+Model::Model()
 	:m_vertexBuffer(0),
 	m_indexBuffer(0),
-	m_modelType(modelType)
+	m_totalVertexCount(0),
+	m_totalIndexCount(0),
+	m_lastVertexOffset(0),
+	m_lastVertexSize(0),
+	m_lastIndexOffset(0),
+	m_lastIndexSize(0)
 {
 }
 
@@ -15,6 +20,74 @@ Model::Model(const Model& other)
 
 Model::~Model()
 {
+}
+
+offsetData Model::AddGeometry(int modelType)
+{
+	offsetData offset;
+	Terrain plainTerrain;
+	BasicShapes shapes;
+	MeshData meshData;
+	UINT currentVertexCount;
+	UINT currentIndexCount;
+
+	switch (modelType)
+	{
+	case MODEL_TYPE_CUBE:
+		shapes.CreateCube(1.0f, 1.0f, 1.0f, meshData);
+		break;
+	case MODEL_TYPE_CYLINDER:
+		shapes.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20, meshData);
+		break;
+	case MODEL_TYPE_GEOSPHERE:
+		break;
+	case MODEL_TYPE_PLAIN:
+		plainTerrain.CreatePlane(20.0f, 30.0f, 60, 40, meshData);
+		break;
+	case MODEL_TYPE_SCREEN_LAYER:
+		break;
+	case MODEL_TYPE_SPHERE:
+		shapes.CreateSphere(0.5f, 20, 20, meshData);
+		break;
+	default:
+		shapes.CreateCube(1.0f, 1.0f, 1.0f, meshData);
+		break;
+	}
+
+	currentVertexCount = meshData.Vertices.size();
+	currentIndexCount = meshData.Indices.size();
+	m_totalVertexCount += meshData.Vertices.size();
+	m_totalIndexCount += meshData.Indices.size();
+
+	std::vector<VertexType> vertices(currentVertexCount);
+	for (size_t i = 0; i < currentVertexCount; ++i)
+	{
+		XMFLOAT3 position = meshData.Vertices[i].Position;
+		vertices[i].position = position;
+		vertices[i].color = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+		m_totalVertex.push_back(vertices[i]);
+	}
+
+	std::vector<UINT> indices(currentIndexCount);
+	for (size_t i = 0; i < currentIndexCount; ++i)
+	{
+		indices[i] = meshData.Indices[i];
+		m_totalIndex.push_back(indices[i]);
+	}
+
+	//get the index offset
+	m_lastIndexOffset += m_lastIndexSize;
+	m_lastIndexSize = indices.size();
+
+	//get the vertex offset
+	m_lastVertexOffset += m_lastVertexSize;
+	m_lastVertexSize = vertices.size();
+
+	offset.indexCount = currentIndexCount;
+	offset.indexOffset = m_lastIndexOffset;
+	offset.vertexOffset = m_lastVertexOffset;
+
+	return offset;
 }
 
 bool Model::Initialize(ID3D11Device* device)
@@ -39,7 +112,7 @@ void Model::Render(ID3D11DeviceContext* deviceContext)
 
 int Model::GetIndexCount()
 {
-	return m_indexCount;
+	return m_totalIndexCount;
 }
 
 bool Model::InitializeBuffers(ID3D11Device* device)
@@ -54,93 +127,14 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 
 	HRESULT result;
 
-	Terrain plainTerrain;
-	MeshData meshData;
-	plainTerrain.CreatePlane(560.0f, 560.0f, 150, 150, meshData);
-
-	m_vertexCount = meshData.Vertices.size();
-	m_indexCount = meshData.Indices.size();
-
-	//Plain Terrain
-	std::vector<VertexType> vertices(meshData.Vertices.size());
-	for (size_t i = 0; i < meshData.Vertices.size(); ++i)
-	{
-		XMFLOAT3 position = meshData.Vertices[i].Position;
-		position.y = 0.3f*(position.z*sinf(0.1f*position.x) + position.x*cosf(0.1f*position.z));
-
-		vertices[i].position = position;
-		if (position.y < -10.0f)
-		{
-			vertices[i].color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
-		}
-		else if (position.y < 5.0f)
-		{
-			vertices[i].color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-		}
-		else if (position.y < 12.0f)
-		{
-			vertices[i].color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
-		}
-		else if (position.y < 20.0f)
-		{
-			vertices[i].color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
-		}
-		else
-		{
-			vertices[i].color = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
-		}
-	}
-
-	//Box
-	/* 
-	VertexType vertices[8];
-
-	vertices[0] = { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)};
-	vertices[1] = { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
-	vertices[2] = { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) };
-	vertices[3] = { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) };
-	vertices[4] = { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) };
-	vertices[5] = { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) };
-	vertices[6] = { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) };
-	vertices[7] = { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) };
-
-	UINT indices[] = {
-
-		0, 1, 2,
-		0, 2, 3,
-
-		4, 6, 5,
-		4, 7, 6,
-
-		4, 5, 1,
-		4, 1, 0,
-		
-		3, 2, 6,
-		3, 6, 7,
-		
-		1, 5, 6,
-		1, 6, 2,
-
-		4, 0, 3,
-		4, 3, 7
-	}; // 36 indices
-	*/
-
-	std::vector<UINT> indices(m_indexCount);
-	for (size_t i = 0; i < m_indexCount; ++i)
-	{
-		indices[i] = meshData.Indices[i];
-	}
-
-
 	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	vertexBufferDesc.ByteWidth = sizeof(VertexType)* m_vertexCount;
+	vertexBufferDesc.ByteWidth = sizeof(VertexType)* m_totalVertexCount;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 
-	vertexData.pSysMem = &vertices[0];
+	vertexData.pSysMem = &m_totalVertex[0];
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -151,13 +145,13 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	}
 
 	indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	indexBufferDesc.ByteWidth = sizeof(unsigned int) * m_indexCount;
+	indexBufferDesc.ByteWidth = sizeof(unsigned int) * m_totalIndexCount;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
 	indexBufferDesc.StructureByteStride = 0;
 
-	indexData.pSysMem = &indices[0];
+	indexData.pSysMem = &m_totalIndex[0];
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 

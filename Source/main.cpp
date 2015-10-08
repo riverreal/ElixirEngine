@@ -24,7 +24,7 @@ public:
 	void OnMouseMove(WPARAM btnState, int x, int y) override;
 private:
 	Camera m_camera;
-	Model m_box;
+	Model m_shapes;
 	ColorShader m_colorShader;
 
 	float m_radius;
@@ -32,6 +32,18 @@ private:
 	float m_theta;
 
 	POINT m_lastMousePos;
+
+	//plain data
+	DirectX::XMMATRIX m_plainWorld;
+	offsetData m_plainOffset;
+
+	//box data
+	DirectX::XMMATRIX m_boxWorld;
+	offsetData m_boxOffset;
+
+	//sphere data
+	DirectX::XMMATRIX m_sphereWorld;
+	offsetData m_sphereOffset;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
@@ -51,7 +63,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 	:BaseApp(instance, width, height),
-	m_box(BasicModel::MODEL_TYPE_PLAIN),
 	m_radius(0),
 	m_phi(0),
 	m_theta(0)
@@ -61,7 +72,7 @@ SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 SimpleApp::~SimpleApp()
 {
 	m_colorShader.Shutdown();
-	m_box.Shutdown();
+	m_shapes.Shutdown();
 }
 
 bool SimpleApp::Init()
@@ -72,9 +83,16 @@ bool SimpleApp::Init()
 	}
 	//additional init
 
-	m_camera.SetPosition(0.0f, 130.0f, -130.0f);
+	m_camera.SetPosition(0.0f, 10.0f, -30.0f);
 
-	if (!m_box.Initialize(m_d3dDevice))
+	m_plainOffset = m_shapes.AddGeometry(MODEL_TYPE_PLAIN);
+	m_plainWorld = XMMatrixIdentity();
+	m_boxOffset = m_shapes.AddGeometry(MODEL_TYPE_CUBE);
+	m_boxWorld = XMMatrixIdentity();
+	m_sphereOffset = m_shapes.AddGeometry(MODEL_TYPE_SPHERE);
+	m_sphereWorld = XMMatrixIdentity();
+
+	if (!m_shapes.Initialize(m_d3dDevice))
 	{
 		return false;
 	}
@@ -112,9 +130,17 @@ void SimpleApp::Draw()
 	m_camera.Render();
 	m_camera.GetViewMatrix(m_view);
 
-	m_box.Render(m_d3dDeviceContext);
-	m_colorShader.Render(m_d3dDeviceContext, m_box.GetIndexCount(), m_worldMatrix, m_view, m_projectionMatrix);
+	m_shapes.Render(m_d3dDeviceContext);
 
+	m_d3dDeviceContext->RSSetState(m_wireFrameRS);
+	//render plain
+	m_colorShader.Render(m_d3dDeviceContext, m_plainWorld, m_view, m_projectionMatrix, m_plainOffset.indexCount, m_plainOffset.indexOffset, m_plainOffset.vertexOffset);
+	//render box
+	m_colorShader.Render(m_d3dDeviceContext, m_boxWorld, m_view, m_projectionMatrix, m_boxOffset.indexCount, m_boxOffset.indexOffset, m_boxOffset.vertexOffset);
+	//render Sphere
+	m_colorShader.Render(m_d3dDeviceContext, m_sphereWorld, m_view, m_projectionMatrix, m_sphereOffset.indexCount, m_sphereOffset.indexOffset, m_sphereOffset.vertexOffset);
+
+	m_d3dDeviceContext->RSSetState(m_solidRS);
 
 	if (VSYNC_ENABLED)
 	{

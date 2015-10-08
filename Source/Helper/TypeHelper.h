@@ -4,6 +4,7 @@
 #include <vector>
 
 typedef unsigned int UINT;
+typedef unsigned long DWORD;
 
 struct Vertex
 {
