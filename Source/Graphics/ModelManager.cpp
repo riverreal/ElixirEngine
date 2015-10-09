@@ -37,7 +37,7 @@ offsetData Model::AddGeometry(int modelType)
 		shapes.CreateCube(1.0f, 1.0f, 1.0f, meshData);
 		break;
 	case MODEL_TYPE_CYLINDER:
-		shapes.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20, meshData);
+		shapes.CreateCylinder(0.15f, 0.15f, 3.0f, 10, 10, meshData);
 		break;
 	case MODEL_TYPE_GEOSPHERE:
 		break;

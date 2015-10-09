@@ -30,6 +30,13 @@ private:
 	float m_radius;
 	float m_phi;
 	float m_theta;
+	float m_cameraX;
+	float m_cameraY;
+	float m_cameraZ;
+	float m_cameraXVel;
+	float m_cameraZVel;
+	float m_radiusVel;
+	float m_movementAngle;
 
 	POINT m_lastMousePos;
 
@@ -41,7 +48,15 @@ private:
 	DirectX::XMMATRIX m_boxWorld;
 	offsetData m_boxOffset;
 
-	//sphere data
+	//Cylinders data
+	DirectX::XMMATRIX m_cylinderWorld[10];
+	offsetData m_cylinderOffset[10];
+
+	//spheres data
+	DirectX::XMMATRIX m_spheresWorld[10];
+	offsetData m_spheresOffset[10];
+
+	//center sphere data
 	DirectX::XMMATRIX m_sphereWorld;
 	offsetData m_sphereOffset;
 };
@@ -65,7 +80,14 @@ SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 	:BaseApp(instance, width, height),
 	m_radius(0),
 	m_phi(0),
-	m_theta(0)
+	m_theta(0),
+	m_cameraX(0),
+	m_cameraY(0),
+	m_cameraZ(0),
+	m_cameraXVel(0),
+	m_cameraZVel(0),
+	m_radiusVel(0),
+	m_movementAngle(0)
 {
 }
 
@@ -83,14 +105,42 @@ bool SimpleApp::Init()
 	}
 	//additional init
 
-	m_camera.SetPosition(0.0f, 10.0f, -30.0f);
-
+	m_cameraX = 0.0f;
+	m_cameraY = 7.0f;
+	m_cameraZ = -15.0f;
+	m_radius = 30.0f;
+	m_cameraXVel = 5.0f;
+	m_cameraZVel = 5.0f;
+	m_radiusVel = 28.8f;
+	m_movementAngle = 5.0f;
+	
 	m_plainOffset = m_shapes.AddGeometry(MODEL_TYPE_PLAIN);
 	m_plainWorld = XMMatrixIdentity();
+
 	m_boxOffset = m_shapes.AddGeometry(MODEL_TYPE_CUBE);
-	m_boxWorld = XMMatrixIdentity();
+	XMMATRIX boxScale = XMMatrixScaling(3.0f, 1.0f, 3.0f);
+	XMMATRIX boxOffset = XMMatrixTranslation(0.0f, 0.5f, 0.0f);
+	m_boxWorld = XMMatrixMultiply(boxScale, boxOffset);
+
 	m_sphereOffset = m_shapes.AddGeometry(MODEL_TYPE_SPHERE);
-	m_sphereWorld = XMMatrixIdentity();
+	XMMATRIX sphereScale = XMMatrixScaling(2.0f, 2.0f, 2.0f);
+	XMMATRIX sphereOffset = XMMatrixTranslation(0.0f, 2.0f, 0.0f);
+	m_sphereWorld = XMMatrixMultiply(sphereScale, sphereOffset);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		m_spheresOffset[i] = m_shapes.AddGeometry(MODEL_TYPE_SPHERE);
+		m_cylinderOffset[i] = m_shapes.AddGeometry(MODEL_TYPE_CYLINDER);
+	}
+
+	for (int i = 0; i < 5; ++i)
+	{
+		m_cylinderWorld[i * 2 + 0] = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + i*5.0f);
+		m_cylinderWorld[i * 2 + 1] = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + i*5.0f);
+
+		m_spheresWorld[i * 2 + 0] = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i*5.0f);
+		m_spheresWorld[i * 2 + 1] = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i*5.0f);
+	}
 
 	if (!m_shapes.Initialize(m_d3dDevice))
 	{
@@ -107,11 +157,23 @@ bool SimpleApp::Init()
 
 void SimpleApp::Update(float dt)
 {
-	float x = m_radius;
-	float z = m_phi;
-	float y = m_theta;
+	m_theta -= m_radiusVel*dt;
+	float rx = m_radius;
+	float rz = m_phi;
+	float ry = m_theta;
 
-	m_camera.SetRotation(x, y, z);
+	m_camera.SetRotation(rx, ry, rz);
+
+
+	float r = 15.0f;
+	float angleVel = 0.5f;
+
+	m_movementAngle += angleVel * dt;
+
+	m_cameraX = cosf(m_movementAngle) * r;
+	m_cameraZ = sinf(m_movementAngle) * r;
+
+	m_camera.SetPosition(m_cameraX, m_cameraY, m_cameraZ);
 }
 
 void SimpleApp::Draw()
@@ -139,6 +201,12 @@ void SimpleApp::Draw()
 	m_colorShader.Render(m_d3dDeviceContext, m_boxWorld, m_view, m_projectionMatrix, m_boxOffset.indexCount, m_boxOffset.indexOffset, m_boxOffset.vertexOffset);
 	//render Sphere
 	m_colorShader.Render(m_d3dDeviceContext, m_sphereWorld, m_view, m_projectionMatrix, m_sphereOffset.indexCount, m_sphereOffset.indexOffset, m_sphereOffset.vertexOffset);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		m_colorShader.Render(m_d3dDeviceContext, m_spheresWorld[i], m_view, m_projectionMatrix, m_spheresOffset[i].indexCount, m_spheresOffset[i].indexOffset, m_spheresOffset[i].vertexOffset);
+		m_colorShader.Render(m_d3dDeviceContext, m_cylinderWorld[i], m_view, m_projectionMatrix, m_cylinderOffset[i].indexCount, m_cylinderOffset[i].indexOffset, m_cylinderOffset[i].vertexOffset);
+	}
 
 	m_d3dDeviceContext->RSSetState(m_solidRS);
 
