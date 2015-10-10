@@ -1,4 +1,8 @@
 #include "ModelManager.h"
+#include "../Helper/GeneralHelper.h"
+#include <fstream>
+#include <string>
+#include <iostream>
 
 using namespace DirectX;
 
@@ -40,6 +44,7 @@ offsetData Model::AddGeometry(int modelType)
 		shapes.CreateCylinder(0.15f, 0.15f, 3.0f, 10, 10, meshData);
 		break;
 	case MODEL_TYPE_GEOSPHERE:
+		shapes.CreateGeosphere(0.5f, 2, meshData);
 		break;
 	case MODEL_TYPE_PLAIN:
 		plainTerrain.CreatePlane(20.0f, 30.0f, 60, 40, meshData);
@@ -84,6 +89,85 @@ offsetData Model::AddGeometry(int modelType)
 	m_lastVertexSize = vertices.size();
 
 	offset.indexCount = currentIndexCount;
+	offset.indexOffset = m_lastIndexOffset;
+	offset.vertexOffset = m_lastVertexOffset;
+
+	return offset;
+}
+
+offsetData Model::AddCustomGeometry(std::wstring fileName)
+{
+	offsetData offset;
+	UINT vertexCount = 0;
+	UINT trianglesCount = 0;
+	std::string ignore;
+	std::ifstream fin;
+	UINT indexCount;
+
+	std::string str_fileName(fileName.begin(), fileName.end());
+	//Get Data from File
+	fin.open(str_fileName);
+	LPCWSTR errorMsg = L"Not Found";
+
+	if (!fin)
+	{
+		MessageBox(0, fileName.c_str(), errorMsg, 0);
+		return offset;
+	}
+
+	fin >> ignore >> vertexCount;
+	fin >> ignore >> trianglesCount;
+	fin >> ignore >> ignore >> ignore >> ignore;
+
+	std::cout << vertexCount;
+
+	float nx, ny, nz;
+	XMFLOAT4 black(0.0f, 0.0f, 0.0f, 1.0f);
+
+	std::vector<VertexType> vertices(vertexCount);
+	for (UINT i = 0; i < vertexCount; ++i)
+	{
+		fin >> vertices[i].position.x >> vertices[i].position.y >> vertices[i].position.z;
+
+		vertices[i].color = black;
+
+		fin >> nx >> ny >> nz; //normals
+
+		m_totalVertex.push_back(vertices[i]);
+	}
+
+	fin >> ignore;
+	fin >> ignore;
+	fin >> ignore;
+
+	indexCount = 3 * trianglesCount;
+	std::vector<UINT> indices(indexCount);
+	for (UINT i = 0; i < trianglesCount; ++i)
+	{
+		fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
+	}
+
+	for (UINT i = 0; i < indexCount; ++i)
+	{
+		m_totalIndex.push_back(indices[i]);
+	}
+
+	fin.close();
+
+	//get the vertex and index count
+	m_totalVertexCount += vertexCount;
+	m_totalIndexCount += indexCount;
+
+	//get the index offset
+	m_lastIndexOffset += m_lastIndexSize;
+	m_lastIndexSize = indices.size();
+
+	//get the vertex offset
+	m_lastVertexOffset += m_lastVertexSize;
+	m_lastVertexSize = vertices.size();
+
+	//Calculate Offset
+	offset.indexCount = indexCount;
 	offset.indexOffset = m_lastIndexOffset;
 	offset.vertexOffset = m_lastVertexOffset;
 
@@ -184,4 +268,3 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
-

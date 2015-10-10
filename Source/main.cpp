@@ -59,6 +59,10 @@ private:
 	//center sphere data
 	DirectX::XMMATRIX m_sphereWorld;
 	offsetData m_sphereOffset;
+
+	//skull data
+	DirectX::XMMATRIX m_skullWorld;
+	offsetData m_skullOffset;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
@@ -108,7 +112,8 @@ bool SimpleApp::Init()
 	m_cameraX = 0.0f;
 	m_cameraY = 7.0f;
 	m_cameraZ = -15.0f;
-	m_radius = 30.0f;
+	m_radius = 25.0f;
+	m_theta = -14.0f;
 	m_cameraXVel = 5.0f;
 	m_cameraZVel = 5.0f;
 	m_radiusVel = 28.8f;
@@ -126,6 +131,11 @@ bool SimpleApp::Init()
 	XMMATRIX sphereScale = XMMatrixScaling(2.0f, 2.0f, 2.0f);
 	XMMATRIX sphereOffset = XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 	m_sphereWorld = XMMatrixMultiply(sphereScale, sphereOffset);
+
+	m_skullOffset = m_shapes.AddCustomGeometry(L"Resources/skull.txt");
+	XMMATRIX skullScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	XMMATRIX skullOffset = XMMatrixTranslation(0.0f, 1.8f, 0.0f);
+	m_skullWorld = XMMatrixMultiply(skullScale, skullOffset);
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -194,16 +204,21 @@ void SimpleApp::Draw()
 
 	m_shapes.Render(m_d3dDeviceContext);
 
+	//Render in wireFrame
 	m_d3dDeviceContext->RSSetState(m_wireFrameRS);
+	
 	//render plain
 	m_colorShader.Render(m_d3dDeviceContext, m_plainWorld, m_view, m_projectionMatrix, m_plainOffset.indexCount, m_plainOffset.indexOffset, m_plainOffset.vertexOffset);
 	//render box
 	m_colorShader.Render(m_d3dDeviceContext, m_boxWorld, m_view, m_projectionMatrix, m_boxOffset.indexCount, m_boxOffset.indexOffset, m_boxOffset.vertexOffset);
 	//render Sphere
-	m_colorShader.Render(m_d3dDeviceContext, m_sphereWorld, m_view, m_projectionMatrix, m_sphereOffset.indexCount, m_sphereOffset.indexOffset, m_sphereOffset.vertexOffset);
+	//m_colorShader.Render(m_d3dDeviceContext, m_sphereWorld, m_view, m_projectionMatrix, m_sphereOffset.indexCount, m_sphereOffset.indexOffset, m_sphereOffset.vertexOffset);
+	//render skull
+	m_colorShader.Render(m_d3dDeviceContext, m_skullWorld, m_view, m_projectionMatrix, m_skullOffset.indexCount, m_skullOffset.indexOffset, m_skullOffset.vertexOffset);
 
 	for (int i = 0; i < 10; ++i)
 	{
+		//render 10 of each: Spheres and Cylinders
 		m_colorShader.Render(m_d3dDeviceContext, m_spheresWorld[i], m_view, m_projectionMatrix, m_spheresOffset[i].indexCount, m_spheresOffset[i].indexOffset, m_spheresOffset[i].vertexOffset);
 		m_colorShader.Render(m_d3dDeviceContext, m_cylinderWorld[i], m_view, m_projectionMatrix, m_cylinderOffset[i].indexCount, m_cylinderOffset[i].indexOffset, m_cylinderOffset[i].vertexOffset);
 	}

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Helper/GeneralHelper.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "Terrain.h"
@@ -31,6 +30,7 @@ public:
 	~Model();
 
 	offsetData AddGeometry(int modelType);
+	offsetData AddCustomGeometry(std::wstring fileName);
 	bool Initialize(ID3D11Device* device);
 	void Shutdown();
 	void Render(ID3D11DeviceContext* deviceContext);

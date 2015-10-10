@@ -171,6 +171,9 @@ void BasicShapes::CreateGeosphere(float radius, UINT numSubdivisions, MeshData& 
 		10,1,6, 11,0,9,  2,11,9, 5,2,9, 11,2,7
 	};
 
+	meshData.Vertices.resize(12);
+	meshData.Indices.resize(60);
+
 	for (UINT i = 0; i < 12; ++i)
 	{
 		meshData.Vertices[i].Position = pos[i];
@@ -350,6 +353,16 @@ void BasicShapes::Subdivide(MeshData& meshData)
 
 	meshData.Vertices.resize(0);
 	meshData.Indices.resize(0);
+
+	//       v1
+	//       *
+	//      / \
+	//     /   \
+	//  m0*-----*m1
+	//   / \   / \
+	//  /   \ /   \
+	// *-----*-----*
+	// v0    m2     v2
 
 	UINT numTris = inputCopy.Indices.size() / 3;
 
