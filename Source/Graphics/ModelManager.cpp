@@ -64,12 +64,12 @@ offsetData Model::AddGeometry(int modelType)
 	m_totalVertexCount += meshData.Vertices.size();
 	m_totalIndexCount += meshData.Indices.size();
 
-	std::vector<VertexType> vertices(currentVertexCount);
+	std::vector<Vertex> vertices(currentVertexCount);
 	for (size_t i = 0; i < currentVertexCount; ++i)
 	{
 		XMFLOAT3 position = meshData.Vertices[i].Position;
-		vertices[i].position = position;
-		vertices[i].color = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+		vertices[i].Position = position;
+		vertices[i].Normal = meshData.Vertices[i].Normal;
 		m_totalVertex.push_back(vertices[i]);
 	}
 
@@ -124,14 +124,14 @@ offsetData Model::AddCustomGeometry(std::wstring fileName)
 	float nx, ny, nz;
 	XMFLOAT4 black(0.0f, 0.0f, 0.0f, 1.0f);
 
-	std::vector<VertexType> vertices(vertexCount);
+	std::vector<Vertex> vertices(vertexCount);
 	for (UINT i = 0; i < vertexCount; ++i)
 	{
-		fin >> vertices[i].position.x >> vertices[i].position.y >> vertices[i].position.z;
-
-		vertices[i].color = black;
+		fin >> vertices[i].Position.x >> vertices[i].Position.y >> vertices[i].Position.z;
 
 		fin >> nx >> ny >> nz; //normals
+
+		vertices[i].Normal = XMFLOAT3(nx,ny,nz);
 
 		m_totalVertex.push_back(vertices[i]);
 	}
@@ -212,7 +212,7 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	HRESULT result;
 
 	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	vertexBufferDesc.ByteWidth = sizeof(VertexType)* m_totalVertexCount;
+	vertexBufferDesc.ByteWidth = sizeof(Vertex)* m_totalVertexCount;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
@@ -259,7 +259,7 @@ void Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	UINT stride;
 	UINT offset;
 
-	stride = sizeof(VertexType);
+	stride = sizeof(Vertex);
 	offset = 0;
 
 	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);

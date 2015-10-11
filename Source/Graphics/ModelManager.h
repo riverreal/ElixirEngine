@@ -42,21 +42,13 @@ private:
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext* deviceContext);
 
-	struct VertexType
-	{
-		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT4 color;
-	};
-
-	
-
 private:
 	int m_modelType;
 	ID3D11Buffer* m_vertexBuffer;
 	ID3D11Buffer* m_indexBuffer;
 	int m_totalVertexCount;
 	int m_totalIndexCount;
-	std::vector<VertexType> m_totalVertex;
+	std::vector<Vertex> m_totalVertex;
 	std::vector<UINT> m_totalIndex;
 
 	UINT m_lastVertexOffset;
