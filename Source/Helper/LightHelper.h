@@ -16,6 +16,47 @@ struct DirectionalLight
 	float pad;
 };
 
+struct PointLight
+{
+	PointLight() { ZeroMemory(this, sizeof(this)); }
+
+	XMFLOAT4 Ambient;
+	XMFLOAT4 Diffuse;
+	XMFLOAT4 Specular;
+
+	XMFLOAT3 Position;
+	float Range;
+
+	XMFLOAT3 Att;
+	float pad;
+};
+
+struct SpotLight
+{
+	SpotLight() { ZeroMemory(this, sizeof(this)); }
+
+	XMFLOAT4 Ambient;
+	XMFLOAT4 Diffuse;
+	XMFLOAT4 Specular;
+
+	XMFLOAT3 Position;
+	float Range;
+
+	XMFLOAT3 Direction;
+	float Spot;
+
+	XMFLOAT3 Att;
+	float pad;
+};
+
+struct BasicLight
+{
+	BasicLight() { ZeroMemory(this, sizeof(this)); }
+	DirectionalLight Directional;
+	PointLight Point;
+	SpotLight Spot;
+};
+
 struct Material
 {
 	Material() { ZeroMemory(this, sizeof(this)); }

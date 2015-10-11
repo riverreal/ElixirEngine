@@ -43,12 +43,12 @@ void LightShader::Shutdown()
 }
 
 bool LightShader::Render(ID3D11DeviceContext* deviceContext,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, DirectionalLight dirLight, XMFLOAT3 eyePos,
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos,
 	UINT indexCount, UINT indexOffset, UINT vertexOffset)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, world, view, proj, dirLight, eyePos);
+	result = SetShaderParameters(deviceContext, world, view, proj, lightData, eyePos);
 	if (!result)
 	{
 		return false;
@@ -130,7 +130,7 @@ void LightShader::ShutdownShader()
 }
 
 bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, DirectionalLight dirLight, XMFLOAT3 eyePos)
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -173,7 +173,9 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	}
 
 	dataPtr2 = (LightBuffer*)mappedResource.pData;
-	dataPtr2->dirLight = dirLight;
+	dataPtr2->dirLight = lightData.Directional;
+	dataPtr2->pointLight = lightData.Point;
+	dataPtr2->spotLight = lightData.Spot;
 	dataPtr2->eyePos = eyePos;
 	dataPtr2->material = m_material;
 

@@ -15,7 +15,7 @@ public:
 	bool Initialize(ID3D11Device* device, HWND window, Material material);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world, 
-		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, DirectionalLight dirLight, DirectX::XMFLOAT3 eyePos,
+		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, DirectX::XMFLOAT3 eyePos,
 		UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0);
 
 private:
@@ -23,10 +23,10 @@ private:
 	void ShutdownShader();
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world,
-		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, DirectionalLight dirLight, DirectX::XMFLOAT3 eyePos);
+		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, DirectX::XMFLOAT3 eyePos);
 	void RenderShader(ID3D11DeviceContext* deviceContext, UINT indexCount, UINT indexOffset, UINT vertexOffset);
 
-	struct MatrixBuffer
+	struct MatrixBuffer //Used in Vertex Shader
 	{
 		DirectX::XMMATRIX world;
 		DirectX::XMMATRIX view;
@@ -34,9 +34,11 @@ private:
 		DirectX::XMFLOAT4X4 worldInvTranspose;
 	};
 
-	struct LightBuffer
+	struct LightBuffer //Used in Pixel Shader
 	{
 		DirectionalLight dirLight;
+		PointLight pointLight;
+		SpotLight spotLight;
 		Material material;
 		DirectX::XMFLOAT3 eyePos;
 		float pad;

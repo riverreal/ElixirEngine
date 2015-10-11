@@ -46,12 +46,11 @@ private:
 
 	POINT m_lastMousePos;
 
-	//DirLight
-	DirectionalLight m_dirLight;
+	//Light
+	BasicLight m_basicLight;
 
 	//Materials
 	Material m_simpleMaterial;
-	
 
 	//plain data
 	DirectX::XMMATRIX m_plainWorld;
@@ -177,10 +176,19 @@ bool SimpleApp::Init()
 	m_simpleMaterial.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 	m_simpleMaterial.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f);
 
-	m_dirLight.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	m_dirLight.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
-	m_dirLight.Specular = XMFLOAT4(0.75f, 0.75f, 0.75f, 1.0f);
-	m_dirLight.Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
+	m_basicLight.Directional.Ambient = XMFLOAT4(0.05f, 0.05f, 0.052f, 1.0f);
+	m_basicLight.Directional.Diffuse = XMFLOAT4(0.4f, 0.4f, 0.45f, 1.0f);
+	m_basicLight.Directional.Specular = XMFLOAT4(0.35f, 0.35f, 0.35f, 1.0f);
+	m_basicLight.Directional.Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
+
+	m_basicLight.Spot.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	m_basicLight.Spot.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_basicLight.Spot.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_basicLight.Spot.Att = XMFLOAT3(0.3f, 0.0f, 0.0f);
+	m_basicLight.Spot.Spot = 96.0f;
+	m_basicLight.Spot.Range = 1000.0f;
+	m_basicLight.Spot.Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
+	//m_basicLight.Spot.Position = XMFLOAT3(0.0f, 10.0f, 10.0f);
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -240,6 +248,9 @@ void SimpleApp::Update(float dt)
 	m_camera.SetRotation(rx, ry, rz);
 
 
+	XMVECTOR pos = XMVectorSet(m_cameraX, m_cameraY, m_cameraZ, 1.0f);
+	XMVECTOR target = XMVectorZero();
+
 	float r = 15.0f;
 	float angleVel = 0.5f;
 
@@ -259,6 +270,28 @@ void SimpleApp::Update(float dt)
 	XMMATRIX skullScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
 	XMMATRIX skullOffset = XMMatrixTranslation(0.0f, 1.8f, 0.0f);
 	m_skullWorld = XMMatrixMultiply(skullScale, XMMatrixMultiply(skullOffset, skullRotation));
+
+
+	float yaw, pitch, roll;
+	XMMATRIX rotationMatrix;
+	XMFLOAT3 lookAt;
+
+	lookAt.x = 0.0f;
+	lookAt.y = 0.0f;
+	lookAt.z = 1.0f;
+
+	target = XMLoadFloat3(&lookAt);
+	pitch = rx * 0.0174532925f;
+	yaw = ry * 0.0174532925f;
+	roll = rz * 0.0174532925f;
+
+	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
+	target = XMVector3TransformCoord(target, rotationMatrix);
+
+	//m_basicLight.Spot.Direction = XMFLOAT3(rx* 0.0174532925f, ry* 0.0174532925f, rz* 0.0174532925f);
+	m_basicLight.Spot.Position = XMFLOAT3(m_cameraX, m_cameraY, m_cameraZ);
+	XMStoreFloat3(&m_basicLight.Spot.Direction, XMVector3Normalize(target - pos));
+	//m_basicLight.Spot.Direction = m_camera.GetRotation();
 }
 
 void SimpleApp::Draw()
@@ -266,7 +299,7 @@ void SimpleApp::Draw()
 	assert(m_d3dDeviceContext);
 	assert(m_swapChain);
 
-	float color[4] = {255, 255, 255, 255};
+	float color[4] = {0, 0, 0, 255};
 
 	m_d3dDeviceContext->ClearRenderTargetView(m_renderTargetView, color);
 
@@ -284,21 +317,21 @@ void SimpleApp::Draw()
 	
 	
 	//render plain
-	m_colorShader.Render(m_d3dDeviceContext, m_plainWorld, m_view, m_projectionMatrix, m_dirLight, m_camera.GetPosition(), m_plainOffset.indexCount, m_plainOffset.indexOffset, m_plainOffset.vertexOffset);
+	m_colorShader.Render(m_d3dDeviceContext, m_plainWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_plainOffset.indexCount, m_plainOffset.indexOffset, m_plainOffset.vertexOffset);
 	//render box
-	m_boxShader.Render(m_d3dDeviceContext, m_boxWorld, m_view, m_projectionMatrix, m_dirLight, m_camera.GetPosition(), m_boxOffset.indexCount, m_boxOffset.indexOffset, m_boxOffset.vertexOffset);
+	m_boxShader.Render(m_d3dDeviceContext, m_boxWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_boxOffset.indexCount, m_boxOffset.indexOffset, m_boxOffset.vertexOffset);
 	//render Sphere
 	//m_colorShader.Render(m_d3dDeviceContext, m_sphereWorld, m_view, m_projectionMatrix, m_sphereOffset.indexCount, m_sphereOffset.indexOffset, m_sphereOffset.vertexOffset);
 
 	for (int i = 0; i < 10; ++i)
 	{
 		//render 10 of each: Spheres and Cylinders
-		m_sphereShader.Render(m_d3dDeviceContext, m_spheresWorld[i], m_view, m_projectionMatrix, m_dirLight, m_camera.GetPosition(), m_spheresOffset[i].indexCount, m_spheresOffset[i].indexOffset, m_spheresOffset[i].vertexOffset);
-		m_cylinderShader.Render(m_d3dDeviceContext, m_cylinderWorld[i], m_view, m_projectionMatrix, m_dirLight, m_camera.GetPosition(), m_cylinderOffset[i].indexCount, m_cylinderOffset[i].indexOffset, m_cylinderOffset[i].vertexOffset);
+		m_sphereShader.Render(m_d3dDeviceContext, m_spheresWorld[i], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_spheresOffset[i].indexCount, m_spheresOffset[i].indexOffset, m_spheresOffset[i].vertexOffset);
+		m_cylinderShader.Render(m_d3dDeviceContext, m_cylinderWorld[i], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_cylinderOffset[i].indexCount, m_cylinderOffset[i].indexOffset, m_cylinderOffset[i].vertexOffset);
 	}
 	
 	//m_d3dDeviceContext->RSSetState(m_solidRS);
-	m_lightShader.Render(m_d3dDeviceContext, m_skullWorld, m_view, m_projectionMatrix, m_dirLight, m_camera.GetPosition(), m_skullOffset.indexCount, m_skullOffset.indexOffset, m_skullOffset.vertexOffset);
+	m_lightShader.Render(m_d3dDeviceContext, m_skullWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_skullOffset.indexCount, m_skullOffset.indexOffset, m_skullOffset.vertexOffset);
 	
 
 	if (VSYNC_ENABLED)

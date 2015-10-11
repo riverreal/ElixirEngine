@@ -3,14 +3,12 @@
 cbuffer LightBuffer
 {
 	DirectionalLight gDirLight;
+	PointLight gPointLight;
+	SpotLight gSpotLight;
 	Material gMaterial;
 	float3 gEyePosW;
+	
 	float pad;
-};
-
-cbuffer cbPerObject
-{
-	//Material gMaterial;
 };
 
 struct PixelInputType
@@ -37,7 +35,16 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 	float4 A, D, S;
 	ComputeDirectionalLight(gMaterial, gDirLight, input.normalW, toEye, A, D, S);
+	ambient += A;
+	diffuse += D;
+	specular += S;
 
+	ComputePointLight(gMaterial, gPointLight, input.positionW, input.normalW, toEye, A, D, S);
+	ambient += A;
+	diffuse += D;
+	specular += S;
+
+	ComputeSpotLight(gMaterial, gSpotLight, input.positionW, input.normalW, toEye, A, D, S);
 	ambient += A;
 	diffuse += D;
 	specular += S;
