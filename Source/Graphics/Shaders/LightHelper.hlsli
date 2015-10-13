@@ -44,6 +44,26 @@ struct Material
 	float4 Reflect;
 };
 
+float CelShadingFunc(float factor)
+{
+	float newFactor = 0.0f;
+
+	if (factor <= 0.0f)
+	{
+		newFactor = 0.1;
+	}
+	else if (factor > 0.0f && factor <= 0.2f)
+	{
+		newFactor = 0.4;
+	}
+	else if (factor > 0.2f && factor <= 1.0f)
+	{
+		newFactor = 1.0f;
+	}
+
+	return newFactor;
+}
+
 void ComputeDirectionalLight(Material mat, DirectionalLight L,
 	float3 normal, float3 toEye,
 	out float4 ambient,
@@ -73,9 +93,14 @@ void ComputeDirectionalLight(Material mat, DirectionalLight L,
 		float3 v = reflect(-lightVec, normal);
 		float specFactor = pow(max(dot(v, toEye), 0.0f), mat.Specular.w);
 
+		//cel shading
+		//diffuseFactor = CelShadingFunc(diffuseFactor);
+		//specFactor = CelShadingFunc(specFactor);
+
 		diffuse = diffuseFactor * mat.Diffuse * L.Diffuse;
 		spec = specFactor * mat.Specular * L.Specular;
 	}
+	
 }
 
 void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, float3 toEye,
@@ -119,7 +144,8 @@ void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, fl
 	}
 
 	// Attenuate
-	float att = 1.0f / dot(L.Att, float3(1.0f, d, d*d));
+	//float att = 1.0f / dot(L.Att, float3(1.0f, d, d*d));
+	float att = clamp(1.0f - d*d / (L.Range*L.Range), 0.0f, 1.0f);
 
 	diffuse *= att;
 	spec *= att;
@@ -175,3 +201,4 @@ void ComputeSpotLight(Material mat, SpotLight L, float3 pos, float3 normal, floa
 	diffuse *= att;
 	spec *= att;
 }
+

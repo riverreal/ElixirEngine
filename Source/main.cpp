@@ -31,6 +31,7 @@ private:
 	LightShader m_boxShader;
 	LightShader m_cylinderShader;
 	LightShader m_sphereShader;
+	
 
 	float m_radius;
 	float m_phi;
@@ -43,6 +44,7 @@ private:
 	float m_radiusVel;
 	float m_movementAngle;
 	float m_skullAngle;
+	XMFLOAT3 m_pointBulbPos;
 
 	POINT m_lastMousePos;
 
@@ -68,8 +70,8 @@ private:
 	Material m_cylinderMaterial;
 
 	//spheres data
-	DirectX::XMMATRIX m_spheresWorld[10];
-	offsetData m_spheresOffset[10];
+	DirectX::XMMATRIX m_spheresWorld[11];
+	offsetData m_spheresOffset[11];
 	Material m_sphereMaterial;
 
 	//center sphere data
@@ -137,9 +139,17 @@ bool SimpleApp::Init()
 	m_radiusVel = 28.8f;
 	m_movementAngle = 5.0f;
 	m_skullAngle = 5.0f;
-	
+	m_pointBulbPos.x = 0.0f;
+	m_pointBulbPos.y = 5.0f;
+	m_pointBulbPos.z = 5.0f;
+
 	m_plainOffset = m_shapes.AddGeometry(MODEL_TYPE_PLAIN);
 	m_plainWorld = XMMatrixIdentity();
+
+	m_spheresOffset[10] = m_shapes.AddGeometry(MODEL_TYPE_GEOSPHERE);
+	XMMATRIX plbScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	XMMATRIX plbPos = XMMatrixTranslation(m_pointBulbPos.x, m_pointBulbPos.y, m_pointBulbPos.z);
+	m_spheresWorld[10] = XMMatrixMultiply(plbScale, plbPos);
 
 	m_boxOffset = m_shapes.AddGeometry(MODEL_TYPE_CUBE);
 	XMMATRIX boxScale = XMMatrixScaling(3.0f, 1.0f, 3.0f);
@@ -156,9 +166,10 @@ bool SimpleApp::Init()
 	XMMATRIX skullOffset = XMMatrixTranslation(0.0f, 1.8f, 0.0f);
 	m_skullWorld = XMMatrixMultiply(skullScale, skullOffset);
 
-	m_boxMaterial.Ambient = XMFLOAT4(0.651f, 0.5f, 0.392f, 1.0f);
-	m_boxMaterial.Diffuse = XMFLOAT4(0.651f, 0.5f, 0.392f, 1.0f);
-	m_boxMaterial.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+	//Material data
+	m_boxMaterial.Ambient = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
+	m_boxMaterial.Diffuse = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
+	m_boxMaterial.Specular = XMFLOAT4(1.0f, 0.5f, 0.5f, 6.0f);
 
 	m_sphereMaterial.Ambient = XMFLOAT4(0.5f, 0.5f, 0.1f, 1.0f);
 	m_sphereMaterial.Diffuse = XMFLOAT4(0.8f, 0.7f, 0.3f, 1.0f);
@@ -176,20 +187,29 @@ bool SimpleApp::Init()
 	m_simpleMaterial.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 	m_simpleMaterial.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f);
 
-	m_basicLight.Directional.Ambient = XMFLOAT4(0.05f, 0.05f, 0.052f, 1.0f);
-	m_basicLight.Directional.Diffuse = XMFLOAT4(0.4f, 0.4f, 0.45f, 1.0f);
+	//light data
+	m_basicLight.Directional.Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	m_basicLight.Directional.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.55f, 1.0f);
 	m_basicLight.Directional.Specular = XMFLOAT4(0.35f, 0.35f, 0.35f, 1.0f);
 	m_basicLight.Directional.Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
-
+	/*
 	m_basicLight.Spot.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_basicLight.Spot.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_basicLight.Spot.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_basicLight.Spot.Att = XMFLOAT3(0.3f, 0.0f, 0.0f);
-	m_basicLight.Spot.Spot = 96.0f;
+	m_basicLight.Spot.Spot = 400.0f;
 	m_basicLight.Spot.Range = 1000.0f;
 	m_basicLight.Spot.Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
 	//m_basicLight.Spot.Position = XMFLOAT3(0.0f, 10.0f, 10.0f);
-
+	*/
+	/*
+	m_basicLight.Point.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	m_basicLight.Point.Diffuse = XMFLOAT4(0.0f, 0.1f, 1.0f, 1.0f);
+	m_basicLight.Point.Specular =XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	m_basicLight.Point.Att = XMFLOAT3(1.0f, 0.1f, 0.01f);
+	m_basicLight.Point.Range = 500.0f;
+	m_basicLight.Point.Position = XMFLOAT3(m_pointBulbPos);
+	*/
 	for (int i = 0; i < 10; ++i)
 	{
 		m_spheresOffset[i] = m_shapes.AddGeometry(MODEL_TYPE_SPHERE);
@@ -292,6 +312,13 @@ void SimpleApp::Update(float dt)
 	m_basicLight.Spot.Position = XMFLOAT3(m_cameraX, m_cameraY, m_cameraZ);
 	XMStoreFloat3(&m_basicLight.Spot.Direction, XMVector3Normalize(target - pos));
 	//m_basicLight.Spot.Direction = m_camera.GetRotation();
+
+	m_pointBulbPos.x = cosf(m_movementAngle) * r;
+	m_pointBulbPos.z = sinf(m_movementAngle) * r;
+	m_basicLight.Point.Position = XMFLOAT3(m_pointBulbPos);
+	XMMATRIX plbScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	XMMATRIX plbPos = XMMatrixTranslation(m_pointBulbPos.x, m_pointBulbPos.y, m_pointBulbPos.z);
+	m_spheresWorld[10] = XMMatrixMultiply(plbScale, plbPos);
 }
 
 void SimpleApp::Draw()
@@ -330,6 +357,8 @@ void SimpleApp::Draw()
 		m_cylinderShader.Render(m_d3dDeviceContext, m_cylinderWorld[i], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_cylinderOffset[i].indexCount, m_cylinderOffset[i].indexOffset, m_cylinderOffset[i].vertexOffset);
 	}
 	
+	m_boxShader.Render(m_d3dDeviceContext, m_spheresWorld[10], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_spheresOffset[10].indexCount, m_spheresOffset[10].indexOffset, m_spheresOffset[10].vertexOffset);
+
 	//m_d3dDeviceContext->RSSetState(m_solidRS);
 	m_lightShader.Render(m_d3dDeviceContext, m_skullWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_skullOffset.indexCount, m_skullOffset.indexOffset, m_skullOffset.vertexOffset);
 	
