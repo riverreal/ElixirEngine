@@ -16,6 +16,7 @@ public:
 	void Shutdown();
 	bool Render(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world, 
 		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, DirectX::XMFLOAT3 eyePos,
+		ID3D11ShaderResourceView* texture,
 		UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0);
 
 private:
@@ -23,7 +24,7 @@ private:
 	void ShutdownShader();
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world,
-		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, DirectX::XMFLOAT3 eyePos);
+		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture);
 	void RenderShader(ID3D11DeviceContext* deviceContext, UINT indexCount, UINT indexOffset, UINT vertexOffset);
 
 	struct MatrixBuffer //Used in Vertex Shader
@@ -32,6 +33,7 @@ private:
 		DirectX::XMMATRIX view;
 		DirectX::XMMATRIX projection;
 		DirectX::XMFLOAT4X4 worldInvTranspose;
+		DirectX::XMFLOAT4X4 texTransform;
 	};
 
 	struct LightBuffer //Used in Pixel Shader
@@ -45,6 +47,7 @@ private:
 	};
 
 private:
+	ID3D11SamplerState* m_samplerState;
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;

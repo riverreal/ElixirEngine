@@ -28,8 +28,8 @@ void Terrain::CreatePlane(float width, float depth, unsigned int m, unsigned int
 			meshData.Vertices[i*n + j].Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
 			meshData.Vertices[i*n + j].TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
-			meshData.Vertices[i*n + j].TexC.x = j * du;
-			meshData.Vertices[i*n + j].TexC.y = i * dv;
+			meshData.Vertices[i*n + j].Tex.x = j * du;
+			meshData.Vertices[i*n + j].Tex.y = i * dv;
 		}
 	}
 

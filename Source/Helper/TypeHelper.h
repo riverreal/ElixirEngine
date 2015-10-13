@@ -6,12 +6,12 @@
 typedef unsigned int UINT;
 typedef unsigned long DWORD;
 
-struct Vertex
+struct Vertex2
 {
-	Vertex() {}
-	Vertex(const DirectX::XMFLOAT3& p, const DirectX::XMFLOAT3& n, const DirectX::XMFLOAT3& t, const DirectX::XMFLOAT2& uv)
+	Vertex2() {}
+	Vertex2(const DirectX::XMFLOAT3& p, const DirectX::XMFLOAT3& n, const DirectX::XMFLOAT3& t, const DirectX::XMFLOAT2& uv)
 		:Position(p), Normal(n), TangentU(t), TexC(uv) {}
-	Vertex(
+	Vertex2(
 		float px, float py, float pz,
 		float nx, float ny, float nz,
 		float tx, float ty, float tz,
@@ -21,8 +21,28 @@ struct Vertex
 
 	DirectX::XMFLOAT3 Position;
 	DirectX::XMFLOAT3 Normal;
-	DirectX::XMFLOAT3 TangentU;
 	DirectX::XMFLOAT2 TexC;
+	DirectX::XMFLOAT3 TangentU;
+	
+};
+
+struct Vertex
+{
+	Vertex() {}
+	Vertex(const DirectX::XMFLOAT3& p, const DirectX::XMFLOAT3& n, const DirectX::XMFLOAT3& t, const DirectX::XMFLOAT2& uv)
+		:Position(p), Normal(n), TangentU(t), Tex(uv) {}
+	Vertex(
+		float px, float py, float pz,
+		float nx, float ny, float nz,
+		float tx, float ty, float tz,
+		float u, float v)
+		:Position(px, py, pz), Normal(nx, ny, nz), Tex(u, v) {}
+
+	DirectX::XMFLOAT3 Position;
+	DirectX::XMFLOAT3 Normal;
+	DirectX::XMFLOAT2 Tex;
+	DirectX::XMFLOAT3 TangentU;
+
 };
 
 struct MeshData

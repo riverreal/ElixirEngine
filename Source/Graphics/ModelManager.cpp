@@ -70,6 +70,7 @@ offsetData Model::AddGeometry(int modelType)
 		XMFLOAT3 position = meshData.Vertices[i].Position;
 		vertices[i].Position = position;
 		vertices[i].Normal = meshData.Vertices[i].Normal;
+		vertices[i].Tex = meshData.Vertices[i].Tex;
 		m_totalVertex.push_back(vertices[i]);
 	}
 

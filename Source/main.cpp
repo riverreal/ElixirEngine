@@ -3,6 +3,7 @@
 #include "Graphics\ColorShader.h"
 #include "Graphics\LightShader.h"
 #include "Graphics\CameraManager.h"
+#include "Graphics\TextureLoader.h"
 
 #define _USE_MATH_DEFINES
 
@@ -32,6 +33,8 @@ private:
 	LightShader m_cylinderShader;
 	LightShader m_sphereShader;
 	
+	ID3D11ShaderResourceView* m_crateTexture;
+	ID3D11ShaderResourceView* m_grassTexture;
 
 	float m_radius;
 	float m_phi;
@@ -131,7 +134,7 @@ bool SimpleApp::Init()
 
 	m_cameraX = 0.0f;
 	m_cameraY = 7.0f;
-	m_cameraZ = -15.0f;
+	m_cameraZ = -13.0f;
 	m_radius = 25.0f;
 	m_theta = -14.0f;
 	m_cameraXVel = 5.0f;
@@ -143,6 +146,9 @@ bool SimpleApp::Init()
 	m_pointBulbPos.y = 5.0f;
 	m_pointBulbPos.z = 5.0f;
 
+	m_crateTexture = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/WoodCrate01.dds");
+	m_grassTexture = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/grass.dds");
+
 	m_plainOffset = m_shapes.AddGeometry(MODEL_TYPE_PLAIN);
 	m_plainWorld = XMMatrixIdentity();
 
@@ -152,8 +158,8 @@ bool SimpleApp::Init()
 	m_spheresWorld[10] = XMMatrixMultiply(plbScale, plbPos);
 
 	m_boxOffset = m_shapes.AddGeometry(MODEL_TYPE_CUBE);
-	XMMATRIX boxScale = XMMatrixScaling(3.0f, 1.0f, 3.0f);
-	XMMATRIX boxOffset = XMMatrixTranslation(0.0f, 0.5f, 0.0f);
+	XMMATRIX boxScale = XMMatrixScaling(2.5f, 2.5f, 2.5f);
+	XMMATRIX boxOffset = XMMatrixTranslation(0.0f, 2.5f, 0.0f);
 	m_boxWorld = XMMatrixMultiply(boxScale, boxOffset);
 
 	m_sphereOffset = m_shapes.AddGeometry(MODEL_TYPE_SPHERE);
@@ -167,9 +173,9 @@ bool SimpleApp::Init()
 	m_skullWorld = XMMatrixMultiply(skullScale, skullOffset);
 
 	//Material data
-	m_boxMaterial.Ambient = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
-	m_boxMaterial.Diffuse = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
-	m_boxMaterial.Specular = XMFLOAT4(1.0f, 0.5f, 0.5f, 6.0f);
+	m_boxMaterial.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_boxMaterial.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_boxMaterial.Specular = XMFLOAT4(0.6f, 0.6f, 0.6f, 16.0f);
 
 	m_sphereMaterial.Ambient = XMFLOAT4(0.5f, 0.5f, 0.1f, 1.0f);
 	m_sphereMaterial.Diffuse = XMFLOAT4(0.8f, 0.7f, 0.3f, 1.0f);
@@ -188,10 +194,10 @@ bool SimpleApp::Init()
 	m_simpleMaterial.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f);
 
 	//light data
-	m_basicLight.Directional.Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	m_basicLight.Directional.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.55f, 1.0f);
-	m_basicLight.Directional.Specular = XMFLOAT4(0.35f, 0.35f, 0.35f, 1.0f);
-	m_basicLight.Directional.Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
+	m_basicLight.Directional.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_basicLight.Directional.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	m_basicLight.Directional.Specular = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
+	m_basicLight.Directional.Direction = XMFLOAT3(-0.707f, 0.0f, 0.7f);
 	/*
 	m_basicLight.Spot.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_basicLight.Spot.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -224,7 +230,7 @@ bool SimpleApp::Init()
 		m_spheresWorld[i * 2 + 0] = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i*5.0f);
 		m_spheresWorld[i * 2 + 1] = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i*5.0f);
 	}
-
+	
 	if (!m_shapes.Initialize(m_d3dDevice))
 	{
 		return false;
@@ -240,17 +246,17 @@ bool SimpleApp::Init()
 		return false;
 	}
 
-	if (!m_boxShader.Initialize(m_d3dDevice, m_hWnd, m_boxMaterial))
-	{
-		return false;
-	}
-
 	if (!m_cylinderShader.Initialize(m_d3dDevice, m_hWnd, m_cylinderMaterial))
 	{
 		return false;
 	}
 
 	if (!m_sphereShader.Initialize(m_d3dDevice, m_hWnd, m_sphereMaterial))
+	{
+		return false;
+	}
+	
+	if (!m_boxShader.Initialize(m_d3dDevice, m_hWnd, m_boxMaterial))
 	{
 		return false;
 	}
@@ -267,7 +273,6 @@ void SimpleApp::Update(float dt)
 
 	m_camera.SetRotation(rx, ry, rz);
 
-
 	XMVECTOR pos = XMVectorSet(m_cameraX, m_cameraY, m_cameraZ, 1.0f);
 	XMVECTOR target = XMVectorZero();
 
@@ -277,6 +282,7 @@ void SimpleApp::Update(float dt)
 	m_movementAngle += angleVel * dt;
 
 	m_cameraX = cosf(m_movementAngle) * r;
+
 	m_cameraZ = sinf(m_movementAngle) * r;
 
 	m_camera.SetPosition(m_cameraX, m_cameraY, m_cameraZ);
@@ -287,10 +293,9 @@ void SimpleApp::Update(float dt)
 
 	XMVECTOR rotationY;
 	XMMATRIX skullRotation = XMMatrixRotationY(m_skullAngle);
-	XMMATRIX skullScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	XMMATRIX skullScale = XMMatrixScaling(3.5f, 3.5f, 3.5f);
 	XMMATRIX skullOffset = XMMatrixTranslation(0.0f, 1.8f, 0.0f);
-	m_skullWorld = XMMatrixMultiply(skullScale, XMMatrixMultiply(skullOffset, skullRotation));
-
+	m_boxWorld = XMMatrixMultiply(skullScale, XMMatrixMultiply(skullOffset, skullRotation));
 
 	float yaw, pitch, roll;
 	XMMATRIX rotationMatrix;
@@ -316,9 +321,9 @@ void SimpleApp::Update(float dt)
 	m_pointBulbPos.x = cosf(m_movementAngle) * r;
 	m_pointBulbPos.z = sinf(m_movementAngle) * r;
 	m_basicLight.Point.Position = XMFLOAT3(m_pointBulbPos);
-	XMMATRIX plbScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	XMMATRIX plbScale = XMMatrixScaling(1.0f, 1.0f, 1.0f);
 	XMMATRIX plbPos = XMMatrixTranslation(m_pointBulbPos.x, m_pointBulbPos.y, m_pointBulbPos.z);
-	m_spheresWorld[10] = XMMatrixMultiply(plbScale, plbPos);
+	//m_boxWorld = XMMatrixMultiply(plbScale, plbPos);
 }
 
 void SimpleApp::Draw()
@@ -344,23 +349,23 @@ void SimpleApp::Draw()
 	
 	
 	//render plain
-	m_colorShader.Render(m_d3dDeviceContext, m_plainWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_plainOffset.indexCount, m_plainOffset.indexOffset, m_plainOffset.vertexOffset);
+	m_colorShader.Render(m_d3dDeviceContext, m_plainWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_grassTexture, m_plainOffset.indexCount, m_plainOffset.indexOffset, m_plainOffset.vertexOffset);
 	//render box
-	m_boxShader.Render(m_d3dDeviceContext, m_boxWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_boxOffset.indexCount, m_boxOffset.indexOffset, m_boxOffset.vertexOffset);
+	m_boxShader.Render(m_d3dDeviceContext, m_boxWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_crateTexture, m_boxOffset.indexCount, m_boxOffset.indexOffset, m_boxOffset.vertexOffset);
 	//render Sphere
-	//m_colorShader.Render(m_d3dDeviceContext, m_sphereWorld, m_view, m_projectionMatrix, m_sphereOffset.indexCount, m_sphereOffset.indexOffset, m_sphereOffset.vertexOffset);
+	//m_colorShader.Render(m_d3dDeviceContext, m_sphereWorld, m_view, m_projectionMatrix, m_crateTexture, m_sphereOffset.indexCount, m_sphereOffset.indexOffset, m_sphereOffset.vertexOffset);
 
 	for (int i = 0; i < 10; ++i)
 	{
 		//render 10 of each: Spheres and Cylinders
-		m_sphereShader.Render(m_d3dDeviceContext, m_spheresWorld[i], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_spheresOffset[i].indexCount, m_spheresOffset[i].indexOffset, m_spheresOffset[i].vertexOffset);
-		m_cylinderShader.Render(m_d3dDeviceContext, m_cylinderWorld[i], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_cylinderOffset[i].indexCount, m_cylinderOffset[i].indexOffset, m_cylinderOffset[i].vertexOffset);
+		m_sphereShader.Render(m_d3dDeviceContext, m_spheresWorld[i], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_crateTexture, m_spheresOffset[i].indexCount, m_spheresOffset[i].indexOffset, m_spheresOffset[i].vertexOffset);
+		m_cylinderShader.Render(m_d3dDeviceContext, m_cylinderWorld[i], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_crateTexture, m_cylinderOffset[i].indexCount, m_cylinderOffset[i].indexOffset, m_cylinderOffset[i].vertexOffset);
 	}
 	
-	m_boxShader.Render(m_d3dDeviceContext, m_spheresWorld[10], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_spheresOffset[10].indexCount, m_spheresOffset[10].indexOffset, m_spheresOffset[10].vertexOffset);
+	m_boxShader.Render(m_d3dDeviceContext, m_spheresWorld[10], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_crateTexture, m_spheresOffset[10].indexCount, m_spheresOffset[10].indexOffset, m_spheresOffset[10].vertexOffset);
 
 	//m_d3dDeviceContext->RSSetState(m_solidRS);
-	m_lightShader.Render(m_d3dDeviceContext, m_skullWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_skullOffset.indexCount, m_skullOffset.indexOffset, m_skullOffset.vertexOffset);
+	//m_lightShader.Render(m_d3dDeviceContext, m_skullWorld, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_crateTexture, m_skullOffset.indexCount, m_skullOffset.indexOffset, m_skullOffset.vertexOffset);
 	
 
 	if (VSYNC_ENABLED)

@@ -10,7 +10,8 @@ LightShader::LightShader()
 	m_pixelShader(0),
 	m_layout(0),
 	m_matrixBuffer(0),
-	m_lightBuffer(0)
+	m_lightBuffer(0),
+	m_samplerState(0)
 {
 }
 
@@ -44,11 +45,12 @@ void LightShader::Shutdown()
 
 bool LightShader::Render(ID3D11DeviceContext* deviceContext,
 	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos,
+	ID3D11ShaderResourceView* texture,
 	UINT indexCount, UINT indexOffset, UINT vertexOffset)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, world, view, proj, lightData, eyePos);
+	result = SetShaderParameters(deviceContext, world, view, proj, lightData, eyePos, texture);
 	if (!result)
 	{
 		return false;
@@ -61,32 +63,37 @@ bool LightShader::Render(ID3D11DeviceContext* deviceContext,
 
 bool LightShader::InitializeShader(ID3D11Device* device, HWND window)
 {
-	D3D11_INPUT_ELEMENT_DESC inputLayout[2];
+	D3D11_INPUT_ELEMENT_DESC inputLayout[3];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_SAMPLER_DESC samplerDesc;
 	HRESULT result;
 
 	result = device->CreateVertexShader(LVS, sizeof(LVS), nullptr, &m_vertexShader);
 	if (FAILED(result))
 	{
+		MessageBox(0, L"Could not create vertex shader.", 0, MB_OK);
 		return false;
 	}
 
 	result = device->CreatePixelShader(LPS, sizeof(LPS), nullptr, &m_pixelShader);
 	if (FAILED(result))
 	{
+		MessageBox(0, L"Could not create pixel shader.", 0, MB_OK);
 		return false;
 	}
 
 	inputLayout[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
-	inputLayout[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+	inputLayout[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+	inputLayout[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 };
 
 	numElements = sizeof(inputLayout) / sizeof(inputLayout[0]);
 
 	result = device->CreateInputLayout(inputLayout, numElements, LVS, sizeof(LVS), &m_layout);
 	if (FAILED(result))
 	{
+		MessageBox(0, L"Could not create input layout.", 0, MB_OK);
 		return false;
 	}
 
@@ -100,6 +107,7 @@ bool LightShader::InitializeShader(ID3D11Device* device, HWND window)
 	result = device->CreateBuffer(&matrixBufferDesc, nullptr, &m_matrixBuffer);
 	if (FAILED(result))
 	{
+		MessageBox(0, L"Could not create matrix buffer.", 0, MB_OK);
 		return false;
 	}
 
@@ -117,11 +125,35 @@ bool LightShader::InitializeShader(ID3D11Device* device, HWND window)
 		return false;
 	}
 
+	
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 4;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	result = device->CreateSamplerState(&samplerDesc, &m_samplerState);
+	if (FAILED(result))
+	{
+		MessageBox(0, L"Can't create sampler state.", L"Error", MB_OK);
+		return false;
+	}
+	
+
 	return true;
 }
 
 void LightShader::ShutdownShader()
 {
+	ReleaseCOM(m_samplerState);
 	ReleaseCOM(m_lightBuffer);
 	ReleaseCOM(m_matrixBuffer);
 	ReleaseCOM(m_layout);
@@ -130,7 +162,7 @@ void LightShader::ShutdownShader()
 }
 
 bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos)
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture )
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -138,14 +170,20 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	LightBuffer* dataPtr2;
 	unsigned int bufferNumber;
 
+	//-------------------------------------------------------------
+	//-------Set Constant Buffers
+	//-------------------------------------------------------------
+
 	//----------------Map Matrix Buffer
 	XMMATRIX worldCpy, viewCpy, projCpy;
-	XMFLOAT4X4 worldInv;
+	XMFLOAT4X4 worldInv, texTrans;
 
 	worldCpy = XMMatrixTranspose(world);
 	XMStoreFloat4x4(&worldInv, worldCpy);
 	viewCpy = XMMatrixTranspose(view);
 	projCpy = XMMatrixTranspose(proj);
+	XMMATRIX tmp = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	XMStoreFloat4x4(&texTrans, XMMatrixIdentity());
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -158,6 +196,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr->view = viewCpy;
 	dataPtr->projection = projCpy;
 	dataPtr->worldInvTranspose = worldInv;
+	dataPtr->texTransform = texTrans;
 
 	deviceContext->Unmap(m_matrixBuffer, 0);
 
@@ -185,6 +224,12 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
+	//-------------------------------------------------------------
+	//-------Set Shader Resource
+	//-------------------------------------------------------------
+
+	deviceContext->PSSetShaderResources(0, 1, &texture);
+
 	return true;
 }
 
@@ -193,6 +238,6 @@ void LightShader::RenderShader(ID3D11DeviceContext* deviceContext, UINT indexCou
 	deviceContext->IASetInputLayout(m_layout);
 	deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader, nullptr, 0);
-
+	deviceContext->PSSetSamplers(0, 1, &m_samplerState);
 	deviceContext->DrawIndexed(indexCount, indexOffset, vertexOffset);
 }

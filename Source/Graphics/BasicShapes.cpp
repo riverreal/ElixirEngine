@@ -101,8 +101,8 @@ void BasicShapes::CreateSphere(float radius, UINT sliceCount, UINT stackCount, M
 			XMVECTOR p = XMLoadFloat3(&v.Position);
 			XMStoreFloat3(&v.Normal, XMVector3Normalize(p));
 
-			v.TexC.x = theta / XM_PI;
-			v.TexC.y = phi / XM_PI;
+			v.Tex.x = theta / XM_PI;
+			v.Tex.y = phi / XM_PI;
 
 			meshData.Vertices.push_back(v);
 		}
@@ -203,8 +203,8 @@ void BasicShapes::CreateGeosphere(float radius, UINT numSubdivisions, MeshData& 
 
 		float phi = acosf(meshData.Vertices[i].Position.y / radius);
 
-		meshData.Vertices[i].TexC.x = theta / XM_2PI;
-		meshData.Vertices[i].TexC.y = phi / XM_PI;
+		meshData.Vertices[i].Tex.x = theta / XM_2PI;
+		meshData.Vertices[i].Tex.y = phi / XM_PI;
 
 		meshData.Vertices[i].TangentU.x = -radius*sinf(phi)*sinf(theta);
 		meshData.Vertices[i].TangentU.y = 0.0f;
@@ -248,8 +248,8 @@ void BasicShapes::CreateCylinder(float bottomRadius, float topRadius, float heig
 
 			vertex.Position = XMFLOAT3(r*c, y, r*s);
 
-			vertex.TexC.x = (float)j / sliceCount;
-			vertex.TexC.y = 1.0f - (float)i / stackCount;
+			vertex.Tex.x = (float)j / sliceCount;
+			vertex.Tex.y = 1.0f - (float)i / stackCount;
 
 			// Cylinder can be parameterized as follows, where we introduce v
 			// parameter that goes in the same direction as the v tex-coord

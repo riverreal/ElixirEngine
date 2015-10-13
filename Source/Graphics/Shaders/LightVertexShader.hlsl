@@ -6,21 +6,14 @@ cbuffer MatrixBuffer
 	matrix viewMatrix;
 	matrix projectionMatrix;
 	float4x4 worldInvTranspose;
-};
-
-SamplerState samAnisotropic
-{
-	Filter = ANISOTROPIC;
-	MaxAnisotropy = 4;
-
-	AddressU = WRAP;
-	AddressV = WRAP;
+	float4x4 gTexTransform;
 };
 
 struct VertexInputType
 {
 	float4 position : POSITION;
 	float4 normal : NORMAL;
+	float2 tex : TEXCOORD;
 };
 
 struct PixelInputType
@@ -28,8 +21,8 @@ struct PixelInputType
 	float4 position : SV_POSITION;
 	float3 positionW : POSITION;
 	float3 normalW : NORMAL;
+	float2 tex : TEXCOORD;
 };
-
 
 PixelInputType LightVertexShader(VertexInputType input)
 {
@@ -44,6 +37,7 @@ PixelInputType LightVertexShader(VertexInputType input)
 	output.position = mul(output.position, projectionMatrix);
 
 	output.normalW = mul(input.normal, (float3x3)worldInvTranspose);
+	output.tex = input.tex;
 
 	return output;
 }
