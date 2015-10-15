@@ -403,6 +403,9 @@ bool BaseApp::InitD3D()
 	{
 		return false;
 	}
+
+
+
 	//Attach back buffer to the swap chain
 	result = m_d3dDevice->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView);
 	if (FAILED(result))
@@ -424,8 +427,18 @@ bool BaseApp::InitD3D()
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthBufferDesc.SampleDesc.Count = 1;
-	depthBufferDesc.SampleDesc.Quality = 0;
+	
+	if (MSAA_ENABLED)
+	{
+		depthBufferDesc.SampleDesc.Count = 4;
+		depthBufferDesc.SampleDesc.Quality = m_4xMsaaQuality - 1;
+	}
+	else
+	{
+
+		depthBufferDesc.SampleDesc.Count = 1;
+		depthBufferDesc.SampleDesc.Quality = 0;
+	}
 	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthBufferDesc.CPUAccessFlags = 0;
@@ -434,6 +447,7 @@ bool BaseApp::InitD3D()
 	result = m_d3dDevice->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer);
 	if (FAILED(result))
 	{
+		MessageBox(0, L"Failed to create depth buffer", 0, 0);
 		return false;
 	}
 
@@ -461,6 +475,7 @@ bool BaseApp::InitD3D()
 	result = m_d3dDevice->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
 	if (FAILED(result))
 	{
+		MessageBox(0, L"Failed to create depth stencil", 0, 0);
 		return false;
 	}
 
@@ -474,10 +489,12 @@ bool BaseApp::InitD3D()
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
+	
 
-	result = m_d3dDevice->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
+	result = m_d3dDevice->CreateDepthStencilView(m_depthStencilBuffer, 0, &m_depthStencilView);
 	if (FAILED(result))
 	{
+		MessageBox(0, L"Failed to create depth stencil view", 0, 0);
 		return false;
 	}
 
@@ -495,6 +512,10 @@ bool BaseApp::InitD3D()
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.FrontCounterClockwise = false;
 	rasterizerDesc.MultisampleEnable = false;
+	if (MSAA_ENABLED)
+	{
+		rasterizerDesc.MultisampleEnable = true;
+	}
 	rasterizerDesc.ScissorEnable = false;
 	rasterizerDesc.SlopeScaledDepthBias = 0.0f;
 

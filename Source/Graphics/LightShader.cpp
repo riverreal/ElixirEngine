@@ -45,12 +45,12 @@ void LightShader::Shutdown()
 
 bool LightShader::Render(ID3D11DeviceContext* deviceContext,
 	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos,
-	ID3D11ShaderResourceView* texture,
+	ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf,
 	UINT indexCount, UINT indexOffset, UINT vertexOffset)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, world, view, proj, lightData, eyePos, texture);
+	result = SetShaderParameters(deviceContext, world, view, proj, lightData, eyePos, texture, textTransf);
 	if (!result)
 	{
 		return false;
@@ -124,7 +124,6 @@ bool LightShader::InitializeShader(ID3D11Device* device, HWND window)
 		MessageBox(0, L"Could not create light buffer.", 0, MB_OK);
 		return false;
 	}
-
 	
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -162,7 +161,7 @@ void LightShader::ShutdownShader()
 }
 
 bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture )
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -176,14 +175,14 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	//----------------Map Matrix Buffer
 	XMMATRIX worldCpy, viewCpy, projCpy;
-	XMFLOAT4X4 worldInv, texTrans;
+	XMFLOAT4X4 worldInv, textCpy;
 
 	worldCpy = XMMatrixTranspose(world);
 	XMStoreFloat4x4(&worldInv, worldCpy);
 	viewCpy = XMMatrixTranspose(view);
 	projCpy = XMMatrixTranspose(proj);
-	XMMATRIX tmp = XMMatrixScaling(0.5f, 0.5f, 0.5f);
-	XMStoreFloat4x4(&texTrans, XMMatrixIdentity());
+	
+	
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -196,7 +195,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr->view = viewCpy;
 	dataPtr->projection = projCpy;
 	dataPtr->worldInvTranspose = worldInv;
-	dataPtr->texTransform = texTrans;
+	XMStoreFloat4x4(&dataPtr->texTransform, XMMatrixTranspose(textTransf));
 
 	deviceContext->Unmap(m_matrixBuffer, 0);
 

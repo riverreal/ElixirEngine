@@ -37,7 +37,8 @@ PixelInputType LightVertexShader(VertexInputType input)
 	output.position = mul(output.position, projectionMatrix);
 
 	output.normalW = mul(input.normal, (float3x3)worldInvTranspose);
-	output.tex = input.tex;
+
+	output.tex = mul(float4(input.tex, 0.0f, 1.0f), gTexTransform).xy;
 
 	return output;
 }
