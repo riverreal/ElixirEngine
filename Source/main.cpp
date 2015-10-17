@@ -4,6 +4,7 @@
 #include "Graphics\LightShader.h"
 #include "Graphics\CameraManager.h"
 #include "Graphics\TextureLoader.h"
+#include "Graphics\BlendState.h"
 
 #define _USE_MATH_DEFINES
 
@@ -43,6 +44,10 @@ private:
 	//Light
 	BasicLight m_basicLight;
 
+	//Fog
+	Fog m_fog;
+	Fog m_fogOff;
+
 	//Materials
 	Material m_matShiny;
 	Material m_matRough;
@@ -62,6 +67,9 @@ private:
 
 	offsetData m_offsetWater;
 	DirectX::XMMATRIX m_worldWater;
+
+	offsetData m_offsetColumn;
+	DirectX::XMMATRIX m_worldColumn;
 
 	float m_radius;
 	float m_phi;
@@ -116,6 +124,7 @@ SimpleApp::~SimpleApp()
 	m_rendererWater.Shutdown();
 	m_rendererShiny.Shutdown();
 	m_shapes.Shutdown();
+	BlendState::Shutdown();
 }
 
 bool SimpleApp::SceneInit()
@@ -179,18 +188,32 @@ bool SimpleApp::SceneInit()
 	*/
 
 	//-----------------------------------------------------------------------------------------------------
+	//        Fog Init
+	//-----------------------------------------------------------------------------------------------------
+
+	m_fog.Enabled = true;
+	m_fog.FogColor = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+	m_fog.FogStart = 15.0f;
+	m_fog.FogRange = 300.0f;
+
+	m_fogOff.Enabled = false;
+	m_fogOff.FogColor = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+	m_fogOff.FogStart = 15.0f;
+	m_fogOff.FogRange = 300.0f;
+
+	//-----------------------------------------------------------------------------------------------------
 	//        Material Init
 	//-----------------------------------------------------------------------------------------------------
 	m_matShiny.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_matShiny.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
-	m_matShiny.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 20.0f);
+	m_matShiny.Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 16.0f);
 
 	m_matRough.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_matRough.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 	m_matRough.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	m_matWater.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_matWater.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+	m_matWater.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 0.7f); //Semi Transparent water
 	m_matWater.Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 10.0f);
 
 	//-----------------------------------------------------------------------------------------------------
@@ -206,6 +229,8 @@ bool SimpleApp::SceneInit()
 
 	m_offsetWater = m_shapes.AddGeometry(MODEL_TYPE_PLAIN);
 
+	m_offsetColumn = m_shapes.AddGeometry(MODEL_TYPE_CYLINDER);
+
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init
 	//-----------------------------------------------------------------------------------------------------
@@ -217,6 +242,7 @@ bool SimpleApp::SceneInit()
 	m_worldCont[3] = XMMatrixMultiply(XMMatrixScaling(4.0f, 2.0f, 1.0f), XMMatrixTranslation(0.0f, 4.0f, -4.5f));
 	m_worldCont[4] = XMMatrixMultiply(XMMatrixScaling(4.0f, 2.0f, 1.0f), XMMatrixTranslation(0.0f, 4.0f, -9.5f));
 	m_worldWater = XMMatrixMultiply(XMMatrixScaling(0.2f, 1.0f, 0.2f), XMMatrixTranslation(0.0f, 4.5f, -7.0f));
+	m_worldColumn = XMMatrixMultiply(XMMatrixScaling(10.0f, 4.0f, 10.0f), XMMatrixTranslation(0.0f, 6.0f, 140.0f));
 
 	//-----------------------------------------------------------------------------------------------------
 	//        Renderer Init
@@ -226,7 +252,7 @@ bool SimpleApp::SceneInit()
 		return false;
 	}
 
-	if (!m_rendererShiny.Initialize(m_d3dDevice, m_hWnd, m_matShiny))
+	if (!m_rendererShiny.Initialize(m_d3dDevice, m_hWnd, m_matRough))
 	{
 		return false;
 	}
@@ -252,11 +278,19 @@ bool SimpleApp::Init()
 		return false;
 	}
 
+	//Enable blend state
+	if (!BlendState::Init(m_d3dDevice))
+	{
+		return false;
+	}
+
 	//Additional init
 	if (!SceneInit())
 	{
 		return false;
 	}
+
+	
 
 	return true;
 }
@@ -320,15 +354,17 @@ void SimpleApp::Draw()
 	m_shapes.Render(m_d3dDeviceContext);	
 
 	//----------Rendering----------------------------------------------------------------------
-	m_rendererRough.Render(m_d3dDeviceContext, m_worldPlain, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_texGrass, m_texTransfGrass, m_offsetPlain.indexCount, m_offsetPlain.indexOffset, m_offsetPlain.vertexOffset);
+	m_rendererRough.Render(m_d3dDeviceContext, m_worldPlain, m_view, m_projectionMatrix, m_basicLight, m_fog, m_camera.GetPosition(), m_texGrass, m_texTransfGrass, m_offsetPlain);
 
 	for (int i = 0; i < 5; ++i)
 	{
-		m_rendererShiny.Render(m_d3dDeviceContext, m_worldCont[i], m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_texBrick, m_texTransfBrick, m_offsetCont[i].indexCount, m_offsetCont[i].indexOffset, m_offsetCont[i].vertexOffset);
+		m_rendererShiny.Render(m_d3dDeviceContext, m_worldCont[i], m_view, m_projectionMatrix, m_basicLight, m_fog, m_camera.GetPosition(), m_texBrick, m_texTransfBrick, m_offsetCont[i]);
 	}
-
-	m_rendererWater.Render(m_d3dDeviceContext, m_worldWater, m_view, m_projectionMatrix, m_basicLight, m_camera.GetPosition(), m_texWater, m_texTransfWater, m_offsetWater.indexCount, m_offsetWater.indexOffset, m_offsetWater.vertexOffset);
-
+	m_rendererShiny.Render(m_d3dDeviceContext, m_worldColumn, m_view, m_projectionMatrix, m_basicLight, m_fog, m_camera.GetPosition(), m_texBrick, m_texTransfBrick, m_offsetColumn);
+	float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	m_d3dDeviceContext->OMSetBlendState(BlendState::BSTransparent, blendFactors, 0xffffffff);
+	m_rendererWater.Render(m_d3dDeviceContext, m_worldWater, m_view, m_projectionMatrix, m_basicLight, m_fog, m_camera.GetPosition(), m_texWater, m_texTransfWater, m_offsetWater);
+	m_d3dDeviceContext->OMSetBlendState(NULL, blendFactors, 0xffffffff);
 	//-----------------------------------------------------------------------------------------
 
 	if (VSYNC_ENABLED)

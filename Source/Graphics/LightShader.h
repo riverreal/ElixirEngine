@@ -4,6 +4,7 @@
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 #include "../Helper/LightHelper.h"
+#include "../Helper/TypeHelper.h"
 
 class LightShader
 {
@@ -15,17 +16,17 @@ public:
 	bool Initialize(ID3D11Device* device, HWND window, Material material);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world, 
-		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, DirectX::XMFLOAT3 eyePos,
+		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog, DirectX::XMFLOAT3 eyePos,
 		ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf,
-		UINT indexCount, UINT indexOffset = 0, UINT vertexOffset = 0);
+		offsetData offset);
 
 private:
 	bool InitializeShader(ID3D11Device* device, HWND window);
 	void ShutdownShader();
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world,
-		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf);
-	void RenderShader(ID3D11DeviceContext* deviceContext, UINT indexCount, UINT indexOffset, UINT vertexOffset);
+		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog, DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf);
+	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
 	struct MatrixBuffer //Used in Vertex Shader
 	{
@@ -42,8 +43,10 @@ private:
 		PointLight pointLight;
 		SpotLight spotLight;
 		Material material;
+		Fog fog;
 		DirectX::XMFLOAT3 eyePos;
-		float pad;
+		float pad1;
+		float pad2;
 	};
 
 private:

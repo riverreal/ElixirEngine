@@ -6,6 +6,7 @@ cbuffer LightBuffer
 	PointLight gPointLight;
 	SpotLight gSpotLight;
 	Material gMaterial;
+	Fog gFog;
 	float3 gEyePosW;
 	
 	float pad;
@@ -61,8 +62,14 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	//Modelulate with late add
 	float4 litColor =  texColor * (ambient + diffuse) + specular;
 
+	//fog
+	if (gFog.fogEnabled)
+	{
+		float fogLerp = saturate((distToEye - gFog.fogStart) / gFog.fogRange );
+		litColor = lerp(litColor, gFog.fogColor, fogLerp);
+	}
+
 	litColor.a = gMaterial.Diffuse.a * texColor.a;
 	
-
 	return litColor;
 }

@@ -50,3 +50,10 @@ struct MeshData
 	std::vector<Vertex> Vertices;
 	std::vector<unsigned int> Indices;
 };
+
+struct offsetData
+{
+	UINT indexCount;
+	UINT indexOffset;
+	UINT vertexOffset;
+};

@@ -15,13 +15,6 @@ enum BasicModel
 	MODEL_TYPE_SCREEN_LAYER
 };
 
-struct offsetData
-{
-	UINT indexCount;
-	UINT indexOffset;
-	UINT vertexOffset;
-};
-
 class Model
 {
 public:

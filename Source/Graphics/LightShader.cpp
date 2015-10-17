@@ -44,19 +44,19 @@ void LightShader::Shutdown()
 }
 
 bool LightShader::Render(ID3D11DeviceContext* deviceContext,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos,
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, Fog fog, XMFLOAT3 eyePos,
 	ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf,
-	UINT indexCount, UINT indexOffset, UINT vertexOffset)
+	offsetData offset)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, world, view, proj, lightData, eyePos, texture, textTransf);
+	result = SetShaderParameters(deviceContext, world, view, proj, lightData, fog, eyePos, texture, textTransf);
 	if (!result)
 	{
 		return false;
 	}
 
-	RenderShader(deviceContext, indexCount, indexOffset, vertexOffset);
+	RenderShader(deviceContext, offset);
 
 	return true;
 }
@@ -161,7 +161,7 @@ void LightShader::ShutdownShader()
 }
 
 bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf)
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, Fog fog, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -216,6 +216,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr2->spotLight = lightData.Spot;
 	dataPtr2->eyePos = eyePos;
 	dataPtr2->material = m_material;
+	dataPtr2->fog = fog;
 
 	deviceContext->Unmap(m_lightBuffer, 0);
 
@@ -232,11 +233,11 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	return true;
 }
 
-void LightShader::RenderShader(ID3D11DeviceContext* deviceContext, UINT indexCount, UINT indexOffset, UINT vertexOffset)
+void LightShader::RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset)
 {
 	deviceContext->IASetInputLayout(m_layout);
 	deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader, nullptr, 0);
 	deviceContext->PSSetSamplers(0, 1, &m_samplerState);
-	deviceContext->DrawIndexed(indexCount, indexOffset, vertexOffset);
+	deviceContext->DrawIndexed(offset.indexCount, offset.indexOffset, offset.vertexOffset);
 }

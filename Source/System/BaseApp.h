@@ -16,7 +16,7 @@
 
 using namespace DirectX;
 
-const bool FULL_SCREEN = false; //experimental --> has issues
+const bool FULL_SCREEN = false; 
 //const bool RESIZEABLE = false; ------------- Feature Not Added
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -84,6 +84,7 @@ protected:
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11RasterizerState* m_solidRS;
 	ID3D11RasterizerState* m_wireFrameRS;
+	ID3D11RasterizerState* m_solidNoCullRS;
 	DirectX::XMMATRIX m_projectionMatrix;
 	DirectX::XMMATRIX m_worldMatrix;
 	DirectX::XMMATRIX m_orthoMatrix;

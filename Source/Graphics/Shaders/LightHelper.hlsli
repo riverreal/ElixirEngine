@@ -44,6 +44,14 @@ struct Material
 	float4 Reflect;
 };
 
+struct Fog
+{
+	bool fogEnabled;
+	float fogStart;
+	float fogRange;
+	float4 fogColor;
+};
+
 float CelShadingFunc(float factor)
 {
 	float newFactor = 0.0f;

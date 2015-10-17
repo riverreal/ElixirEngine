@@ -66,3 +66,14 @@ struct Material
 	XMFLOAT4 Specular;
 	XMFLOAT4 Reflect;
 };
+
+struct Fog
+{
+	Fog() { ZeroMemory(this, sizeof(this)); }
+
+	bool Enabled;
+	float FogStart;
+	float FogRange;
+	XMFLOAT4 FogColor;
+
+};

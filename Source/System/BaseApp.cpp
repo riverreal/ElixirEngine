@@ -38,6 +38,7 @@ BaseApp::~BaseApp()
 
 	ReleaseCOM(m_solidRS);
 	ReleaseCOM(m_wireFrameRS);
+	ReleaseCOM(m_solidNoCullRS);
 	ReleaseCOM(m_depthStencilView);
 	ReleaseCOM(m_depthStencilState);
 	ReleaseCOM(m_depthStencilBuffer);
@@ -531,7 +532,14 @@ bool BaseApp::InitD3D()
 	{
 		return false;
 	}
-	
+
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	result = m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &m_solidNoCullRS);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	//default Rasterizer mode
 	m_d3dDeviceContext->RSSetState(m_solidRS);
 
