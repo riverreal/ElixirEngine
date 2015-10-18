@@ -35,6 +35,8 @@ private:
 	ID3D11ShaderResourceView* m_texWater;
 	ID3D11ShaderResourceView* m_texBrick;
 	ID3D11ShaderResourceView* m_texRough;
+	ID3D11ShaderResourceView* m_texMirror;
+	ID3D11ShaderResourceView* m_texNull;
 	DirectX::XMMATRIX m_texTranfDef;
 	DirectX::XMMATRIX m_texTranfCrate;
 	DirectX::XMMATRIX m_texTransfGrass;
@@ -52,11 +54,13 @@ private:
 	Material m_matShiny;
 	Material m_matRough;
 	Material m_matWater;
+	Material m_matShadow;
 
 	//Renderers
 	LightShader m_rendererShiny;
 	LightShader m_rendererRough;
 	LightShader m_rendererWater;
+	LightShader m_rendererShadow;
 
 	//Geometry
 	offsetData m_offsetPlain;
@@ -73,6 +77,9 @@ private:
 
 	offsetData m_offsetSphere;
 	DirectX::XMMATRIX m_worldSphere;
+
+	offsetData m_offsetMirror;
+	DirectX::XMMATRIX m_worldMirror;
 
 	DirectX::XMFLOAT3 m_tmpPos;
 	DirectX::XMFLOAT3 m_eyePos;
@@ -126,7 +133,8 @@ SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 
 SimpleApp::~SimpleApp()
 {
-	m_rendererWater.Shutdown();
+	m_rendererShadow.Shutdown();
+	m_rendererRough.Shutdown();
 	m_rendererWater.Shutdown();
 	m_rendererShiny.Shutdown();
 	m_shapes.Shutdown();
@@ -163,9 +171,11 @@ bool SimpleApp::SceneInit()
 
 	m_texCrate = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/WoodCrate01.dds");
 	m_texWater = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/water2.dds");
-	m_texGrass = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/grass.dds");
+	m_texGrass = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/checkboard.dds");
 	m_texBrick = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/darkbrickdxt1.dds");
 	m_texRough = TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-rough.jpg");
+	m_texMirror = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/ice.dds");
+	m_texNull = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/water1.dds");
 
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
@@ -214,15 +224,20 @@ bool SimpleApp::SceneInit()
 	m_matRough.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 	m_matRough.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_matWater.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_matWater.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 0.7f); //Semi Transparent water
-	m_matWater.Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 10.0f);
+	m_matWater.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_matWater.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f); //Semi Transparent water
+	m_matWater.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
+
+	//-------Shadow material
+	m_matShadow.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	m_matShadow.Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.7f);
+	m_matShadow.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 16.0f);
 
 	//-----------------------------------------------------------------------------------------------------
 	//        Object Geometry Init
 	//-----------------------------------------------------------------------------------------------------
 
-	m_offsetPlain = m_shapes.AddGeometry(MODEL_TYPE_CUBE);
+	m_offsetPlain = m_shapes.AddGeometry(MODEL_TYPE_PLAIN);
 
 	for (int i = 0; i < 5; ++i)
 	{
@@ -234,12 +249,13 @@ bool SimpleApp::SceneInit()
 	m_offsetColumn = m_shapes.AddGeometry(MODEL_TYPE_CYLINDER);
 
 	m_offsetSphere = m_shapes.AddGeometry(MODEL_TYPE_SPHERE);
+	m_offsetMirror = m_shapes.AddGeometry(MODEL_TYPE_PLAIN);
 
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init
 	//-----------------------------------------------------------------------------------------------------
 
-	m_worldPlain = XMMatrixMultiply(XMMatrixScaling(100.0f, 1.0f, 100.0f), XMMatrixTranslation(0.0f, 0.0f, 0.0f));
+	m_worldPlain = XMMatrixMultiply(XMMatrixScaling(5.0f, 1.0f, 5.0f), XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	m_worldCont[0] = XMMatrixMultiply(XMMatrixScaling(5.0f, 2.0f, 5.0f), XMMatrixTranslation(0.0f, 2.0f, -7.0f));
 	m_worldCont[1] = XMMatrixMultiply(XMMatrixScaling(1.0f, 2.0f, 5.0f), XMMatrixTranslation(2.5f, 4.0f, -7.0f));
 	m_worldCont[2] = XMMatrixMultiply(XMMatrixScaling(1.0f, 2.0f, 5.0f), XMMatrixTranslation(-2.5f, 4.0f, -7.0f));
@@ -247,7 +263,8 @@ bool SimpleApp::SceneInit()
 	m_worldCont[4] = XMMatrixMultiply(XMMatrixScaling(4.0f, 2.0f, 1.0f), XMMatrixTranslation(0.0f, 4.0f, -9.5f));
 	m_worldWater = XMMatrixMultiply(XMMatrixScaling(0.2f, 1.0f, 0.2f), XMMatrixTranslation(0.0f, 4.5f, -7.0f));
 	m_worldColumn = XMMatrixMultiply(XMMatrixScaling(5.0f, 2.0f, 5.0f), XMMatrixTranslation(0.0f, 6.0f, 50.0f));
-	m_worldSphere = XMMatrixMultiply(XMMatrixScaling(2.0f, 2.0f, 2.0f), XMMatrixTranslation(0.0f, 6.0f, 7.0f));
+	m_worldSphere = XMMatrixMultiply(XMMatrixScaling(2.0f, 2.0f, 2.0f), XMMatrixTranslation(-4.0f, 1.0f, 7.0f));
+	m_worldMirror = XMMatrixMultiply(XMMatrixMultiply(XMMatrixScaling(0.2f, 1.0f, 0.2f), XMMatrixRotationZ(XMConvertToRadians(90.0f)) ), XMMatrixTranslation(0.0f, 3.0f, 7.0f));
 
 	//-----------------------------------------------------------------------------------------------------
 	//        Renderer Init
@@ -268,6 +285,11 @@ bool SimpleApp::SceneInit()
 	}
 
 	if (!m_rendererWater.Initialize(m_d3dDevice, m_hWnd, m_matWater))
+	{
+		return false;
+	}
+
+	if (!m_rendererShadow.Initialize(m_d3dDevice, m_hWnd, m_matShadow))
 	{
 		return false;
 	}
@@ -345,8 +367,6 @@ void SimpleApp::Update(float dt)
 	{
 		m_fog.Enabled = false;
 	}
-
-	
 }
 
 void SimpleApp::Draw()
@@ -377,14 +397,58 @@ void SimpleApp::Draw()
 	}
 	m_rendererRough.Render(m_d3dDeviceContext, m_worldColumn, view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texBrick, m_texTransfBrick, m_offsetColumn);
 	m_rendererShiny.Render(m_d3dDeviceContext, m_worldSphere, view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texRough, m_texTranfDef, m_offsetSphere);
+	//m_rendererShiny.Render(m_d3dDeviceContext, m_worldMirror, view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texMirror, m_texTranfDef, m_offsetMirror);
 	
 	//----------Transparent Objects-------------------------------------------------------------
 	float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	m_d3dDeviceContext->OMSetBlendState(BlendState::BSTransparent, blendFactors, 0xffffffff);
 	m_rendererWater.Render(m_d3dDeviceContext, m_worldWater, view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texWater, m_texTransfWater, m_offsetWater);
 	m_d3dDeviceContext->OMSetBlendState(NULL, blendFactors, 0xffffffff);
+	//----------Mirror--------------------------------------------------------------------------
 
-	//-----------------------------------------------------------------------------------------
+	//Render mirror to stencil
+	m_d3dDeviceContext->OMSetBlendState(BlendState::BSRenderTargetWriteOff, blendFactors, 0xffffffff);
+	m_d3dDeviceContext->OMSetDepthStencilState(m_markMirrorDSS, 1);
+	m_rendererWater.Render(m_d3dDeviceContext, m_worldMirror, view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texMirror, m_texTranfDef, m_offsetMirror);
+	m_d3dDeviceContext->OMSetDepthStencilState(m_depthStencilState, 0); //restore
+	m_d3dDeviceContext->OMSetBlendState(0, blendFactors, 0xffffffff);
+
+	//Render reflexion only for marked mirror
+	XMVECTOR mirrorPlane = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+	XMMATRIX R = XMMatrixReflect(mirrorPlane);
+	XMMATRIX world = XMMatrixMultiply(m_worldSphere, R);
+	//change light direction
+	XMFLOAT3 oldLightDir = m_basicLight.Directional.Direction;
+	XMVECTOR lightDir = XMLoadFloat3(&m_basicLight.Directional.Direction);
+	XMVECTOR reflectedLight = XMVector3TransformNormal(lightDir, R);
+	XMStoreFloat3(&m_basicLight.Directional.Direction, reflectedLight);
+	m_d3dDeviceContext->RSSetState(m_cullClockWiseRS);
+	m_d3dDeviceContext->OMSetDepthStencilState(m_drawReflecDSS, 1);
+	m_rendererShiny.Render(m_d3dDeviceContext, world, view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texRough, m_texTranfDef, m_offsetSphere);
+	m_d3dDeviceContext->RSSetState(m_solidRS); //restore
+	m_d3dDeviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	//restore light
+	m_basicLight.Directional.Direction = oldLightDir;
+	
+	//Draw mirror with blending
+	m_d3dDeviceContext->OMSetBlendState(BlendState::BSTransparent, blendFactors, 0xffffffff);
+	m_rendererWater.Render(m_d3dDeviceContext, m_worldMirror, view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texMirror, m_texTranfDef, m_offsetMirror);
+	m_d3dDeviceContext->OMSetBlendState(NULL, blendFactors, 0xffffffff);
+
+	//----------Shadow------------------------------------------------------------------
+	XMVECTOR shadowPlane = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMVECTOR toLight = -XMLoadFloat3(&m_basicLight.Directional.Direction);
+	XMMATRIX S = XMMatrixShadow(shadowPlane, toLight);
+	XMMATRIX shadowOffset = XMMatrixTranslation(0.0f, 0.001f, 0.0f);
+
+	XMMATRIX worldShadow = m_worldSphere * S * shadowOffset;
+	m_d3dDeviceContext->OMSetDepthStencilState(m_noDoubleBlendDSS, 0);
+	m_d3dDeviceContext->OMSetBlendState(BlendState::BSTransparent, blendFactors, 0xffffffff);
+	m_rendererShadow.Render(m_d3dDeviceContext, worldShadow, view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texNull, m_texTranfDef, m_offsetSphere);
+
+	m_d3dDeviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	m_d3dDeviceContext->OMSetBlendState(NULL, blendFactors, 0xffffffff);
+	
 
 	if (VSYNC_ENABLED)
 	{

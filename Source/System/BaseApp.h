@@ -86,6 +86,9 @@ protected:
 	ID3D11DepthStencilState* m_markMirrorDSS;
 	//for mirror rendering
 	ID3D11DepthStencilState* m_drawReflecDSS; 
+	//For preventing double blending (shadows)
+	//Specify StencilRef to 0 when setting Stencil State
+	ID3D11DepthStencilState* m_noDoubleBlendDSS;
 	ID3D11DepthStencilView* m_depthStencilView;
 	//default
 	ID3D11RasterizerState* m_solidRS; 

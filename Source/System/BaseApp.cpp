@@ -39,6 +39,7 @@ BaseApp::~BaseApp()
 	ReleaseCOM(m_solidRS);
 	ReleaseCOM(m_cullClockWiseRS);
 	ReleaseCOM(m_wireFrameRS);
+	ReleaseCOM(m_noDoubleBlendDSS);
 	ReleaseCOM(m_solidNoCullRS);
 	ReleaseCOM(m_depthStencilView);
 	ReleaseCOM(m_drawReflecDSS);
@@ -485,6 +486,35 @@ bool BaseApp::InitD3D()
 		MessageBox(0, L"Failed to create depth stencil", 0, 0);
 		return false;
 	}
+
+	//No Double Blending (shadows)
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = true;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+
+	result = m_d3dDevice->CreateDepthStencilState(&depthStencilDesc, &m_noDoubleBlendDSS);
+	if (FAILED(result))
+	{
+		MessageBox(0, L"Failed to create depth stencil", 0, 0);
+		return false;
+	}
+
 
 	//Mark mirror Depth Stencil State
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));

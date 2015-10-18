@@ -43,9 +43,17 @@ bool BlendState::Init(ID3D11Device* device)
 
 
 	D3D11_BLEND_DESC offDesc = { 0 };
-	offDesc.AlphaToCoverageEnable = true;
+	offDesc.AlphaToCoverageEnable = false;
 	offDesc.IndependentBlendEnable = false;
+
 	offDesc.RenderTarget[0].BlendEnable = false;
+	offDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	offDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+	offDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	offDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	offDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	offDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	offDesc.RenderTarget[0].RenderTargetWriteMask = 0;
 	
 
 	result = device->CreateBlendState(&offDesc, &BSRenderTargetWriteOff);

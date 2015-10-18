@@ -6,3 +6,4 @@ Shapes with textures ------ 2200~
 Shapes w/ textures w/ MSAA ------ 1500~
 Pond Demo w/fog ------- 2000~
 Pond Demo w/fog w/ MSAA ------- 1400~
+Mirror Demo W/fog W/ MSAA ------- 1600~
