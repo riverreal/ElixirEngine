@@ -36,7 +36,7 @@ public:
 	virtual void Update(float dt) = 0;
 	virtual void Draw() = 0;
 	virtual void Frame();
-	void Run();
+	int Run();
 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -80,11 +80,21 @@ protected:
 	ID3D11DeviceContext* m_d3dDeviceContext;
 	ID3D11RenderTargetView* m_renderTargetView;
 	ID3D11Texture2D* m_depthStencilBuffer;
-	ID3D11DepthStencilState* m_depthStencilState;
+	//default
+	ID3D11DepthStencilState* m_depthStencilState; 
+	//for mirror rendering
+	ID3D11DepthStencilState* m_markMirrorDSS;
+	//for mirror rendering
+	ID3D11DepthStencilState* m_drawReflecDSS; 
 	ID3D11DepthStencilView* m_depthStencilView;
-	ID3D11RasterizerState* m_solidRS;
+	//default
+	ID3D11RasterizerState* m_solidRS; 
 	ID3D11RasterizerState* m_wireFrameRS;
-	ID3D11RasterizerState* m_solidNoCullRS;
+	//for transparent objects
+	ID3D11RasterizerState* m_solidNoCullRS; 
+	//for reflected objects
+	ID3D11RasterizerState* m_cullClockWiseRS;
+
 	DirectX::XMMATRIX m_projectionMatrix;
 	DirectX::XMMATRIX m_worldMatrix;
 	DirectX::XMMATRIX m_orthoMatrix;

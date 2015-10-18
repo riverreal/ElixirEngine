@@ -11,8 +11,8 @@ cbuffer MatrixBuffer
 
 struct VertexInputType
 {
-	float4 position : POSITION;
-	float4 normal : NORMAL;
+	float3 position : POSITION;
+	float3 normal : NORMAL;
 	float2 tex : TEXCOORD;
 };
 
@@ -28,15 +28,12 @@ PixelInputType LightVertexShader(VertexInputType input)
 {
 	PixelInputType output;
 
-	input.position.w = 1.0f;
+	output.positionW = mul(float4(input.position, 1.0f), worldMatrix).xyz;
+	output.normalW = mul(input.normal, (float3x3)worldInvTranspose);
 
-	output.positionW = mul(input.position, worldMatrix).xyz;
-
-	output.position = mul(input.position, worldMatrix);
+	output.position = mul(float4(input.position, 1.0f), worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
-
-	output.normalW = mul(input.normal, (float3x3)worldInvTranspose);
 
 	output.tex = mul(float4(input.tex, 0.0f, 1.0f), gTexTransform).xy;
 

@@ -67,6 +67,7 @@ bool LightShader::InitializeShader(ID3D11Device* device, HWND window)
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC fogBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	HRESULT result;
 
@@ -124,6 +125,20 @@ bool LightShader::InitializeShader(ID3D11Device* device, HWND window)
 		MessageBox(0, L"Could not create light buffer.", 0, MB_OK);
 		return false;
 	}
+
+	fogBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	fogBufferDesc.ByteWidth = sizeof(FogBuffer);
+	fogBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	fogBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	fogBufferDesc.MiscFlags = 0;
+	fogBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&fogBufferDesc, nullptr, &m_fogBuffer);
+	if (FAILED(result))
+	{
+		MessageBox(0, L"Could not create fog buffer.", 0, MB_OK);
+		return false;
+	}
 	
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -167,6 +182,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
 	LightBuffer* dataPtr2;
+	FogBuffer* dataPtr3;
 	unsigned int bufferNumber;
 
 	//-------------------------------------------------------------
@@ -178,11 +194,14 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	XMFLOAT4X4 worldInv, textCpy;
 
 	worldCpy = XMMatrixTranspose(world);
-	XMStoreFloat4x4(&worldInv, worldCpy);
 	viewCpy = XMMatrixTranspose(view);
 	projCpy = XMMatrixTranspose(proj);
 	
-	
+	XMMATRIX A = worldCpy;
+	A.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	XMVECTOR det = XMMatrixDeterminant(A);
+	XMMATRIX inv = XMMatrixTranspose(XMMatrixInverse(&det, A));
+	XMStoreFloat4x4(&worldInv, inv);
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -214,15 +233,30 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr2->dirLight = lightData.Directional;
 	dataPtr2->pointLight = lightData.Point;
 	dataPtr2->spotLight = lightData.Spot;
-	dataPtr2->eyePos = eyePos;
 	dataPtr2->material = m_material;
-	dataPtr2->fog = fog;
+	dataPtr2->eyePos = eyePos;
 
 	deviceContext->Unmap(m_lightBuffer, 0);
 
 	bufferNumber = 0;
 
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+
+	//----------------Map Fog Buffer
+	result = deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr3 = (FogBuffer*)mappedResource.pData;
+	dataPtr3->fog = fog;
+
+	deviceContext->Unmap(m_fogBuffer, 0);
+
+	bufferNumber = 1;
+
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_fogBuffer);
 
 	//-------------------------------------------------------------
 	//-------Set Shader Resource

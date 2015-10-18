@@ -2,7 +2,7 @@
 
 ID3D11BlendState* BlendState::BSAlphaCoverage = 0;
 ID3D11BlendState* BlendState::BSTransparent = 0;
-ID3D11BlendState* BlendState::BSOff = 0;
+ID3D11BlendState* BlendState::BSRenderTargetWriteOff = 0;
 
 bool BlendState::Init(ID3D11Device* device)
 {
@@ -46,8 +46,9 @@ bool BlendState::Init(ID3D11Device* device)
 	offDesc.AlphaToCoverageEnable = true;
 	offDesc.IndependentBlendEnable = false;
 	offDesc.RenderTarget[0].BlendEnable = false;
+	
 
-	result = device->CreateBlendState(&offDesc, &BSOff);
+	result = device->CreateBlendState(&offDesc, &BSRenderTargetWriteOff);
 	if (FAILED(result))
 	{
 		return false;
@@ -60,5 +61,5 @@ void BlendState::Shutdown()
 {
 	ReleaseCOM(BSTransparent);
 	ReleaseCOM(BSAlphaCoverage);
-	ReleaseCOM(BSOff);
+	ReleaseCOM(BSRenderTargetWriteOff);
 }

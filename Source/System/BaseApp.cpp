@@ -37,9 +37,12 @@ BaseApp::~BaseApp()
 	}
 
 	ReleaseCOM(m_solidRS);
+	ReleaseCOM(m_cullClockWiseRS);
 	ReleaseCOM(m_wireFrameRS);
 	ReleaseCOM(m_solidNoCullRS);
 	ReleaseCOM(m_depthStencilView);
+	ReleaseCOM(m_drawReflecDSS);
+	ReleaseCOM(m_markMirrorDSS);
 	ReleaseCOM(m_depthStencilState);
 	ReleaseCOM(m_depthStencilBuffer);
 	ReleaseCOM(m_renderTargetView);
@@ -71,7 +74,7 @@ bool BaseApp::Init()
 	return true;
 }
 
-void BaseApp::Run()
+int BaseApp::Run()
 {
 	MSG msg;
 
@@ -81,7 +84,7 @@ void BaseApp::Run()
 
 	while (msg.message != WM_QUIT)
 	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -114,6 +117,8 @@ void BaseApp::Run()
 			}
 		}
 	}
+
+	return (int)msg.wParam;
 }
 
 void BaseApp::Frame()
@@ -453,6 +458,7 @@ bool BaseApp::InitD3D()
 	}
 
 	//------Depth Stencil State
+	//Default
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 
 	depthStencilDesc.DepthEnable = true;
@@ -480,6 +486,61 @@ bool BaseApp::InitD3D()
 		return false;
 	}
 
+	//Mark mirror Depth Stencil State
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = true;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	result = m_d3dDevice->CreateDepthStencilState(&depthStencilDesc, &m_markMirrorDSS);
+	if (FAILED(result))
+	{
+		MessageBox(0, L"Failed to create depth stencil", 0, 0);
+		return false;
+	}
+
+	//Draw Reflection Depth Stencil State
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = true;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+
+	result = m_d3dDevice->CreateDepthStencilState(&depthStencilDesc, &m_drawReflecDSS);
+	if (FAILED(result))
+	{
+		MessageBox(0, L"Failed to create depth stencil", 0, 0);
+		return false;
+	}
+
+	//Set Default Depth Stencil State
 	m_d3dDeviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 
 
@@ -526,12 +587,13 @@ bool BaseApp::InitD3D()
 		return false;
 	}
 
-	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
-	result = m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &m_wireFrameRS);
+	rasterizerDesc.FrontCounterClockwise = true;
+	result = m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &m_cullClockWiseRS);
 	if (FAILED(result))
 	{
 		return false;
 	}
+	rasterizerDesc.FrontCounterClockwise = false;
 
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
 	result = m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &m_solidNoCullRS);
@@ -539,6 +601,15 @@ bool BaseApp::InitD3D()
 	{
 		return false;
 	}
+
+	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+	result = m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &m_wireFrameRS);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	
 
 	//default Rasterizer mode
 	m_d3dDeviceContext->RSSetState(m_solidRS);
@@ -616,22 +687,21 @@ LRESULT BaseApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				PostQuitMessage(0);
 				return 0;
 			}
+			return 0;
 		}
 		case WM_LBUTTONDOWN:
-		{
+		case WM_MBUTTONDOWN:
+		case WM_RBUTTONDOWN:
 			OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
-		}
 		case WM_LBUTTONUP:
-		{
+		case WM_MBUTTONUP:
+		case WM_RBUTTONUP:
 			OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
-		}
 		case WM_MOUSEMOVE:
-		{
 			OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
-		}
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);

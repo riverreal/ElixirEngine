@@ -6,10 +6,14 @@ cbuffer LightBuffer
 	PointLight gPointLight;
 	SpotLight gSpotLight;
 	Material gMaterial;
-	Fog gFog;
 	float3 gEyePosW;
-	
 	float pad;
+};
+
+cbuffer FogBuffer
+{
+	Fog gFog;
+	//float pad;
 };
 
 Texture2D gDiffuseMap;
@@ -25,12 +29,12 @@ struct PixelInputType
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-	
 	input.normalW = normalize(input.normalW);
 
-	float3 toEye = gEyePosW - input.positionW;
-	float distToEye = length(toEye);
 
+	float3 toEye = gEyePosW - input.positionW;
+	
+	float distToEye = length(toEye);
 	toEye /= distToEye;
 
 	float4 texColor = float4(1, 1, 1, 1);
@@ -63,10 +67,10 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float4 litColor =  texColor * (ambient + diffuse) + specular;
 
 	//fog
-	if (gFog.fogEnabled)
+	if(gFog.Enabled == true)
 	{
-		float fogLerp = saturate((distToEye - gFog.fogStart) / gFog.fogRange );
-		litColor = lerp(litColor, gFog.fogColor, fogLerp);
+		float fogLerp = saturate((distToEye - gFog.FogStart) / gFog.FogRange );
+		litColor = lerp(litColor, gFog.FogColor, fogLerp);
 	}
 
 	litColor.a = gMaterial.Diffuse.a * texColor.a;

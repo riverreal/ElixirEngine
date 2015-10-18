@@ -43,10 +43,14 @@ private:
 		PointLight pointLight;
 		SpotLight spotLight;
 		Material material;
-		Fog fog;
 		DirectX::XMFLOAT3 eyePos;
-		float pad1;
-		float pad2;
+		float pad;
+	};
+
+	struct FogBuffer //Used in Pixel Shader
+	{
+		Fog fog;
+		float pad;
 	};
 
 private:
@@ -56,6 +60,7 @@ private:
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11Buffer* m_lightBuffer;
+	ID3D11Buffer* m_fogBuffer;
 
 	Material m_material;
 };

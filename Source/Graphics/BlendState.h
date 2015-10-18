@@ -11,5 +11,5 @@ public:
 
 	static ID3D11BlendState* BSAlphaCoverage;
 	static ID3D11BlendState* BSTransparent;
-	static ID3D11BlendState* BSOff; //Or just set NULL at OMSetBlendState
+	static ID3D11BlendState* BSRenderTargetWriteOff;
 };

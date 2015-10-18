@@ -23,3 +23,4 @@ float MathHelper::AngleFromXY(float x, float y)
 
 	return theta;
 }
+

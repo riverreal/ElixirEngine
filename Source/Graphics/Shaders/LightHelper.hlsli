@@ -46,10 +46,10 @@ struct Material
 
 struct Fog
 {
-	bool fogEnabled;
-	float fogStart;
-	float fogRange;
-	float4 fogColor;
+	bool Enabled;
+	float FogStart;
+	float FogRange;
+	float4 FogColor;
 };
 
 float CelShadingFunc(float factor)
