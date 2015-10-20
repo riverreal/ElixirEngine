@@ -108,7 +108,7 @@ offsetData Model::AddCustomGeometry(std::wstring fileName)
 	std::string str_fileName(fileName.begin(), fileName.end());
 	//Get Data from File
 	fin.open(str_fileName);
-	LPCWSTR errorMsg = L"Not Found";
+	LPCWSTR errorMsg = L"Not Found Custom Geometry";
 
 	if (!fin)
 	{
@@ -193,11 +193,6 @@ void Model::Shutdown()
 void Model::Render(ID3D11DeviceContext* deviceContext)
 {
 	RenderBuffers(deviceContext);
-}
-
-int Model::GetIndexCount()
-{
-	return m_totalIndexCount;
 }
 
 bool Model::InitializeBuffers(ID3D11Device* device)

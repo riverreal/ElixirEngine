@@ -45,6 +45,12 @@ struct Vertex
 
 };
 
+struct SpriteVertex
+{
+	DirectX::XMFLOAT3 Pos;
+	DirectX::XMFLOAT2 Size;
+};
+
 struct MeshData
 {
 	std::vector<Vertex> Vertices;

@@ -28,8 +28,6 @@ public:
 	void Shutdown();
 	void Render(ID3D11DeviceContext* deviceContext);
 
-	int GetIndexCount();
-
 private:
 	bool InitializeBuffers(ID3D11Device* device);
 	void ShutdownBuffers();
@@ -39,8 +37,8 @@ private:
 	int m_modelType;
 	ID3D11Buffer* m_vertexBuffer;
 	ID3D11Buffer* m_indexBuffer;
-	int m_totalVertexCount;
-	int m_totalIndexCount;
+	UINT m_totalVertexCount;
+	UINT m_totalIndexCount;
 	std::vector<Vertex> m_totalVertex;
 	std::vector<UINT> m_totalIndex;
 
