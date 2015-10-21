@@ -15,7 +15,7 @@ VertexOut VS(VertexIn input)
 	VertexOut output;
 
 	output.CenterW = input.PosW;
-	otput.SizeW = input.SizeW;
+	output.SizeW = input.SizeW;
 
 	return output;
 }

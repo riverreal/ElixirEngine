@@ -13,6 +13,11 @@ Sprite::~Sprite()
 {
 }
 
+UINT Sprite::GetTotalVertexCount()
+{
+	return m_totalVertexCount;
+}
+
 UINT Sprite::AddSprite(UINT spriteCount)
 {
 	std::vector<SpriteVertex> vertices(spriteCount);
@@ -79,10 +84,14 @@ bool Sprite::InitializeBuffers(ID3D11Device* device)
 
 void Sprite::ShutdownBuffers()
 {
-
+	ReleaseCOM(m_vertexBuffer);
 }
 
 void Sprite::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
+	UINT stride = sizeof(SpriteVertex);
+	UINT offset = 0;
 
+	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 }

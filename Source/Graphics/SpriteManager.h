@@ -13,9 +13,10 @@ public:
 
 	///<summary>
 	///
-	///Adds as many sprites as spriteCount
+	///Adds as many sprites as spriteCount to the vertex buffer
 	///</summary>
 	UINT AddSprite(UINT spriteCount);
+	UINT GetTotalVertexCount();
 
 	bool Initialize(ID3D11Device* device);
 	void Shutdown();
