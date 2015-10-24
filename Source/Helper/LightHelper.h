@@ -5,6 +5,8 @@
 
 using namespace DirectX;
 
+
+
 struct DirectionalLight
 {
 	DirectionalLight() { ZeroMemory(this, sizeof(this)); }
@@ -77,3 +79,5 @@ struct Fog
 	XMFLOAT4 FogColor;
 
 };
+
+

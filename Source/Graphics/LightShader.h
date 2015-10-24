@@ -13,19 +13,20 @@ public:
 	LightShader(const LightShader& other);
 	~LightShader();
 
-	bool Initialize(ID3D11Device* device, HWND window, Material material);
+	bool Initialize(ID3D11Device* device, HWND window);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world, 
 		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog, DirectX::XMFLOAT3 eyePos,
 		ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf,
-		offsetData offset);
+		offsetData offset, Material material);
 
 private:
 	bool InitializeShader(ID3D11Device* device, HWND window);
 	void ShutdownShader();
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world,
-		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog, DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf);
+		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog, 
+		DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf, Material material);
 	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
 	struct MatrixBuffer //Used in Vertex Shader
@@ -61,6 +62,4 @@ private:
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11Buffer* m_lightBuffer;
 	ID3D11Buffer* m_fogBuffer;
-
-	Material m_material;
 };

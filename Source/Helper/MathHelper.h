@@ -1,5 +1,10 @@
 #pragma once
 
+#include <Windows.h>
+#include <DirectXMath.h>
+
+using namespace DirectX;
+
 class MathHelper
 {
 public:
@@ -16,6 +21,8 @@ public:
 	}
 
 	static float AngleFromXY(float x, float y);
+
+	static XMMATRIX WorldToBillboard(const XMMATRIX &source, XMFLOAT3 eyePos);
 
 	static const float Pi;
 };

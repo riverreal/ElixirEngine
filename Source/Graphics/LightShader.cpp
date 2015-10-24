@@ -11,6 +11,7 @@ LightShader::LightShader()
 	m_layout(0),
 	m_matrixBuffer(0),
 	m_lightBuffer(0),
+	m_fogBuffer(0),
 	m_samplerState(0)
 {
 }
@@ -23,17 +24,16 @@ LightShader::~LightShader()
 {
 }
 
-bool LightShader::Initialize(ID3D11Device* device, HWND window, Material material)
+bool LightShader::Initialize(ID3D11Device* device, HWND window)
 {
 	bool result;
 
 	result = InitializeShader(device, window);
 	if (!result)
 	{
+		MessageBox(0, L"Couldnt initialize shaders", 0, 0);
 		return false;
 	}
-
-	m_material = material;
 
 	return true;
 }
@@ -46,11 +46,11 @@ void LightShader::Shutdown()
 bool LightShader::Render(ID3D11DeviceContext* deviceContext,
 	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, Fog fog, XMFLOAT3 eyePos,
 	ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf,
-	offsetData offset)
+	offsetData offset, Material material)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, world, view, proj, lightData, fog, eyePos, texture, textTransf);
+	result = SetShaderParameters(deviceContext, world, view, proj, lightData, fog, eyePos, texture, textTransf, material);
 	if (!result)
 	{
 		return false;
@@ -177,7 +177,8 @@ void LightShader::ShutdownShader()
 }
 
 bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, Fog fog, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf)
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, 
+	Fog fog, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf, Material material)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -234,7 +235,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr2->dirLight = lightData.Directional;
 	dataPtr2->pointLight = lightData.Point;
 	dataPtr2->spotLight = lightData.Spot;
-	dataPtr2->material = m_material;
+	dataPtr2->material = material;
 	dataPtr2->eyePos = eyePos;
 
 	deviceContext->Unmap(m_lightBuffer, 0);
@@ -272,6 +273,7 @@ void LightShader::RenderShader(ID3D11DeviceContext* deviceContext, offsetData of
 {
 	deviceContext->IASetInputLayout(m_layout);
 	deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
+	deviceContext->GSSetShader(nullptr, nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader, nullptr, 0);
 	deviceContext->PSSetSamplers(0, 1, &m_samplerState);
 	deviceContext->DrawIndexed(offset.indexCount, offset.indexOffset, offset.vertexOffset);
