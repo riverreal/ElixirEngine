@@ -82,6 +82,7 @@ protected:
 	ID3D11Texture2D* m_depthStencilBuffer;
 	//default
 	ID3D11DepthStencilState* m_depthStencilState; 
+	ID3D11DepthStencilState* m_skyDSS;
 	//for mirror rendering
 	ID3D11DepthStencilState* m_markMirrorDSS;
 	//for mirror rendering

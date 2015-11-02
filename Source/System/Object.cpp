@@ -5,9 +5,15 @@ using namespace DirectX;
 Object::Object()
 	:m_rotation(XMFLOAT3(0.0f, 0.0f, 0.0f)),
 	m_position(XMFLOAT3(0.0f, 0.0f, 0.0f)),
-	m_scale(XMFLOAT3(0.0f, 0.0f, 0.0f))
+	m_scale(XMFLOAT3(0.0f, 0.0f, 0.0f)),
+	m_texPos(XMFLOAT3(0.0f, 0.0f, 0.0f)),
+	m_texSca(XMFLOAT3(0.0f, 0.0f, 0.0f)),
+	m_texRot(XMFLOAT3(0.0f, 0.0f, 0.0f)),
+	m_texTrans(XMMatrixIdentity()),
+	m_world(XMMatrixIdentity()),
+	m_textureID(0),
+	m_materialID(0)
 {
-
 }
 
 Object::Object(bool staticObject)
@@ -170,14 +176,101 @@ XMMATRIX Object::GetWorldMatrix()
 	return m_world;
 }
 
+void Object::SetTexTransformPos(float px, float py, float pz)
+{
+	m_texPos = XMFLOAT3(px, py, pz);
+}
+
+void Object::SetTexTransformRotate(float rx, float ry, float rz)
+{
+	m_texRot = XMFLOAT3(rx, ry, rz);
+}
+
+void Object::SetTexTransformScale(float sx, float sy, float sz)
+{
+	m_texSca = XMFLOAT3(sx, sy, sz);
+}
+
+XMMATRIX Object::GetTexTransform()
+{
+	return m_texTrans;
+}
+
+void Object::SetTextureID(UINT textureID)
+{
+	m_textureID = textureID;
+}
+
+UINT Object::GetTextureID()
+{
+	return m_textureID;
+}
+
+void Object::SetMaterialAmbient(XMFLOAT4 values)
+{
+	m_material.Ambient = values;
+}
+
+void Object::SetMaterialAmbient(float r, float g, float b, float a)
+{
+	m_material.Ambient = XMFLOAT4(r, g, b, a);
+}
+
+void Object::SetMaterialDiffuse(XMFLOAT4 values)
+{
+	m_material.Diffuse = values;
+}
+
+void Object::SetMaterialDiffuse(float r, float g, float b, float a)
+{
+	m_material.Diffuse = XMFLOAT4(r, g, b, a);
+}
+
+void Object::SetMaterialSpecular(XMFLOAT4 values)
+{
+	m_material.Specular = values;
+}
+
+void Object::SetMaterialSpecular(float r, float g, float b, float specPower)
+{
+	m_material.Specular = XMFLOAT4(r, g, b, specPower);
+}
+
+void Object::SetMaterial(Material material)
+{
+	m_material = material;
+}
+
+Material Object::GetMaterial()
+{
+	return m_material;
+}
+
+void Object::SetTexture(ID3D11ShaderResourceView* texture)
+{
+	m_texture = texture;
+}
+
+ID3D11ShaderResourceView* Object::GetTexture()
+{
+	return m_texture;
+}
+
 void Object::Update()
 {
+	//object world Update
 	XMMATRIX scaling = XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z);
 	XMMATRIX rotation = XMMatrixMultiply(XMMatrixMultiply(XMMatrixRotationY(XMConvertToRadians(m_rotation.y)), 
 		XMMatrixRotationX(XMConvertToRadians(m_rotation.x))), XMMatrixRotationZ(XMConvertToRadians(m_rotation.z)));
 	XMMATRIX translation = XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
-
 	m_world = XMMatrixMultiply(XMMatrixMultiply(scaling, rotation), translation);
+
+	//tex transforma Update
+	scaling = XMMatrixScaling(m_texSca.x, m_texSca.y, m_texSca.z);
+	rotation = XMMatrixMultiply(XMMatrixMultiply(XMMatrixRotationY(XMConvertToRadians(m_texRot.y)),
+		XMMatrixRotationX(XMConvertToRadians(m_texRot.x))), XMMatrixRotationZ(XMConvertToRadians(m_texRot.z)));
+	translation = XMMatrixTranslation(m_texPos.x, m_texPos.y, m_texPos.z);
+	m_texTrans = XMMatrixMultiply(XMMatrixMultiply(scaling, rotation), translation);
 }
 
 void Object::Render()

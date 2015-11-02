@@ -21,37 +21,18 @@ public:
 private:
 	Camera m_camera;
 	Model m_shapes;
-
-	ID3D11ShaderResourceView* m_texCrate;
-	ID3D11ShaderResourceView* m_texGrass;
-	ID3D11ShaderResourceView* m_texWater;
-	ID3D11ShaderResourceView* m_texBrick;
-	ID3D11ShaderResourceView* m_texRough;
-	ID3D11ShaderResourceView* m_texMirror;
-	ID3D11ShaderResourceView* m_texNull;
-	DirectX::XMMATRIX m_texTranfDef;
-	DirectX::XMMATRIX m_texTranfCrate;
-	DirectX::XMMATRIX m_texTransfGrass;
-	DirectX::XMMATRIX m_texTransfWater;
-	DirectX::XMMATRIX m_texTransfBrick;
-
+	TextureManager m_texureManager;
 	//Light
 	BasicLight m_basicLight;
-
 	//Fog
 	Fog m_fog;
-
-	//Materials
-	Material m_matShiny;
-	Material m_matRough;
-	Material m_matWater;
-	Material m_matShadow;
-
 	//Renderers
 	LightShader m_rendererLightShader;
-
+	SkyDome m_rendererSky;
 	//Objects
-	Object m_plane;
+	Object* m_plane;
+	Object* m_sky;
+
 	DirectX::XMFLOAT3 m_eyePos;
 
 	POINT m_lastMousePos;
@@ -71,7 +52,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	return 0;
 }
 
-
 SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 	:BaseApp(instance, width, height)
 {
@@ -79,32 +59,28 @@ SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 
 SimpleApp::~SimpleApp()
 {
+	m_rendererSky.Shutdown();
 	m_rendererLightShader.Shutdown();
 	m_shapes.Shutdown();
+	delete m_sky;
+	m_sky = 0;
+	delete m_plane;
+	m_plane = 0;
 	BlendState::Shutdown();
 }
 
 bool SimpleApp::SceneInit()
 {
-	//Vertor based Variables
-
+	//Object Init
+	m_plane = new Object;
+	m_sky = new Object;
 	//-----------------------------------------------------------------------------------------------------
 	//        Texture Init
 	//-----------------------------------------------------------------------------------------------------
-	m_texTranfDef = XMMatrixIdentity();
-	m_texTransfGrass = XMMatrixMultiply(m_texTranfDef, XMMatrixScaling(70.0f, 70.0f, 1.0f));
-	m_texTranfCrate = m_texTranfDef;
-	m_texTransfBrick = XMMatrixMultiply(m_texTranfDef, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	m_texTransfWater = XMMatrixMultiply(m_texTranfDef, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-
-	m_texCrate = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/WoodCrate01.dds");
-	m_texWater = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/water2.dds");
-	m_texGrass = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/grass.dds");
-	m_texBrick = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/darkbrickdxt1.dds");
-	m_texRough = TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-rough.jpg");
-	m_texMirror = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/ice.dds");
-	m_texNull = TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/water1.dds");
-
+	m_plane->SetTexTransformScale(50.0f, 50.0f, 1.0f);
+	m_plane->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/floor.dds"));
+	m_sky->SetTexTransformScale(10.0f, 10.0f, 1.0f);
+	m_sky->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/purple_gamma_clouds_skybox.dds"));
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
 	//-----------------------------------------------------------------------------------------------------
@@ -112,7 +88,6 @@ bool SimpleApp::SceneInit()
 	m_basicLight.Directional.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 	m_basicLight.Directional.Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	m_basicLight.Directional.Direction = XMFLOAT3(-0.707f, -1.0f, 0.7f);
-	
 	/*
 	m_basicLight.Spot.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_basicLight.Spot.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -131,7 +106,6 @@ bool SimpleApp::SceneInit()
 	m_basicLight.Point.Range = 200.0f;
 	m_basicLight.Point.Position = XMFLOAT3(m_pointBulbPos);
 	*/
-
 	//-----------------------------------------------------------------------------------------------------
 	//        Fog Init
 	//-----------------------------------------------------------------------------------------------------
@@ -139,42 +113,27 @@ bool SimpleApp::SceneInit()
 	m_fog.FogColor = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 	m_fog.FogStart = 15.0f;
 	m_fog.FogRange = 175.0f;
-
 	//-----------------------------------------------------------------------------------------------------
 	//        Material Init
 	//-----------------------------------------------------------------------------------------------------
-	m_matShiny.Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	m_matShiny.Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
-	m_matShiny.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 2.5f);
-
-	m_matRough.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_matRough.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
-	m_matRough.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-
-	m_matWater.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	m_matWater.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f); //Semi Transparent water
-	m_matWater.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
-
-	//-------Shadow material
-	m_matShadow.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	m_matShadow.Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.7f);
-	m_matShadow.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 16.0f);
-
+	m_plane->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
+	m_plane->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
+	m_plane->SetMaterialSpecular(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+	m_sky->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
+	m_sky->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
+	m_sky->SetMaterialSpecular(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object Geometry Init
 	//-----------------------------------------------------------------------------------------------------
-
-	m_plane.SetOffset(m_shapes.AddGeometry(MODEL_TYPE_PLAIN));
-
-
+	m_plane->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_PLAIN));
+	m_sky->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init
 	//-----------------------------------------------------------------------------------------------------
-
-	m_plane.SetScale(100.0f, 1.0f, 100.0f);
-	m_plane.SetPosition(0.0f, 0.0f, 0.0f);
-
-
+	m_plane->SetScale(500.0f, 1.0f, 500.0f);
+	m_plane->SetPosition(0.0f, 0.0f, 0.0f);
+	m_sky->SetPosition(0.0f, 0.0f, 0.0f);
+	m_sky->SetScale(30.0f, 30.0f, 30.0f);
 	//-----------------------------------------------------------------------------------------------------
 	//        Renderer Init
 	//-----------------------------------------------------------------------------------------------------
@@ -184,6 +143,11 @@ bool SimpleApp::SceneInit()
 	}
 
 	if (!m_rendererLightShader.Initialize(m_d3dDevice, m_hWnd))
+	{
+		return false;
+	}
+
+	if (!m_rendererSky.Initialize(m_d3dDevice, m_hWnd))
 	{
 		return false;
 	}
@@ -218,7 +182,6 @@ bool SimpleApp::Init()
 
 void SimpleApp::Update(float dt)
 {
-	
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
 		m_camera.Walk(-10.0f*dt);
@@ -253,8 +216,13 @@ void SimpleApp::Update(float dt)
 	{
 		m_fog.Enabled = false;
 	}
-	
-	m_plane.Update();
+
+	//dynamic object
+	//m_plane->SetPosition(m_camera.GetPosition());
+	m_plane->Update();
+
+	m_sky->SetPosition(m_camera.GetPosition());
+	m_sky->Update();
 }
 
 void SimpleApp::Draw()
@@ -263,7 +231,6 @@ void SimpleApp::Draw()
 	assert(m_swapChain);
 
 	float color[4] = {0, 0, 0, 255};
-
 	m_d3dDeviceContext->ClearRenderTargetView(m_renderTargetView, color);
 	m_d3dDeviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -272,13 +239,18 @@ void SimpleApp::Draw()
 	XMMATRIX view;
 	view = m_camera.GetViewMatrix();
 	m_eyePos = m_camera.GetPosition();
-
 	m_shapes.Render(m_d3dDeviceContext);
 
 	//----------Rendering----------------------------------------------------------------------
 	m_d3dDeviceContext->RSSetState(m_solidRS);
-	m_rendererLightShader.Render(m_d3dDeviceContext, m_plane.GetWorldMatrix(), view, m_projectionMatrix, m_basicLight, m_fog, m_eyePos, m_texGrass, m_texTransfGrass, m_plane.GetOffset(), m_matRough);
+	m_rendererLightShader.Render(m_d3dDeviceContext, m_plane, m_camera, m_projectionMatrix, m_basicLight, m_fog);
 	
+	m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
+	m_d3dDeviceContext->OMSetDepthStencilState(m_skyDSS, 1);
+	m_rendererSky.Render(m_d3dDeviceContext, m_sky, m_camera, m_projectionMatrix, m_basicLight, m_fog);
+	m_d3dDeviceContext->RSSetState(m_solidRS);
+	m_d3dDeviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
+
 	if (VSYNC_ENABLED)
 	{
 		m_swapChain->Present(1, 0);

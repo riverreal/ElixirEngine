@@ -29,6 +29,7 @@ struct PixelInputType
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
+	
 	input.normalW = normalize(input.normalW);
 
 
@@ -76,4 +77,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	litColor.a = gMaterial.Diffuse.a * texColor.a;
 	
 	return litColor;
+	
+
+	//return gDiffuseMap.Sample(samAnisotropic, input.positionW);
 }

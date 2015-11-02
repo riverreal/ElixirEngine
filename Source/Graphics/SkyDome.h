@@ -8,12 +8,11 @@
 #include "../Helper/LightHelper.h"
 #include "../Helper/TypeHelper.h"
 
-class LightShader
+class SkyDome
 {
 public:
-	LightShader();
-	LightShader(const LightShader& other);
-	~LightShader();
+	SkyDome();
+	~SkyDome();
 
 	bool Initialize(ID3D11Device* device, HWND window);
 	void Shutdown();
@@ -24,7 +23,7 @@ private:
 	void ShutdownShader();
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world,
-		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog, 
+		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog,
 		DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf, Material material);
 	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
@@ -33,25 +32,9 @@ private:
 		DirectX::XMMATRIX world;
 		DirectX::XMMATRIX view;
 		DirectX::XMMATRIX projection;
-		DirectX::XMFLOAT4X4 worldInvTranspose;
-		DirectX::XMFLOAT4X4 texTransform;
-	};
-
-	struct LightBuffer //Used in Pixel Shader
-	{
-		DirectionalLight dirLight;
-		PointLight pointLight;
-		SpotLight spotLight;
-		Material material;
-		DirectX::XMFLOAT3 eyePos;
 		float pad;
 	};
 
-	struct FogBuffer //Used in Pixel Shader
-	{
-		Fog fog;
-		float pad;
-	};
 
 private:
 	ID3D11SamplerState* m_samplerState;
@@ -59,6 +42,5 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer;
-	ID3D11Buffer* m_lightBuffer;
-	ID3D11Buffer* m_fogBuffer;
+
 };
