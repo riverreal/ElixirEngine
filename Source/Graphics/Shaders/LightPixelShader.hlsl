@@ -46,8 +46,8 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	[unroll]
-
-	float4 A, D, S;
+	/*
+	float4 A = 0, D = 0, S = 0;
 	
 	ComputeDirectionalLight(gMaterial, gDirLight, input.normalW, toEye, A, D, S);
 	ambient += A;
@@ -66,7 +66,23 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	
 	//Modelulate with late add
 	float4 litColor =  texColor * (ambient + diffuse) + specular;
+		
+	*/
 
+	
+	
+
+	float4 litColor;
+
+	float lightIntensity = 1.0f;
+	float att = 0.2;
+	float ambientIntensity = 1.0f;
+	float reflectionIntensity = 1.0f;
+
+	float3 light = ComputeLight(gMaterial, gDirLight, input.normalW, toEye, texColor.rgb);
+	float3 albedo = texColor.rgb - texColor.rgb * 1.0f;
+	litColor.rgb = att * albedo * ambientIntensity + light * lightIntensity;
+	
 	//fog
 	if(gFog.Enabled == true)
 	{

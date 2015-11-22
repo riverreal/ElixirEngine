@@ -16,8 +16,8 @@ public:
 	void OnMouseDown(WPARAM btnState, int x, int y) override;
 	void OnMouseUp(WPARAM btnState, int x, int y) override;
 	void OnMouseMove(WPARAM btnState, int x, int y) override;
-
 	bool SceneInit();
+
 private:
 	Camera m_camera;
 	Model m_shapes;
@@ -77,17 +77,17 @@ bool SimpleApp::SceneInit()
 	//-----------------------------------------------------------------------------------------------------
 	//        Texture Init
 	//-----------------------------------------------------------------------------------------------------
-	m_plane->SetTexTransformScale(50.0f, 50.0f, 1.0f);
-	m_plane->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/floor.dds"));
+	m_plane->SetTexTransformScale(3.0f, 3.0f, 3.0f);
+	m_plane->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-rough.jpg"));
 	m_sky->SetTexTransformScale(10.0f, 10.0f, 1.0f);
-	m_sky->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/purple_gamma_clouds_skybox.dds"));
+	m_sky->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/void_space_skybox.dds"));
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
 	//-----------------------------------------------------------------------------------------------------
-	m_basicLight.Directional.Ambient = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
-	m_basicLight.Directional.Diffuse = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
-	m_basicLight.Directional.Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	m_basicLight.Directional.Direction = XMFLOAT3(-0.707f, -1.0f, 0.7f);
+	m_basicLight.Directional.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	m_basicLight.Directional.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_basicLight.Directional.Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_basicLight.Directional.Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
 	/*
 	m_basicLight.Spot.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_basicLight.Spot.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -109,7 +109,7 @@ bool SimpleApp::SceneInit()
 	//-----------------------------------------------------------------------------------------------------
 	//        Fog Init
 	//-----------------------------------------------------------------------------------------------------
-	m_fog.Enabled = true;
+	m_fog.Enabled = false;
 	m_fog.FogColor = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 	m_fog.FogStart = 15.0f;
 	m_fog.FogRange = 175.0f;
@@ -118,20 +118,21 @@ bool SimpleApp::SceneInit()
 	//-----------------------------------------------------------------------------------------------------
 	m_plane->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
 	m_plane->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
-	m_plane->SetMaterialSpecular(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+	m_plane->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
 	m_sky->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
 	m_sky->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
 	m_sky->SetMaterialSpecular(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object Geometry Init
 	//-----------------------------------------------------------------------------------------------------
-	m_plane->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_PLAIN));
+	//m_plane->SetOffset(m_shapes.AddCustomGeometry(L"Resources/Models/skull.txt"));
+	m_plane->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
 	m_sky->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init
 	//-----------------------------------------------------------------------------------------------------
-	m_plane->SetScale(500.0f, 1.0f, 500.0f);
-	m_plane->SetPosition(0.0f, 0.0f, 0.0f);
+	m_plane->SetScale(1.0f, 1.0f, 1.0f);
+	m_plane->SetPosition(0.0f, 3.0f, 5.0f);
 	m_sky->SetPosition(0.0f, 0.0f, 0.0f);
 	m_sky->SetScale(30.0f, 30.0f, 30.0f);
 	//-----------------------------------------------------------------------------------------------------
