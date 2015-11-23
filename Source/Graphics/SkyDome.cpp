@@ -26,7 +26,7 @@ bool SkyDome::Initialize(ID3D11Device* device, HWND window)
 	result = InitializeShader(device, window);
 	if (!result)
 	{
-		MessageBox(0, L"Couldnt initialize shaders", 0, 0);
+		MessageBox(0, L"Couldnt initialize sky shaders", 0, 0);
 		return false;
 	}
 
@@ -45,7 +45,7 @@ bool SkyDome::Render(ID3D11DeviceContext* deviceContext, Object* object, Camera 
 	XMMATRIX world = object->GetWorldMatrix();
 	XMMATRIX view = camera.GetViewMatrix();
 	XMFLOAT3 eyePos = camera.GetPosition();
-	ID3D11ShaderResourceView* texture = object->GetTexture();
+	ID3D11ShaderResourceView* texture = object->GetTexture(0);
 	XMMATRIX textTransf = object->GetTexTransform();
 	Material material = object->GetMaterial();
 	offsetData offset = object->GetOffset();

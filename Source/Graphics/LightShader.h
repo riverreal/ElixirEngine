@@ -25,7 +25,7 @@ private:
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world,
 		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog, 
-		DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf, Material material);
+		DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* irradiance, ID3D11ShaderResourceView* envMap, const DirectX::XMMATRIX &textTransf, Material material);
 	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
 	struct MatrixBuffer //Used in Vertex Shader

@@ -236,6 +236,16 @@ void Object::SetMaterialSpecular(float r, float g, float b, float specPower)
 	m_material.Specular = XMFLOAT4(r, g, b, specPower);
 }
 
+void Object::SetMaterialProperties(XMFLOAT4 values)
+{
+	m_material.Properties = values;
+}
+
+void Object::SetMaterialProperties(float reflectiveness, float metallic, float roughness, float a)
+{
+	m_material.Properties = XMFLOAT4(reflectiveness, metallic, roughness, a);
+}
+
 void Object::SetMaterial(Material material)
 {
 	m_material = material;
@@ -246,14 +256,14 @@ Material Object::GetMaterial()
 	return m_material;
 }
 
-void Object::SetTexture(ID3D11ShaderResourceView* texture)
+void Object::SetTexture(ID3D11ShaderResourceView* texture, UINT slot)
 {
-	m_texture = texture;
+	m_texture[slot] = texture;
 }
 
-ID3D11ShaderResourceView* Object::GetTexture()
+ID3D11ShaderResourceView* Object::GetTexture(UINT slot)
 {
-	return m_texture;
+	return m_texture[slot];
 }
 
 void Object::Update()

@@ -1,7 +1,7 @@
 Core i7-4710MQ, nvidia GTX 880M, 8Gb RAM
 Rendering ---- FPS
 
-Forward rendered
+Forward rendered - 1280 x 720
 Nothing ---- 3000~
 Nothing with 4xMSAA ---- 2500~
 Shapes with textures ------ 2200~
@@ -11,3 +11,7 @@ Pond Demo w/fog w/ MSAA ------- 1400~
 Mirror Demo W/fog W/ MSAA ------- 1600~
 PBR wo/ IBL (1 light 1 sphere) ------- 1550~
 PBR wo/ IBL (1 light 1 sphere) wo/ MSAA -------- 2400~
+PBR w/ IBL (1 light 3 sphere) ------- 1580~
+|
+V
+FullHD(1920 x 1080) ------ 725~

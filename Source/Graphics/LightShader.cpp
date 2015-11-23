@@ -51,12 +51,14 @@ bool LightShader::Render(ID3D11DeviceContext* deviceContext, Object* object, Cam
 	XMMATRIX world = object->GetWorldMatrix();
 	XMMATRIX view = camera.GetViewMatrix();
 	XMFLOAT3 eyePos = camera.GetPosition();
-	ID3D11ShaderResourceView* texture = object->GetTexture();
+	ID3D11ShaderResourceView* albedo = object->GetTexture(0);
+	ID3D11ShaderResourceView* irradiance = object->GetTexture(1);
+	ID3D11ShaderResourceView* envMap = object->GetTexture(2);
 	XMMATRIX textTransf = object->GetTexTransform();
 	Material material = object->GetMaterial();
 	offsetData offset = object->GetOffset();
 
-	result = SetShaderParameters(deviceContext, world, view, proj, lightData, fog, eyePos, texture, textTransf, material);
+	result = SetShaderParameters(deviceContext, world, view, proj, lightData, fog, eyePos, albedo, irradiance, envMap, textTransf, material);
 	if (!result)
 	{
 		return false;
@@ -184,7 +186,7 @@ void LightShader::ShutdownShader()
 
 bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData, 
-	Fog fog, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf, Material material)
+	Fog fog, XMFLOAT3 eyePos, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* irradiance, ID3D11ShaderResourceView* envMap, const XMMATRIX &textTransf, Material material)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -270,7 +272,9 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	//-------Set Shader Resource
 	//-------------------------------------------------------------
 
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	deviceContext->PSSetShaderResources(0, 1, &albedo);
+	deviceContext->PSSetShaderResources(1, 1, &irradiance);
+	deviceContext->PSSetShaderResources(2, 1, &envMap);
 
 	return true;
 }

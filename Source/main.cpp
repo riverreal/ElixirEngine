@@ -78,9 +78,11 @@ bool SimpleApp::SceneInit()
 	//        Texture Init
 	//-----------------------------------------------------------------------------------------------------
 	m_plane->SetTexTransformScale(3.0f, 3.0f, 3.0f);
-	m_plane->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-rough.jpg"));
+	m_plane->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-rough.jpg"), 0);
+	m_plane->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1);
+	m_plane->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/snowcube1024.dds"), 2);
 	m_sky->SetTexTransformScale(10.0f, 10.0f, 1.0f);
-	m_sky->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/void_space_skybox.dds"));
+	m_sky->SetTexture(m_plane->GetTexture(2), 0);
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
 	//-----------------------------------------------------------------------------------------------------
@@ -119,14 +121,15 @@ bool SimpleApp::SceneInit()
 	m_plane->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
 	m_plane->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
 	m_plane->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
+	m_plane->SetMaterialProperties(XMFLOAT4(1.0f, 0.0f, 0.76f, 1.0f));
 	m_sky->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
 	m_sky->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
 	m_sky->SetMaterialSpecular(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object Geometry Init
 	//-----------------------------------------------------------------------------------------------------
-	//m_plane->SetOffset(m_shapes.AddCustomGeometry(L"Resources/Models/skull.txt"));
-	m_plane->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
+	m_plane->SetOffset(m_shapes.AddCustomGeometry(L"Resources/Models/car.txt"));
+	//m_plane->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
 	m_sky->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init

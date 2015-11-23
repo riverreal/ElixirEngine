@@ -43,7 +43,7 @@ struct Material
 	float4 Ambient;
 	float4 Diffuse;
 	float4 Specular;
-	float4 Reflect;
+	float4 Properties;
 };
 
 struct Fog
@@ -126,6 +126,13 @@ float3 SchlickFres(float h, float v, float3 specColor)
 	//return specColor + (1.0f - specColor) * pow(2, ((-5.55473*VdotH - 6.98316)*VdotH));
 }
 
+float3 SchlickFresRough(float h, float v, float3 specColor, float a)
+{
+	float VdotH = saturate(dot(v, h));
+	//attenuation by glossiness (1 - roughness)
+	return (specColor + (min(1.0f - a, specColor) - specColor) * pow((1.0f - VdotH), 5));
+}
+
 float CelShadingFunc(float factor)
 {
 	float newFactor = 0.0f;
@@ -151,7 +158,7 @@ float3 Diffuse(float3 albedo)
 	return albedo * 1 / PI;
 }
 
-float CookTorranceSpecularFactor(float3 normal, float3 viewer, float roughness, float metallic, Material mat, DirectionalLight dirL, float3 albedo)
+float CookTorranceSpecularFactor(float3 normal, float3 viewer, float metallic, float roughness, DirectionalLight dirL, float3 albedo)
 {
 	float distribution;
 	float3 light = -dirL.Direction;
@@ -222,7 +229,7 @@ float3 ComputeLight(Material mat, DirectionalLight L,
 	//-----------Lambert-------------
 	float NdotL = saturate(dot(normal, lightVec));
 	// Flatten to avoid dynamic branching.
-	float specular = CookTorranceSpecularFactor(normal, toEye, 0.4, 1.0, mat, L, albedo);
+	float specular = CookTorranceSpecularFactor(normal, toEye, mat.Properties.g, mat.Properties.b, L, albedo);
 
 	float3 diffuse = Diffuse(albedo);
 

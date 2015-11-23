@@ -86,14 +86,18 @@ public:
 	void SetMaterialAmbient(float r, float g, float b, float a);
 	void SetMaterialDiffuse(DirectX::XMFLOAT4 values);
 	void SetMaterialDiffuse(float r, float g, float b, float a);
+	//SpecularColor.rgb, SpecularPower
 	void SetMaterialSpecular(DirectX::XMFLOAT4 values);
 	void SetMaterialSpecular(float r, float g, float b, float specPower);
+	//Reflectiveness, Metallic, Roughness, unused
+	void SetMaterialProperties(DirectX::XMFLOAT4 values);
+	void SetMaterialProperties(float reflectiveness, float metallic, float roughness, float a);
 
 	void SetMaterial(Material material);
 	Material GetMaterial();
 
-	void SetTexture(ID3D11ShaderResourceView* texture);
-	ID3D11ShaderResourceView* GetTexture();
+	void SetTexture(ID3D11ShaderResourceView* texture, UINT slot);
+	ID3D11ShaderResourceView* GetTexture(UINT slot);
 
 	void Update();
 	void Render();
@@ -128,5 +132,5 @@ private:
 	UINT m_materialID;
 	//Temporal material storage will be removed once material manager is completed
 	Material m_material;
-	ID3D11ShaderResourceView* m_texture;
+	ID3D11ShaderResourceView* m_texture[3];
 };
