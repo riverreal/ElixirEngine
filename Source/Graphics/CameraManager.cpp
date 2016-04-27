@@ -40,6 +40,13 @@ void Camera::SetPosition(float x, float y, float z)
 	m_position = XMFLOAT3(x, y, z);
 }
 
+void Camera::SetRotation(float x, float y, float z)
+{
+	m_rotation.x = x;
+	m_rotation.y = y;
+	m_rotation.z = z;
+}
+
 XMVECTOR Camera::GetPositionXM() const
 {
 	return XMLoadFloat3(&m_position);
@@ -84,6 +91,12 @@ XMMATRIX Camera::GetViewMatrix() const
 {
 	return XMLoadFloat4x4(&m_viewMatrix);
 }
+/*
+XMMATRIX Camera::GetBaseViewMatrix() const
+{
+	return XMLoadFloat4x4(&m_baseViewMatrix);
+}
+*/
 
 void Camera::Strafe(float distance)
 {
@@ -120,6 +133,7 @@ void Camera::RotateY(float angle)
 
 void Camera::Update()
 {
+	
 	XMVECTOR R = XMLoadFloat3(&m_right);
 	XMVECTOR U = XMLoadFloat3(&m_up);
 	XMVECTOR L = XMLoadFloat3(&m_look);
@@ -158,7 +172,7 @@ void Camera::Update()
 	m_viewMatrix(1, 3) = 0.0f;
 	m_viewMatrix(2, 3) = 0.0f;
 	m_viewMatrix(3, 3) = 1.0f;
-
+	
 	/*
 	XMFLOAT3 up, pos, lookAt;
 	XMVECTOR upVec, posVec, lookAtVec;
@@ -179,9 +193,9 @@ void Camera::Update()
 
 	lookAtVec = XMLoadFloat3(&lookAt);
 
-	pitch = m_rotationX * 0.0174532925f;
-	yaw = m_rotationY * 0.0174532925f;
-	roll = m_rotationZ * 0.0174532925f;
+	pitch = m_rotation.x * 0.0174532925f;
+	yaw = m_rotation.y * 0.0174532925f;
+	roll = m_rotation.z * 0.0174532925f;
 
 	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
 
@@ -189,7 +203,42 @@ void Camera::Update()
 	upVec = XMVector3TransformCoord(upVec, rotationMatrix);
 
 	lookAtVec = XMVectorAdd(posVec, lookAtVec);
-	m_viewMatrix = XMMatrixLookAtLH(posVec, lookAtVec, upVec);
+	XMStoreFloat4x4(&m_viewMatrix, XMMatrixLookAtLH(posVec, lookAtVec, upVec));
 	*/
+}
+
+void Camera::calcOnce()
+{
+	XMFLOAT3 up, pos, lookAt;
+	XMVECTOR upVec, posVec, lookAtVec;
+	float yaw, pitch, roll;
+	XMMATRIX rotationMatrix;
+
+	up.x = 0.0f;
+	up.y = 1.0f;
+	up.z = 0.0f;
+
+	upVec = XMLoadFloat3(&up);
+
+	posVec = XMLoadFloat3(&m_position);
+
+	lookAt.x = 0.0f;
+	lookAt.y = 0.0f;
+	lookAt.z = 1.0f;
+
+	lookAtVec = XMLoadFloat3(&lookAt);
+
+	pitch = 0 * 0.0174532925f;
+	yaw = 0 * 0.0174532925f;
+	roll = 0 * 0.0174532925f;
+
+	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
+
+	lookAtVec = XMVector3TransformCoord(lookAtVec, rotationMatrix);
+	upVec = XMVector3TransformCoord(upVec, rotationMatrix);
+
+	lookAtVec = XMVectorAdd(posVec, lookAtVec);
+	XMMATRIX result = XMMatrixLookAtLH(posVec, lookAtVec, upVec);
+	 XMStoreFloat4x4(&m_viewMatrix, result);
 }
 

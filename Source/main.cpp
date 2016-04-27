@@ -21,19 +21,34 @@ public:
 private:
 	Camera m_camera;
 	Model m_shapes;
+	//scene will be rendered as a 2d post processing
+	OrthoManager m_ortho;
+
 	TextureManager m_texureManager;
 	//Light
 	BasicLight m_basicLight;
 	//Fog
 	Fog m_fog;
+	//buffer managers
+	DeferredRendering* m_deferredBuffers;
 	//Renderers
+
+	//Light shader for forward rendering
 	LightShader m_rendererLightShader;
+	//Light Shader for deferred rendering
+	DeferredLightShader m_rendererDeferredLS;
+	//Deferred Shader
+	DeferredShader m_rendererDeferredShader;
+	//Shader for sky
 	SkyDome m_rendererSky;
+
 	//Objects
-	Object* m_plane;
+	Object* m_plane[3];
 	Object* m_sky;
+	Object* m_screenQuad;
 
 	DirectX::XMFLOAT3 m_eyePos;
+	DirectX::XMMATRIX m_baseViewMatrix;
 
 	POINT m_lastMousePos;
 };
@@ -59,30 +74,52 @@ SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 
 SimpleApp::~SimpleApp()
 {
+	m_deferredBuffers->Shutdown();
 	m_rendererSky.Shutdown();
 	m_rendererLightShader.Shutdown();
+	m_rendererDeferredLS.Shutdown();
+	m_rendererDeferredShader.Shutdown();
+	m_ortho.Shutdown();
 	m_shapes.Shutdown();
+
+	delete m_screenQuad;
+	m_screenQuad = 0;
+
 	delete m_sky;
 	m_sky = 0;
-	delete m_plane;
-	m_plane = 0;
+
+	for (UINT i = 0; i < 3; ++i)
+	{
+		delete m_plane[i];
+		m_plane[i] = 0;
+	}
+
+	delete m_deferredBuffers;
+	m_deferredBuffers = 0;
+	
 	BlendState::Shutdown();
 }
 
 bool SimpleApp::SceneInit()
 {
 	//Object Init
-	m_plane = new Object;
 	m_sky = new Object;
 	//-----------------------------------------------------------------------------------------------------
 	//        Texture Init
 	//-----------------------------------------------------------------------------------------------------
-	m_plane->SetTexTransformScale(3.0f, 3.0f, 3.0f);
-	m_plane->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-rough.jpg"), 0);
-	m_plane->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1);
-	m_plane->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/snowcube1024.dds"), 2);
+	
+	for (UINT i = 0; i < 3; ++i)
+	{
+		m_plane[i] = new Object;
+		m_plane[i]->SetTexTransformScale(1.0f, 1.0f, 1.0f);
+		m_plane[i]->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/brick01.dds"), 0);
+		m_plane[i]->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1);
+		m_plane[i]->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/snowcube1024.dds"), 2);
+	}
+
 	m_sky->SetTexTransformScale(10.0f, 10.0f, 1.0f);
-	m_sky->SetTexture(m_plane->GetTexture(2), 0);
+	m_sky->SetTexture(m_plane[0]->GetTexture(2), 0);
+	m_screenQuad = new Object;
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
 	//-----------------------------------------------------------------------------------------------------
@@ -118,36 +155,81 @@ bool SimpleApp::SceneInit()
 	//-----------------------------------------------------------------------------------------------------
 	//        Material Init
 	//-----------------------------------------------------------------------------------------------------
-	m_plane->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
-	m_plane->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
-	m_plane->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
-	m_plane->SetMaterialProperties(XMFLOAT4(1.0f, 0.0f, 0.76f, 1.0f));
+	
+	m_plane[0]->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
+	m_plane[0]->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
+	m_plane[0]->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
+	m_plane[0]->SetMaterialProperties(XMFLOAT4(1.0f, 1.0f, 0.36f, 1.0f));
+
+	m_plane[1]->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
+	m_plane[1]->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
+	m_plane[1]->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
+	m_plane[1]->SetMaterialProperties(XMFLOAT4(0.01f, 0.0f, 0.66f, 1.0f));
+
+	m_plane[2]->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
+	m_plane[2]->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
+	m_plane[2]->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
+	m_plane[2]->SetMaterialProperties(XMFLOAT4(0.1f, 0.0f, 0.36f, 1.0f));
+
 	m_sky->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
 	m_sky->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
 	m_sky->SetMaterialSpecular(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object Geometry Init
 	//-----------------------------------------------------------------------------------------------------
-	m_plane->SetOffset(m_shapes.AddCustomGeometry(L"Resources/Models/car.txt"));
-	//m_plane->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
+	//m_plane->SetOffset(m_shapes.AddCustomGeometry(L"Resources/Models/skull.txt"));
+	for (UINT i = 0; i < 3; ++i)
+	{
+		m_plane[i]->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
+	}
 	m_sky->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
+	m_screenQuad->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SCREEN_LAYER));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init
 	//-----------------------------------------------------------------------------------------------------
-	m_plane->SetScale(1.0f, 1.0f, 1.0f);
-	m_plane->SetPosition(0.0f, 3.0f, 5.0f);
+	m_plane[0]->SetScale(1.0f, 1.0f, 1.0f);
+	m_plane[1]->SetScale(1.0f, 1.0f, 1.0f);
+	m_plane[2]->SetScale(1.0f, 1.0f, 1.0f);
+	m_plane[0]->SetPosition(0.0f, 3.0f, 5.0f);
+	m_plane[1]->SetPosition(3.0f, 3.0f, 5.0f);
+	m_plane[2]->SetPosition(-3.0f, 3.0f, 5.0f);
 	m_sky->SetPosition(0.0f, 0.0f, 0.0f);
 	m_sky->SetScale(30.0f, 30.0f, 30.0f);
 	//-----------------------------------------------------------------------------------------------------
 	//        Renderer Init
 	//-----------------------------------------------------------------------------------------------------
+	m_deferredBuffers = new DeferredRendering();
+	if (!m_deferredBuffers->Initialize(m_d3dDevice, m_width, m_height, SCREEN_DEPTH, SCREEN_NEAR))
+	{
+		MessageBox(0, L"Cant initalize deferred buffers", L"Error", MB_OK);
+		return false;
+	}
+
 	if (!m_shapes.Initialize(m_d3dDevice))
 	{
 		return false;
 	}
 
+	if (!m_ortho.Initialize(m_d3dDevice, m_width, m_height))
+	{
+		MessageBox(0, L"Cant initalize ortho manager", L"Error", MB_OK);
+		return false;
+	}
+
 	if (!m_rendererLightShader.Initialize(m_d3dDevice, m_hWnd))
 	{
+		return false;
+	}
+
+	if (!m_rendererDeferredLS.Initialize(m_d3dDevice, m_hWnd))
+	{
+		MessageBox(0, L"Cant initalize deferred light shader", L"Error", MB_OK);
+		return false;
+	}
+
+	if (!m_rendererDeferredShader.Initialize(m_d3dDevice, m_hWnd))
+	{
+		MessageBox(0, L"Cant initalize deferred shader", L"Error", MB_OK);
 		return false;
 	}
 
@@ -157,6 +239,11 @@ bool SimpleApp::SceneInit()
 	}
 
 	m_camera.SetPosition(0.0f, 3.0f, 0.0f);
+
+	for (UINT i = 0; i < 3; ++i)
+	{
+		m_plane[i]->Update();
+	}
 
 	return true;
 }
@@ -223,10 +310,12 @@ void SimpleApp::Update(float dt)
 
 	//dynamic object
 	//m_plane->SetPosition(m_camera.GetPosition());
-	m_plane->Update();
+	//m_plane->Update();
 
 	m_sky->SetPosition(m_camera.GetPosition());
 	m_sky->Update();
+
+	m_camera.Update();
 }
 
 void SimpleApp::Draw()
@@ -234,27 +323,49 @@ void SimpleApp::Draw()
 	assert(m_d3dDeviceContext);
 	assert(m_swapChain);
 
+	
+	XMMATRIX view;
+	view = m_camera.GetViewMatrix();
+	m_eyePos = m_camera.GetPosition();
+
+	//render g-buffers
+	m_deferredBuffers->SetRenderTargets(m_d3dDeviceContext);
+	m_deferredBuffers->ClearRenderTargets(m_d3dDeviceContext);
+	m_shapes.Render(m_d3dDeviceContext);
+	//objects to render in deferred renderer
+	for (UINT i = 0; i < 3; ++i)
+	{
+		m_rendererDeferredShader.Render(m_d3dDeviceContext, m_plane[i]->GetOffset(), m_plane[i]->GetWorldMatrix(), view, m_projectionMatrix, m_plane[i]->GetTexture(0));
+	}
+	//m_rendererDeferredShader.Render(m_d3dDeviceContext, m_plane[2]->GetOffset(), m_plane[2]->GetWorldMatrix(), view, m_projectionMatrix, m_plane[0]->GetTexture(0));
+
+	SetDefaultRenderTargetOn();
+
+	//-----render begin
 	float color[4] = {0, 0, 0, 255};
 	m_d3dDeviceContext->ClearRenderTargetView(m_renderTargetView, color);
 	m_d3dDeviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	m_camera.Update();
-
-	XMMATRIX view;
-	view = m_camera.GetViewMatrix();
-	m_eyePos = m_camera.GetPosition();
-	m_shapes.Render(m_d3dDeviceContext);
-
-	//----------Rendering----------------------------------------------------------------------
 	m_d3dDeviceContext->RSSetState(m_solidRS);
-	m_rendererLightShader.Render(m_d3dDeviceContext, m_plane, m_camera, m_projectionMatrix, m_basicLight, m_fog);
+	//----------Rendering----------------------------------------------------------------------
+	//m_rendererLightShader.Render(m_d3dDeviceContext, m_plane[1], m_camera, m_projectionMatrix, m_basicLight, m_fog);
+	/*
+	m_d3dDeviceContext->RSSetState(m_solidRS);
+	for (UINT i = 0; i < 3; ++i)
+	{
+		m_rendererLightShader.Render(m_d3dDeviceContext, m_plane[i], m_camera, m_projectionMatrix, m_basicLight, m_fog);
+	}
 	
 	m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
 	m_d3dDeviceContext->OMSetDepthStencilState(m_skyDSS, 1);
 	m_rendererSky.Render(m_d3dDeviceContext, m_sky, m_camera, m_projectionMatrix, m_basicLight, m_fog);
 	m_d3dDeviceContext->RSSetState(m_solidRS);
 	m_d3dDeviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
+	*/
+	m_ortho.Render(m_d3dDeviceContext);
+	m_rendererDeferredLS.Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_worldMatrix, m_baseViewMatrix, m_orthoMatrix, m_deferredBuffers->GetShaderResourceView(0), m_deferredBuffers->GetShaderResourceView(1), m_basicLight.Directional.Direction);
 
+	//-------render end
 	if (VSYNC_ENABLED)
 	{
 		m_swapChain->Present(1, 0);

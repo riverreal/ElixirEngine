@@ -44,6 +44,7 @@ BaseApp::~BaseApp()
 	ReleaseCOM(m_depthStencilView);
 	ReleaseCOM(m_drawReflecDSS);
 	ReleaseCOM(m_markMirrorDSS);
+	ReleaseCOM(m_disabledDepthDDS);
 	ReleaseCOM(m_depthStencilState);
 	ReleaseCOM(m_depthStencilBuffer);
 	ReleaseCOM(m_renderTargetView);
@@ -514,6 +515,33 @@ bool BaseApp::InitD3D()
 		return false;
 	}
 
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+	depthStencilDesc.DepthEnable = false;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = true;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	result = m_d3dDevice->CreateDepthStencilState(&depthStencilDesc, &m_disabledDepthDDS);
+	if (FAILED(result))
+	{
+		MessageBox(0, L"Failed to create depth stencil", 0, 0);
+		return false;
+	}
+
 	//No Double Blending (shadows)
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 
@@ -666,8 +694,6 @@ bool BaseApp::InitD3D()
 		return false;
 	}
 
-	
-
 	//default Rasterizer mode
 	m_d3dDeviceContext->RSSetState(m_solidRS);
 
@@ -697,8 +723,7 @@ bool BaseApp::InitD3D()
 	m_worldMatrix = XMMatrixIdentity();
 
 	//---------Ortho
-	m_orthoMatrix = XMMatrixOrthographicLH((float)m_width, (float)m_width, SCREEN_NEAR, SCREEN_DEPTH);
-
+	m_orthoMatrix = XMMatrixOrthographicLH((float)m_width, (float)m_height, SCREEN_NEAR, SCREEN_DEPTH);
 
 	return true;
 }
@@ -781,4 +806,19 @@ void BaseApp::displayFPS()
 		m_frameCnt = 0;
 		m_timeElapsed += 1.0f;
 	}
+}
+
+void BaseApp::SetZBufferOn()
+{
+	m_d3dDeviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
+}
+
+void BaseApp::SetZBufferOff()
+{
+	m_d3dDeviceContext->OMSetDepthStencilState(m_disabledDepthDDS, 1);
+}
+
+void BaseApp::SetDefaultRenderTargetOn()
+{
+	m_d3dDeviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 }

@@ -6,3 +6,7 @@
 #include "Graphics/CameraManager.h"
 #include "Graphics/TextureManager.h"
 #include "Graphics/BlendState.h"
+#include "../Graphics/OrthoManager.h"
+#include "../Graphics/DeferredRendering.h"
+#include "../Graphics/DeferredLightShader.h"
+#include "../Graphics/DeferredShader.h"

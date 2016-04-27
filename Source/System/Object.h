@@ -132,5 +132,5 @@ private:
 	UINT m_materialID;
 	//Temporal material storage will be removed once material manager is completed
 	Material m_material;
-	ID3D11ShaderResourceView* m_texture[3];
+	ID3D11ShaderResourceView* m_texture[4];
 };

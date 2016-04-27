@@ -50,6 +50,7 @@ offsetData Model::AddGeometry(int modelType)
 		plainTerrain.CreatePlane(1.0f, 1.0f, 20, 20, meshData);
 		break;
 	case MODEL_TYPE_SCREEN_LAYER:
+		shapes.CreateScreenLayer(meshData);
 		break;
 	case MODEL_TYPE_SPHERE:
 		shapes.CreateSphere(0.5f, 20, 20, meshData);

@@ -20,8 +20,8 @@ const bool FULL_SCREEN = false;
 //const bool RESIZEABLE = false; ------------- Feature Not Added
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
-const bool VSYNC_ENABLED = true;
-const bool MSAA_ENABLED = true; //4X MSAA
+const bool VSYNC_ENABLED = false;
+const bool MSAA_ENABLED = false; //4X MSAA --- for forward rendering
 const float FPS_CAP = 60.0f; //When Vsync is disabled --- NOT WORKING
 const bool ENABLE_FPS_CAP = false; //NOT WORKING
 const bool HIDE_CURSOR = false;
@@ -48,6 +48,9 @@ protected:
 	bool InitWindow();
 	bool InitD3D();
 	void displayFPS(); //in Caption
+	void SetZBufferOn();
+	void SetZBufferOff();
+	void SetDefaultRenderTargetOn();
 
 protected:
 	HINSTANCE m_instance;
@@ -73,7 +76,6 @@ protected:
 	static int m_frameCnt;
 	static float m_timeElapsed;
 
-
 	//d3d related
 	IDXGISwapChain* m_swapChain;
 	ID3D11Device* m_d3dDevice;
@@ -83,6 +85,7 @@ protected:
 	//default
 	ID3D11DepthStencilState* m_depthStencilState; 
 	ID3D11DepthStencilState* m_skyDSS;
+	ID3D11DepthStencilState* m_disabledDepthDDS;
 	//for mirror rendering
 	ID3D11DepthStencilState* m_markMirrorDSS;
 	//for mirror rendering

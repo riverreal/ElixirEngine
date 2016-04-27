@@ -47,8 +47,8 @@ struct Vertex
 
 struct SpriteVertex
 {
-	DirectX::XMFLOAT3 Pos;
-	DirectX::XMFLOAT2 Size;
+	DirectX::XMFLOAT3 Position;
+	DirectX::XMFLOAT2 Texture;
 };
 
 struct MeshData
@@ -59,6 +59,9 @@ struct MeshData
 
 struct offsetData
 {
+	offsetData() {}
+	offsetData(UINT iCount, UINT iOffset, UINT vOffset)
+		:indexCount(iCount), indexOffset(iOffset), vertexOffset(vOffset) {}
 	UINT indexCount;
 	UINT indexOffset;
 	UINT vertexOffset;

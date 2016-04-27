@@ -13,6 +13,7 @@ public:
 	void SetLookAt(DirectX::FXMVECTOR pos, DirectX::FXMVECTOR target, DirectX::FXMVECTOR worldUp);
 	void SetLookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3 &target, const DirectX::XMFLOAT3 &up);
 	void SetPosition(float x, float y, float z);
+	void SetRotation(float x, float y, float z);
 
 	//Getters
 
@@ -29,7 +30,7 @@ public:
 	DirectX::XMFLOAT3 GetPosition() const;
 	
 	DirectX::XMMATRIX GetViewMatrix() const;
-	
+	//DirectX::XMMATRIX GetBaseViewMatrix() const;
 	//Camera Movement
 
 	void Walk(float distance);
@@ -39,12 +40,16 @@ public:
 	void RotateY(float angle);
 
 	void Update();
+
+	void calcOnce();
 private:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_right;
 	DirectX::XMFLOAT3 m_up;
 	DirectX::XMFLOAT3 m_look;
+	DirectX::XMFLOAT3 m_rotation;
 
 	DirectX::XMFLOAT4X4 m_viewMatrix;
+	//DirectX::XMFLOAT4X4 m_baseViewMatrix;
 
 };

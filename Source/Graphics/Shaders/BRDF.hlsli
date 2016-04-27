@@ -1,5 +1,5 @@
 /*------------------------------------------------------
-	Radix Engine 2015
+	Radix Engine 2016
 	Bidirectional Reflectance Distribution Function
 
 	**************Cook-Torrance BRDF*****************
