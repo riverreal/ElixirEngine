@@ -47,6 +47,11 @@ void Camera::SetRotation(float x, float y, float z)
 	m_rotation.z = z;
 }
 
+void Camera::SetProjection(const DirectX::XMMATRIX & proj)
+{
+	XMStoreFloat4x4(&m_projectionMatrix, proj);
+}
+
 XMVECTOR Camera::GetPositionXM() const
 {
 	return XMLoadFloat3(&m_position);
@@ -91,12 +96,10 @@ XMMATRIX Camera::GetViewMatrix() const
 {
 	return XMLoadFloat4x4(&m_viewMatrix);
 }
-/*
-XMMATRIX Camera::GetBaseViewMatrix() const
+DirectX::XMMATRIX Camera::GetProjectionMatrix() const
 {
-	return XMLoadFloat4x4(&m_baseViewMatrix);
+	return XMLoadFloat4x4(&m_projectionMatrix);
 }
-*/
 
 void Camera::Strafe(float distance)
 {

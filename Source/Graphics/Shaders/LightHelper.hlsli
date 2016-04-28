@@ -43,7 +43,7 @@ struct Material
 	float4 Ambient;
 	float4 Diffuse;
 	float4 Specular;
-	float4 Properties;
+	float4 Properties; //r = reflectance, g = metallic, b = roughness
 };
 
 struct Fog

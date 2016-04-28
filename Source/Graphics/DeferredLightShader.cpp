@@ -10,7 +10,7 @@ DeferredLightShader::DeferredLightShader()
 	m_pixelShader(0),
 	m_layout(0),
 	m_samplerState(0),
-	m_matrixBuffer(0),
+	m_fogBuffer(0),
 	m_lightBuffer(0)
 {
 }
@@ -38,11 +38,11 @@ void DeferredLightShader::Shutdown()
 	ShutdownShader();
 }
 
-bool DeferredLightShader::Render(ID3D11DeviceContext * deviceContext, offsetData offset, DirectX::XMMATRIX & world, DirectX::XMMATRIX & view, DirectX::XMMATRIX & projection, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, DirectX::XMFLOAT3 lightDirection)
+bool DeferredLightShader::Render(ID3D11DeviceContext * deviceContext, offsetData offset, Object* object, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView* position, BasicLight lighting, XMFLOAT3 eyepos, Fog fog)
 {
 	bool result;
 
-	result = setShaderParameters(deviceContext, world, view, projection, albedo, normal, lightDirection);
+	result = setShaderParameters(deviceContext, albedo, normal, matProp, position, object->GetTexture(1), object->GetTexture(2), lighting, eyepos, fog);
 	if (!result)
 	{
 		MessageBox(0, L"Cant initalize set parameters for deferred light shader", L"Error", MB_OK);
@@ -60,8 +60,8 @@ bool DeferredLightShader::InitializeShader(ID3D11Device * device, HWND hWnd)
 	D3D11_INPUT_ELEMENT_DESC layout[2];
 	UINT numElements;
 	D3D11_SAMPLER_DESC samplerDesc;
-	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC fogBufferDesc;
 
 	result = device->CreateVertexShader(DLVS, sizeof(DLVS), NULL, &m_vertexShader);
 	if (FAILED(result))
@@ -108,12 +108,12 @@ bool DeferredLightShader::InitializeShader(ID3D11Device * device, HWND hWnd)
 		return false;
 	}
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.MaxAnisotropy = 4;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.BorderColor[0] = 0;
 	samplerDesc.BorderColor[1] = 0;
@@ -128,21 +128,7 @@ bool DeferredLightShader::InitializeShader(ID3D11Device * device, HWND hWnd)
 		MessageBox(0, L"Cant create sampler state", L"Error", MB_OK);
 		return false;
 	}
-	/*
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
-
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-	if (FAILED(result))
-	{
-		MessageBox(0, L"Cant create matrix buffer", L"Error", MB_OK);
-		return false;
-	}
-	*/
+	
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -157,67 +143,81 @@ bool DeferredLightShader::InitializeShader(ID3D11Device * device, HWND hWnd)
 		return false;
 	}
 
+	fogBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	fogBufferDesc.ByteWidth = sizeof(FogBuffer);
+	fogBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	fogBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	fogBufferDesc.MiscFlags = 0;
+	fogBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&fogBufferDesc, NULL, &m_fogBuffer);
+	if (FAILED(result))
+	{
+		MessageBox(0, L"Cant create fog buffer", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
 void DeferredLightShader::ShutdownShader()
 {
+	ReleaseCOM(m_fogBuffer);
 	ReleaseCOM(m_lightBuffer);
-	ReleaseCOM(m_matrixBuffer);
 	ReleaseCOM(m_samplerState);
 	ReleaseCOM(m_layout);
 	ReleaseCOM(m_pixelShader);
 	ReleaseCOM(m_vertexShader);
 }
 
-bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContext, DirectX::XMMATRIX & world, DirectX::XMMATRIX & view, DirectX::XMMATRIX & projection, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, DirectX::XMFLOAT3 lightDirection)
+bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContext, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView * position, ID3D11ShaderResourceView * irradiance, ID3D11ShaderResourceView * envMap, BasicLight lighting, XMFLOAT3 eyePos, Fog fog)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	UINT bufferNumber;
-	MatrixBufferType* dataPtr1;
-	LightBufferType* dataPtr2;
-	/*
-	world = XMMatrixTranspose(world);
-	view = XMMatrixTranspose(view);
-	projection = XMMatrixTranspose(projection);
+	LightBufferType* dataPtr1;
+	FogBuffer* dataPtr2;
 
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	dataPtr1 = (MatrixBufferType*)mappedResource.pData;
-	dataPtr1->world = world;
-	dataPtr1->view = view;
-	dataPtr1->projection = projection;
-
-	deviceContext->Unmap(m_matrixBuffer, 0);
-	
-	bufferNumber = 0;
-
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-	*/
+	//Gbuffer Textures---------------------------------------------------------------------------
 	deviceContext->PSSetShaderResources(0, 1 ,&albedo);
 	deviceContext->PSSetShaderResources(1, 1, &normal);
+	deviceContext->PSSetShaderResources(2, 1, &matProp);
+	deviceContext->PSSetShaderResources(3, 1, &position);
 
+	//IBL Textures-------------------------------------------------------------------------------
+	deviceContext->PSSetShaderResources(4, 1, &irradiance);
+	deviceContext->PSSetShaderResources(5, 1, &envMap);
+
+	//Light Buffer-------------------------------------------------------------------------------
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	dataPtr2 = (LightBufferType*)mappedResource.pData;
-
-	dataPtr2->lightDirection = lightDirection;
-	dataPtr2->padding = 0.0f;
+	dataPtr1 = (LightBufferType*)mappedResource.pData;
+	dataPtr1->dirLight = lighting.Directional;
+	dataPtr1->pointLight = lighting.Point;
+	dataPtr1->spotLight = lighting.Spot;
+	dataPtr1->eyePos = eyePos;
 
 	deviceContext->Unmap(m_lightBuffer, 0);
-
 	bufferNumber = 0;
-
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+
+	//Fog Buffer-------------------------------------------------------------------------------
+	result - deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtr2 = (FogBuffer*)mappedResource.pData;
+	dataPtr2->fog = fog;
+
+	deviceContext->Unmap(m_fogBuffer, 0);
+	bufferNumber = 1;
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_fogBuffer);
 
 	return true;
 }

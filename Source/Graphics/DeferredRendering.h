@@ -3,7 +3,7 @@
 #include <d3d11.h>
 #include <vector>
 
-const int G_BUFFER_COUNT = 2;
+const int G_BUFFER_COUNT = 4;
 
 class DeferredRendering
 {

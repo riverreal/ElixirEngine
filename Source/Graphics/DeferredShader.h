@@ -5,6 +5,8 @@
 #include<DirectXMath.h>
 #include<fstream>
 #include "../Helper/TypeHelper.h"
+#include "CameraManager.h"
+#include "../System/Object.h"
 
 class DeferredShader
 {
@@ -14,15 +16,14 @@ public:
 
 	bool Initialize(ID3D11Device* device, HWND window);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext* deviceContext, offsetData offset, DirectX::XMMATRIX& world,
-		DirectX::XMMATRIX& view, DirectX::XMMATRIX& projection, ID3D11ShaderResourceView* shaderResourceView);
+	bool Render(ID3D11DeviceContext* deviceContext, Object* object, Camera camera);
 
 private:
 	bool InitializeShader(ID3D11Device* device, HWND window);
 	void ShutdownShader();
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, DirectX::XMMATRIX& world,
-		DirectX::XMMATRIX& view, DirectX::XMMATRIX& projection, ID3D11ShaderResourceView* shaderResourceView);
+		DirectX::XMMATRIX& view, DirectX::XMMATRIX& projection, ID3D11ShaderResourceView* albedoSRV, ID3D11ShaderResourceView* roughnessSRV, ID3D11ShaderResourceView* metallicSRV);
 	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
 	struct MatrixBufferType

@@ -14,6 +14,7 @@ public:
 	void SetLookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3 &target, const DirectX::XMFLOAT3 &up);
 	void SetPosition(float x, float y, float z);
 	void SetRotation(float x, float y, float z);
+	void SetProjection(const DirectX::XMMATRIX& proj); //temporary
 
 	//Getters
 
@@ -30,9 +31,9 @@ public:
 	DirectX::XMFLOAT3 GetPosition() const;
 	
 	DirectX::XMMATRIX GetViewMatrix() const;
-	//DirectX::XMMATRIX GetBaseViewMatrix() const;
-	//Camera Movement
+	DirectX::XMMATRIX GetProjectionMatrix() const;
 
+	//Camera Movement
 	void Walk(float distance);
 	void Strafe(float distance);
 
@@ -50,6 +51,5 @@ private:
 	DirectX::XMFLOAT3 m_rotation;
 
 	DirectX::XMFLOAT4X4 m_viewMatrix;
-	//DirectX::XMFLOAT4X4 m_baseViewMatrix;
-
+	DirectX::XMFLOAT4X4 m_projectionMatrix;
 };

@@ -136,7 +136,7 @@ void DeferredRendering::SetRenderTargets(ID3D11DeviceContext * deviceContext)
 
 void DeferredRendering::ClearRenderTargets(ID3D11DeviceContext * deviceContext)
 {
-	float color[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+	float color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 	for (int i = 0; i < G_BUFFER_COUNT; ++i)
 	{

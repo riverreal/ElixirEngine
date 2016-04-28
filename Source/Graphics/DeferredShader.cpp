@@ -37,17 +37,17 @@ void DeferredShader::Shutdown()
 	ShutdownShader();
 }
 
-bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, offsetData offset, XMMATRIX & world, XMMATRIX & view, XMMATRIX & projection, ID3D11ShaderResourceView * shaderResourceView)
+bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, Object* object, Camera camera)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, world, view, projection, shaderResourceView);
+	result = SetShaderParameters(deviceContext, object->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix(), object->GetTexture(0), object->GetTexture(3), object->GetTexture(4));
 	if (!result)
 	{
 		return false;
 	}
 
-	RenderShader(deviceContext, offset);
+	RenderShader(deviceContext, object->GetOffset());
 
 	return true;
 }
@@ -135,7 +135,7 @@ void DeferredShader::ShutdownShader()
 	ReleaseCOM(m_vertexShader);
 }
 
-bool DeferredShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, XMMATRIX & world, XMMATRIX & view, XMMATRIX & projection, ID3D11ShaderResourceView * shaderResourceView)
+bool DeferredShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, XMMATRIX & world, XMMATRIX & view, XMMATRIX & projection, ID3D11ShaderResourceView * albedoTexture, ID3D11ShaderResourceView * roughnessTexture, ID3D11ShaderResourceView * metallicTexture)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -166,7 +166,9 @@ bool DeferredShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, XM
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
 	//set albedo
-	deviceContext->PSSetShaderResources(0, 1, &shaderResourceView);
+	deviceContext->PSSetShaderResources(0, 1, &albedoTexture);
+	deviceContext->PSSetShaderResources(1, 1, &roughnessTexture);
+	deviceContext->PSSetShaderResources(2, 1, &metallicTexture);
 
 	return true;
 }

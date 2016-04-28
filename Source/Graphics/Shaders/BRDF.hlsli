@@ -5,28 +5,146 @@
 	**************Cook-Torrance BRDF*****************
 -------------------------------------------------------*/
 
+#include "LightHelper.hlsli"
+
 #define PI 3.14159265359f
 
 //Distribution function
 //GGX --->>            0
-//Blinn --->>          1
-#define SPECULAR_D 0
+//Blinn --->>          1 //not available yet
+#define SPECULAR_D_GGX 1
 
 //Geometry term
-//Smith/Schlick --->>  0
-//Smith/GGX --->>      1
-#define SPECULAR_G 0
+#define SPECULAR_G_SCHLICK 0
+#define SPECULAR_G_GGX 1
 
 //Fresnel
 //None --->>           0
 //Schlick --->>        1
-#define SPECULAR_F 1
+#define SPECULAR_F_NONE 0
+#define SPECULAR_F_SCHLICK 1
 
-#if SPECULAR_G == 0
-	//K term for schlick geometry term
-	//Default Schlick --->>    0
-	//Crytek model --->>       1
-	//Disney --->>             2   <--- only for analytic light sources
-	#define K_MODEL 0
+//K term for schlick geometry term
+//Default Schlick --->>    0
+//Crytek model --->>       1
+//Disney --->>             2   <--- only for analytic light sources
+#define K_MODEL_SCHLICK 1
+#define K_MODEL_CRYTEK 0
+#define K_MODEL_DISNEY 0
+
+//Diffuse functions
+float3 DiffuseLambert(float3 diffuseColor)
+{
+	return diffuseColor * (1 / PI);
+}
+
+float chiGGX(float v)
+{
+	return v > 0 ? 1 : 0;
+}
+
+//Distribution functions
+float D_GGX(float roughness, float NoH)
+{
+	float a = roughness * roughness;
+	float a2 = a * a;
+	float NoH2 = NoH * NoH;
+	float denom = NoH2 * (a2 - 1.0f) + 1.0f;
+
+	return a2 / (PI * denom * denom);
+}
+
+//Geometry term functions
+
+float G_Smith_Schlick(float roughness, float NoV, float NoL)
+{
+	float a = roughness * roughness;
+	float k;
+	/*
+#ifdef K_MODEL_SCHLICK
+	k = a * 0.5f;
+
+#elif K_MODEL_CRYTEK
+	k = (0.8f + 0.5f * a);
+	k = k * k;
+	k = 0.5f * k;
+
+#elif K_MODEL_DISNEY
+	k = a + 1;
+	k = k * k;
+	k = k * 0.125f;
 #endif
+*/
+	k = a * 0.5f;
+	float GV = NoV / (NoV * (1 - k) + k);
+	float GL = NoL / (NoL * (1 - k) + k);
 
+	return GV * GL;
+}
+
+float G_Smith_GGX(float roughness, float NoV, float NoL)
+{
+	float a = roughness * roughness;
+	float GV = NoL * (NoV * (1 - a) + a);
+	float GL = NoV * (NoL * (1 - a) + a);
+	return 0.5 * rcp(GV + GL);
+}
+
+//Fresnel functions
+float3 F_None(float3 SpecularColor)
+{
+	return SpecularColor;
+}
+
+float3 F_Schlick(float3 SpecularColor, float VoH)
+{
+	float Fc = pow((1 - VoH), 5);
+
+	return saturate(50.0f * SpecularColor.g) * Fc + (1 - Fc) * SpecularColor;
+}
+
+float3 F_Schlick_Roughness(float3 SpecularColor, float roughness, float VoH)
+{
+	float a = roughness * roughness;
+	return (SpecularColor + (max(1.0f - a, SpecularColor) - SpecularColor) * pow(1 - VoH, 5));
+}
+
+//Cook Torrance model
+float CookTorranceSpecFactor(float3 normal, float3 viewer, float metallic, float roughness, DirectionalLight dirL, float3 albedo)
+{
+	float3 light = -dirL.Direction;
+	float3 halfVector = normalize(light + viewer);
+
+	float NoL = saturate(dot(normal, light));
+	float NoH = saturate(dot(normal, halfVector));
+	float NoV = saturate(dot(normal, viewer));
+	float VoH = saturate(dot(viewer, halfVector));
+	float LoH = saturate(dot(light, halfVector));
+
+	float3 realSpec = lerp(0.03f, albedo, metallic);
+
+	//Fresnel
+	float3 fresnel;
+//#ifdef SPECULAR_F_NONE
+	//fresnel = F_None(realSpec);
+//#elif SPECULAR_F_SCHLICK
+	fresnel = F_Schlick(realSpec, NoV);
+//#endif
+	//G term
+	float geometry;
+//#if SPECULAR_G_SCHLICK
+	geometry = G_Smith_Schlick(roughness, NoV, NoL);
+//#elif SPECULAR_G_GGX
+	//geometry = G_Smith_GGX(roughness, NoV, NoL);
+//#endif
+
+	float distribution;
+//#ifdef SPECULAR_D_GGX
+	distribution = D_GGX(roughness, NoH);
+//#endif
+
+	float3 numerator = (fresnel * geometry * distribution);
+	float denominator = 4.0f * (NoV * NoL) + 0.0001; //prevent light aliasing on metals
+
+	return numerator / denominator;
+}

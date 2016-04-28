@@ -102,6 +102,15 @@ public:
 	void Update();
 	void Render();
 
+	enum TextureSlot //not available
+	{
+		TEXTURE_ALBEDO,
+		TEXTURE_IRRADIANCE,
+		TEXTURE_ENVMAP,
+		TEXTURE_ROUGHNESS,
+		TEXTURE_METALLIC
+	};
+
 private:
 	///<summary>
 	///Stores World Matrix Rotation data in a separate variable. Note: 
@@ -132,5 +141,5 @@ private:
 	UINT m_materialID;
 	//Temporal material storage will be removed once material manager is completed
 	Material m_material;
-	ID3D11ShaderResourceView* m_texture[4];
+	ID3D11ShaderResourceView* m_texture[5]; //0 albedo, 1 irradiance, 2 env map, 3 roughness, 4 metallic
 };

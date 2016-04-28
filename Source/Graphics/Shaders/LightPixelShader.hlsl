@@ -1,4 +1,4 @@
-#include "LightHelper.hlsli"
+#include "BRDF.hlsli"
 
 cbuffer LightBuffer
 {
@@ -33,7 +33,6 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
 	
 	input.normalW = normalize(input.normalW);
-
 
 	float3 toEye = gEyePosW - input.positionW;
 	
@@ -83,8 +82,9 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 	float lightIntensity = 1.0f;
 	float att = 0.4;
-	float ambientIntensity = 1.0f;
-	float reflectionIntensity = gMaterial.Properties.r;
+	float ambientIntensity = 0.8f;
+	float refAtt = 1.0f - gMaterial.Properties.b;
+	float reflectionIntensity = gMaterial.Properties.r * refAtt;
 	if (gMaterial.Properties.g >= 1.0f)
 	{
 		reflectionIntensity = 1.0f;
@@ -95,8 +95,11 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float3 realSpec = lerp(0.03f, texColor.rgb, gMaterial.Properties.g);
 	float3 halfVector = normalize(-gDirLight.Direction + toEye);
 	float3 envFresnel = SchlickFresRough(input.normalW, toEye, realSpec, gMaterial.Properties.b * gMaterial.Properties.b);
+	float3 VoH = saturate(dot(toEye, halfVector));
+	float3 envFres = F_Schlick_Roughness(realSpec, gMaterial.Properties.b, VoH);
+
 	//environment fresnel removed
-	litColor.rgb = att * albedo * irradiance * ambientIntensity + light * lightIntensity + envMap * reflectionIntensity;
+	litColor.rgb = att * albedo * irradiance * ambientIntensity + light * lightIntensity + envMap*envFres * reflectionIntensity;
 
 	//fog
 	if(gFog.Enabled == true)
