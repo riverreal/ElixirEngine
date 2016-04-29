@@ -23,6 +23,7 @@ BaseApp::BaseApp(HINSTANCE instance, int width, int height)
 	m_depthStencilBuffer(0),
 	m_depthStencilState(0),
 	m_depthStencilView(0),
+	//m_depthSRV(0),
 	m_solidRS(0),
 	m_wireFrameRS(0)
 {
@@ -42,6 +43,7 @@ BaseApp::~BaseApp()
 	ReleaseCOM(m_noDoubleBlendDSS);
 	ReleaseCOM(m_solidNoCullRS);
 	ReleaseCOM(m_depthStencilView);
+	//ReleaseCOM(m_depthSRV);
 	ReleaseCOM(m_drawReflecDSS);
 	ReleaseCOM(m_markMirrorDSS);
 	ReleaseCOM(m_disabledDepthDDS);
@@ -215,6 +217,7 @@ bool BaseApp::InitD3D()
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	D3D11_SHADER_RESOURCE_VIEW_DESC depthSRVDesc;
 	D3D11_RASTERIZER_DESC rasterizerDesc;
 	D3D11_VIEWPORT viewport;
 	float fieldOfView, screenAspect;
@@ -434,7 +437,7 @@ bool BaseApp::InitD3D()
 	depthBufferDesc.Height = m_height;
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
-	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthBufferDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	
 	if (MSAA_ENABLED)
 	{
@@ -630,6 +633,18 @@ bool BaseApp::InitD3D()
 
 
 	//---------Depth Stencil View
+	ZeroMemory(&depthSRVDesc, sizeof(depthSRVDesc));
+	depthSRVDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	depthSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	depthSRVDesc.Texture2D.MostDetailedMip = 0;
+	depthSRVDesc.Texture2D.MipLevels = -1;
+
+	//result = m_d3dDevice->CreateShaderResourceView(m_depthStencilBuffer, &depthSRVDesc, &m_depthSRV);
+	//if (FAILED(result))
+	//{
+	//	MessageBox(0, L"Failed to create depth SRV", 0, 0);
+	//	return false;
+	//}
 
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 
@@ -638,7 +653,7 @@ bool BaseApp::InitD3D()
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 	
 
-	result = m_d3dDevice->CreateDepthStencilView(m_depthStencilBuffer, 0, &m_depthStencilView);
+	result = m_d3dDevice->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
 	if (FAILED(result))
 	{
 		MessageBox(0, L"Failed to create depth stencil view", 0, 0);
@@ -700,14 +715,28 @@ bool BaseApp::InitD3D()
 	//Viewport
 	//**********
 
-	viewport.Width = (float)m_width;
-	viewport.Height = (float)m_height;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
+	m_defaultViewport.Width = (float)m_width;
+	m_defaultViewport.Height = (float)m_height;
+	m_defaultViewport.MinDepth = 0.0f;
+	m_defaultViewport.MaxDepth = 1.0f;
+	m_defaultViewport.TopLeftX = 0.0f;
+	m_defaultViewport.TopLeftY = 0.0f;
 
-	m_d3dDeviceContext->RSSetViewports(1, &viewport);
+	m_d3dDeviceContext->RSSetViewports(1, &m_defaultViewport);
+
+	m_deferredViewport.Width = (float)m_width;
+	m_deferredViewport.Height = (float)m_height;
+	m_deferredViewport.MinDepth = 0.0f;
+	m_deferredViewport.MaxDepth = 0.9f;
+	m_deferredViewport.TopLeftX = 0.0f;
+	m_deferredViewport.TopLeftY = 0.0f;
+
+	m_deferredSkyViewport.Width = (float)m_width;
+	m_deferredSkyViewport.Height = (float)m_height;
+	m_deferredSkyViewport.MinDepth = 0.9f;
+	m_deferredSkyViewport.MaxDepth = 1.0f;
+	m_deferredSkyViewport.TopLeftX = 0.0f;
+	m_deferredSkyViewport.TopLeftY = 0.0f;
 
 	//-------------------------------------------------------------------
 	//Matrix

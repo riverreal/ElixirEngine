@@ -1,4 +1,4 @@
-TextureCube gCubeMap;
+TextureCube gCubeMap : register(t0);
 
 SamplerState samAnisotropic;
 
@@ -8,7 +8,14 @@ struct VertexOut
 	float3 PosL : POSITION;
 };
 
-float4 SkyPS(VertexOut input) : SV_TARGET
+struct PixelOut
 {
-	return gCubeMap.Sample(samAnisotropic, input.PosL);
+	float4 albedo : SV_Target0;
+};
+
+PixelOut SkyPS(VertexOut input) : SV_TARGET
+{
+	PixelOut output;
+	output.albedo = gCubeMap.Sample(samAnisotropic, input.PosL);
+	return output;
 }

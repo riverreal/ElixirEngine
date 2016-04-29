@@ -23,7 +23,7 @@ VertexOut SkyVS(VertexIn input)
 	output.PosH = mul(float4(input.PosL, 1.0f), gWorld);
 	output.PosH = mul(output.PosH, gView);
 	output.PosH = mul(output.PosH, gProj);
-	output.PosH = output.PosH.xyww;
+	//output.PosH = output.PosH.xyww;
 
 	//matrix worldViewProj = gWorld * gView * gProj;
 	//output.PosH = mul(float4(input.PosL, 1.0f), worldViewProj).xyww;

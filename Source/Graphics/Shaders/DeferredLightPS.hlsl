@@ -40,24 +40,29 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	
 	//Retrieve Data from GBuffer------------------------------------------------------
 	float4 albedo;
+	float4 normalTexR;
 	float3 normal;
 	float4 material;
 	float4 position;
+	float2 texTrans;
+	float depth;
 	albedo = albedoTexture.Sample(SampleTypePoint, input.tex);
-	normal = normalTexture.Sample(SampleTypePoint, input.tex).rgb;
+	normalTexR = normalTexture.Sample(SampleTypePoint, input.tex);
 	material = materialTexture.Sample(SampleTypePoint, input.tex);
 	position = positionTexture.Sample(SampleTypePoint, input.tex);
-
+	normal = normalTexR.rgb;
+	depth = material.b;
 	//Gamma correction
 	albedo.rgb = pow(albedo.rgb, 2.2f);
 
 	//screen space normal
-	//normal = 2.0f * normal - 1.0f;
-	//normal = normalize(normal);
+	normal = 2.0f * normal - 1.0f;
+	normal = normalize(normal);
+
 	//Variables------------------------------------------------------------------------
-	float lightIntensity = 2.2f;
-	float reflectionIntensity = 0.7;
-	float ambientIntensity = 0.5f;
+	float lightIntensity = 8.0f;
+	float reflectionIntensity = 1.0;
+	float ambientIntensity = 0.8f;
 	float roughness = clamp(material.r, 0.0, 1.0);
 	float metallic = clamp(material.g, 0.0, 1.0);
 	float2 texCoord = material.ba;
@@ -65,7 +70,7 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	float distToEye = length(toEye);
 	toEye /= distToEye;
 	float3 refVec = reflect(-toEye, normal.rgb);
-	float mipIndex = roughness * roughness * 7.0f;
+	float mipIndex = roughness * roughness * 11.0f;
 	float3 lightColor = gDirLight.Diffuse.rgb;
 	float NoL = saturate(dot(normal, -gDirLight.Direction));
 	float3 halfVector = normalize(-gDirLight.Direction + toEye);
@@ -85,7 +90,15 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	float3 light = lightColor * NoL * (diff * (1.0f - spec) + spec);
 	float3 envFresnel = (realSpecularColor + (max(1.0f - roughness*roughness, realSpecularColor) - realSpecularColor) * pow(1 - saturate(dot(normal, toEye)), 5));
 
-	outputColor = float4( lightIntensity * light + envFresnel * envMap * reflectionIntensity + realAlbedo * irradiance * ambientIntensity, 1.0f);
-	//outputColor = float4(light, 1.0f);
+	if (depth < 0.001f)
+	{
+		outputColor = albedo;
+	}
+	else
+	{
+		outputColor = float4( lightIntensity * light + envFresnel * envMap * reflectionIntensity + realAlbedo * irradiance * ambientIntensity, 1.0f);
+	}
+	
+	
 	return outputColor;
 }

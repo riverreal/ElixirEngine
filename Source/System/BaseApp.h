@@ -94,6 +94,7 @@ protected:
 	//Specify StencilRef to 0 when setting Stencil State
 	ID3D11DepthStencilState* m_noDoubleBlendDSS;
 	ID3D11DepthStencilView* m_depthStencilView;
+	//ID3D11ShaderResourceView* m_depthSRV;
 	//default
 	ID3D11RasterizerState* m_solidRS; 
 	ID3D11RasterizerState* m_wireFrameRS;
@@ -101,6 +102,11 @@ protected:
 	ID3D11RasterizerState* m_solidNoCullRS; 
 	//for reflected objects
 	ID3D11RasterizerState* m_cullClockWiseRS;
+
+	//viewports
+	D3D11_VIEWPORT m_defaultViewport;
+	D3D11_VIEWPORT m_deferredViewport;
+	D3D11_VIEWPORT m_deferredSkyViewport;
 
 	DirectX::XMMATRIX m_projectionMatrix;
 	DirectX::XMMATRIX m_worldMatrix;

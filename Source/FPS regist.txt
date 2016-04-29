@@ -14,6 +14,8 @@ PBR wo/ IBL (1 light 1 sphere) wo/ MSAA -------- 2400~
 PBR w/ IBL (1 light 3 sphere) ------- 1580~
 PBR w/ IBL (1 light 3 sphere) wo/ MSAA -------- 2390~
 No PBR/ Deferred Rendering (2 G-Buffers) wo/ MSAA --------- 2100~
+PBR w/ IBL (1 light 3 sphere 1 plane 4 G-Buffers)  wo/ MSAA ----------- 1000~
 |
 V
+
 FullHD(1920 x 1080) ------ 725~

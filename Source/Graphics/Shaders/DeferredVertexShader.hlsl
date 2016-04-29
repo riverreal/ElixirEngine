@@ -37,6 +37,7 @@ PixelInputType DeferredVertexShader(VertexInputType input)
 	//normal
 	output.normalW = mul(input.normal, (float3x3)worldMatrix);
 	output.normalW = normalize(output.normalW);
+	output.normalW.rgb = 0.5f * (output.normalW + 1.0f);
 
 	return output;
 }

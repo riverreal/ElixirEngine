@@ -113,28 +113,29 @@ bool SimpleApp::SceneInit()
 	{
 		m_plane[i] = new Object;
 		m_plane[i]->SetTexTransformScale(1.0f, 1.0f, 1.0f);
-		m_plane[i]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/red.jpg"), 0); //albedo
+		m_plane[i]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/carbonfiber.jpg"), 0); //albedo
 		m_plane[i]->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1); //irradiance
-		m_plane[i]->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/snowcube1024.dds"), 2); //env map
-		m_plane[i]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-value.jpg"), 3); //roughness
-		m_plane[i]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/no-value.jpg"), 4); //metallic
+		m_plane[i]->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 2); //env map
+		m_plane[i]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/full-value.jpg"), 3); //roughness
+		m_plane[i]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/no-value2.jpg"), 4); //metallic
 	}
 
-	m_plane[0]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/yellow.jpg"), 0);
+	m_plane[0]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/yellow2.jpg"), 0);
 	m_plane[0]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-value.jpg"), 3);
 	m_plane[0]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/full-value.jpg"), 4);
 
-	m_plane[1]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/no-value.jpg"), 3);
+	m_plane[2]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/stone.jpg"), 0);
+	m_plane[1]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/low-value.jpg"), 3);
+	
 
 	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/radixbox-albedo.jpg"), 0);
 	m_radixBox->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1);
-	m_radixBox->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 2);
+	m_radixBox->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 2);
 	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/radixbox-roughness.jpg"), 3);
 	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/radixbox-metallic.jpg"), 4);
+	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/normal-map-fabric.jpg"), 5);
 
-	m_sky->SetTexTransformScale(10.0f, 10.0f, 1.0f);
-	m_sky->SetTexture(m_plane[0]->GetTexture(2), 0);
-	
+	m_sky->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 0);
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
 	//-----------------------------------------------------------------------------------------------------
@@ -192,13 +193,14 @@ bool SimpleApp::SceneInit()
 	//-----------------------------------------------------------------------------------------------------
 	//        Object Geometry Init
 	//-----------------------------------------------------------------------------------------------------
-	//m_plane->SetOffset(m_shapes.AddCustomGeometry(L"Resources/Models/skull.txt"));
+	
 	for (UINT i = 0; i < 3; ++i)
 	{
 		m_plane[i]->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
 	}
+	//m_plane[0]->SetOffset(m_shapes.AddCustomGeometry(L"Resources/Models/skull.txt"));
 	m_sky->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
-	m_radixBox->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_CUBE));
+	m_radixBox->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_PLAIN));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init
 	//-----------------------------------------------------------------------------------------------------
@@ -208,8 +210,8 @@ bool SimpleApp::SceneInit()
 	m_plane[0]->SetPosition(0.0f, 3.0f, 5.0f);
 	m_plane[1]->SetPosition(3.0f, 3.0f, 5.0f);
 	m_plane[2]->SetPosition(-3.0f, 3.0f, 5.0f);
-	m_radixBox->SetPosition(0.0f, 3.0f, 10.0f);
-	m_radixBox->SetScale(3.0f, 3.0f, 3.0f);
+	m_radixBox->SetPosition(0.0f, -1.0f, 5.0f);
+	m_radixBox->SetScale(10.0f, 10.0f, 10.0f);
 	m_sky->SetPosition(0.0f, 0.0f, 0.0f);
 	m_sky->SetScale(30.0f, 30.0f, 30.0f);
 	//-----------------------------------------------------------------------------------------------------
@@ -351,12 +353,21 @@ void SimpleApp::Draw()
 	m_deferredBuffers->SetRenderTargets(m_d3dDeviceContext);
 	m_deferredBuffers->ClearRenderTargets(m_d3dDeviceContext);
 	m_shapes.Render(m_d3dDeviceContext);
+	
 	//objects to render in deferred renderer
+	m_d3dDeviceContext->RSSetViewports(1, &m_deferredViewport);
 	for (UINT i = 0; i < 3; ++i)
 	{
 		m_rendererDeferredShader.Render(m_d3dDeviceContext, m_plane[i], m_camera);
 	}
 	m_rendererDeferredShader.Render(m_d3dDeviceContext, m_radixBox, m_camera);
+
+	//-------------Sky
+	m_d3dDeviceContext->RSSetViewports(1, &m_deferredSkyViewport);
+	m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
+	m_rendererSky.Render(m_d3dDeviceContext, m_sky, m_camera, m_projectionMatrix, m_basicLight, m_fog);
+	m_d3dDeviceContext->RSSetState(m_solidRS);
+	m_d3dDeviceContext->RSSetViewports(1, &m_defaultViewport);
 
 	SetDefaultRenderTargetOn();
 

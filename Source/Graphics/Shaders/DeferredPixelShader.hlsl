@@ -26,10 +26,11 @@ PixelOutputType DeferredPixelShader(PixelInputType input) : SV_TARGET
 
 	float4 roughnessValues = gRoughness.Sample(samAnisotropic, input.tex);
 	float4 metallicValues = gMetallic.Sample(samAnisotropic, input.tex);
-
+	
 	output.albedo = gAlbedo.Sample(samAnisotropic, input.tex);
-	output.normal = float4(input.normalW, 1.0f);
-	output.materialProp = float4(roughnessValues.r, metallicValues.r, input.tex.r, input.tex.g);
+	float depth = input.position.z / input.position.w;
+	output.normal = float4(input.normalW, input.tex.r);
+	output.materialProp = float4(roughnessValues.r, metallicValues.r, depth, input.tex.g);
 	output.position = float4(input.positionW, 1.0f);
 
 	return output;

@@ -141,5 +141,5 @@ private:
 	UINT m_materialID;
 	//Temporal material storage will be removed once material manager is completed
 	Material m_material;
-	ID3D11ShaderResourceView* m_texture[5]; //0 albedo, 1 irradiance, 2 env map, 3 roughness, 4 metallic
+	ID3D11ShaderResourceView* m_texture[6]; //0 albedo, 1 irradiance, 2 env map, 3 roughness, 4 metallic 5 normal
 };
