@@ -12,10 +12,16 @@ Mirror Demo W/fog W/ MSAA ------- 1600~
 PBR wo/ IBL (1 light 1 sphere) ------- 1550~
 PBR wo/ IBL (1 light 1 sphere) wo/ MSAA -------- 2400~
 PBR w/ IBL (1 light 3 sphere) ------- 1580~
-PBR w/ IBL (1 light 3 sphere) wo/ MSAA -------- 2390~
-No PBR/ Deferred Rendering (2 G-Buffers) wo/ MSAA --------- 2100~
-PBR w/ IBL (1 light 3 sphere 1 plane 4 G-Buffers)  wo/ MSAA ----------- 1000~
-|
-V
+PBR w/ IBL (1 light 3 sphere) wo/ MSAA -------- 2390~ FullHD(1920 x 1080) ------ 725~
 
-FullHD(1920 x 1080) ------ 725~
+Deferred Rendered - 1280 x 720
+No PBR/ (2 G-Buffers) Ultra--------- 2100~
+PBR w/ IBL (1 light 3 sphere 1 plane 4 G-Buffers) Ultra----------- 1000~
+PBR w/ IBL (1 light 3 sphere 1 plane 4 G-Buffers) High----------- 1490~
+PBR w/ IBL (1 light 3 sphere 1 plane 4 G-Buffers) Low----------- 1600~
+
+FullHD(1920 x 1080)
+PBR w/ IBL (1 light 3 sphere 1 plane 4 G-Buffers) Ultra----------- 450~
+PBR w/ IBL (1 light 3 sphere 1 plane 4 G-Buffers) High----------- 640~
+PBR w/ IBL (1 light 3 sphere 1 plane 4 G-Buffers) Low----------- 740~
+

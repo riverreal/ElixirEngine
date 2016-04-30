@@ -218,7 +218,9 @@ bool SimpleApp::SceneInit()
 	//        Renderer Init
 	//-----------------------------------------------------------------------------------------------------
 	m_deferredBuffers = new DeferredRendering();
-	if (!m_deferredBuffers->Initialize(m_d3dDevice, m_width, m_height, SCREEN_DEPTH, SCREEN_NEAR))
+
+	XMFLOAT2 specResolution = GetSpecResolution(m_width, m_height);
+	if (!m_deferredBuffers->Initialize(m_d3dDevice, specResolution.x, specResolution.y, SCREEN_DEPTH, SCREEN_NEAR))
 	{
 		MessageBox(0, L"Cant initalize deferred buffers", L"Error", MB_OK);
 		return false;

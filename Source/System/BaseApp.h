@@ -25,6 +25,7 @@ const bool MSAA_ENABLED = false; //4X MSAA --- for forward rendering
 const float FPS_CAP = 60.0f; //When Vsync is disabled --- NOT WORKING
 const bool ENABLE_FPS_CAP = false; //NOT WORKING
 const bool HIDE_CURSOR = false;
+const int SPEC_INDEX = 1; //0 ULTRA / 1 HIGH / 2 LOW
 
 class BaseApp
 {
@@ -51,6 +52,8 @@ protected:
 	void SetZBufferOn();
 	void SetZBufferOff();
 	void SetDefaultRenderTargetOn();
+	DirectX::XMFLOAT2 GetSpecResolution(int screenWidth, int screenHeight);
+	
 
 protected:
 	HINSTANCE m_instance;

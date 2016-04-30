@@ -724,15 +724,16 @@ bool BaseApp::InitD3D()
 
 	m_d3dDeviceContext->RSSetViewports(1, &m_defaultViewport);
 
-	m_deferredViewport.Width = (float)m_width;
-	m_deferredViewport.Height = (float)m_height;
+	XMFLOAT2 specResolution = GetSpecResolution(m_width, m_height);
+	m_deferredViewport.Width = (float)specResolution.x;
+	m_deferredViewport.Height = (float)specResolution.y;
 	m_deferredViewport.MinDepth = 0.0f;
 	m_deferredViewport.MaxDepth = 0.9f;
 	m_deferredViewport.TopLeftX = 0.0f;
 	m_deferredViewport.TopLeftY = 0.0f;
 
-	m_deferredSkyViewport.Width = (float)m_width;
-	m_deferredSkyViewport.Height = (float)m_height;
+	m_deferredSkyViewport.Width = (float)specResolution.x;
+	m_deferredSkyViewport.Height = (float)specResolution.y;
 	m_deferredSkyViewport.MinDepth = 0.9f;
 	m_deferredSkyViewport.MaxDepth = 1.0f;
 	m_deferredSkyViewport.TopLeftX = 0.0f;
@@ -850,4 +851,70 @@ void BaseApp::SetZBufferOff()
 void BaseApp::SetDefaultRenderTargetOn()
 {
 	m_d3dDeviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+}
+
+XMFLOAT2 BaseApp::GetSpecResolution(int screenWidth, int screenHeight)
+{
+	int width, height;
+	if (SPEC_INDEX == 0) //Ultra
+	{
+		//No resolution down grade
+		width = screenWidth;
+		height = screenHeight;
+	}
+	else if (SPEC_INDEX == 1) //High
+	{
+		if ((screenWidth / screenHeight) == (16 / 9))
+		{
+			//One resolution down grade.
+			if (screenWidth > 1920)
+			{
+				width = 1920;
+				height = 1080;
+			}
+			else if (screenWidth == 1920)
+			{
+				width = 1280;
+				height = 720;
+			}
+			else
+			{
+				width = 720;
+				height = 480;
+			}
+		}
+		else
+		{
+			width = screenWidth;
+			height = screenHeight;
+		}
+	}
+	else //low
+	{
+		if ((screenWidth / screenHeight) == (16 / 9))
+		{
+			//two resolution down grade.
+			if (screenWidth > 1920)
+			{
+				width = 1280;
+				height = 720;
+			}
+			else if (screenWidth == 1920)
+			{
+				width = 720;
+				height = 480;
+			}
+			else
+			{
+				width = 640;
+				height = 360;
+			}
+		}
+		else
+		{
+			width = screenWidth;
+			height = screenHeight;
+		}
+	}
+	return DirectX::XMFLOAT2(width, height);
 }

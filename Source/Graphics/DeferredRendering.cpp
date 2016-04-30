@@ -34,8 +34,8 @@ bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int 
 
 	ZeroMemory(&texDesc, sizeof(texDesc));
 	
-	texDesc.Width = textureWidth;
-	texDesc.Height = textureHeight;
+	texDesc.Width = m_textureWidth;
+	texDesc.Height = m_textureHeight;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
 	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -83,8 +83,8 @@ bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int 
 
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
 
-	depthBufferDesc.Width = textureWidth;
-	depthBufferDesc.Height = textureHeight;
+	depthBufferDesc.Width = m_textureWidth;
+	depthBufferDesc.Height = m_textureHeight;
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -126,6 +126,70 @@ void DeferredRendering::Shutdown()
 		ReleaseCOM(m_gBufferSRV[i]);
 		ReleaseCOM(m_gBufferRTV[i]);
 		ReleaseCOM(m_gBuffer[i]);
+	}
+}
+
+void DeferredRendering::SpecDefiner(int screenWidth, int screenHeight, int spec)
+{
+	if (spec == 0) //Ultra
+	{
+		//No resolution down grade
+		m_textureWidth = screenWidth;
+		m_textureHeight = screenHeight;
+	}
+	else if (spec == 1) //High
+	{
+		if ((screenWidth / screenHeight) == (16 / 9))
+		{
+			//One resolution down grade.
+			if (screenWidth > 1920)
+			{
+				m_textureWidth = 1920;
+				m_textureHeight = 1080;
+			}
+			else if (screenWidth == 1920)
+			{
+				m_textureWidth = 1280;
+				m_textureHeight = 720;
+			}
+			else
+			{
+				m_textureWidth = 720;
+				m_textureHeight = 480;
+			}
+		}
+		else
+		{
+			m_textureWidth = screenWidth;
+			m_textureHeight = screenHeight;
+		}
+	}
+	else //low
+	{
+		if ((screenWidth / screenHeight) == (16 / 9))
+		{
+			//two resolution down grade.
+			if (screenWidth > 1920)
+			{
+				m_textureWidth = 1280;
+				m_textureHeight = 720;
+			}
+			else if (screenWidth == 1920)
+			{
+				m_textureWidth = 720;
+				m_textureHeight = 480;
+			}
+			else
+			{
+				m_textureWidth = 640;
+				m_textureHeight = 360;
+			}
+		}
+		else
+		{
+			m_textureWidth = screenWidth;
+			m_textureHeight = screenHeight;
+		}
 	}
 }
 
