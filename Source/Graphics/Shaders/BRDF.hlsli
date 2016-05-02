@@ -110,9 +110,9 @@ float3 F_Schlick_Roughness(float3 SpecularColor, float roughness, float VoH)
 }
 
 //Cook Torrance model
-float CookTorranceSpecFactor(float3 normal, float3 viewer, float metallic, float roughness, DirectionalLight dirL, float3 albedo)
+float CookTorranceSpecFactor(float3 normal, float3 viewer, float metallic, float roughness, float3 lightDir, float3 albedo)
 {
-	float3 light = -dirL.Direction;
+	float3 light = -lightDir;
 	float3 halfVector = normalize(light + viewer);
 
 	float NoL = saturate(dot(normal, light));

@@ -38,6 +38,31 @@ struct SpotLight
 	float pad;
 };
 
+struct PBRDirectionalLight
+{
+	float4 LightColor;
+	float4 LightIntensity;
+	float3 Direction;
+};
+
+struct PBRPointLight
+{
+	float4 LightColor;
+	float3 Position;
+	float Range;
+	float3 Att;
+};
+
+struct PBRSpotLight
+{
+	float4 LightColor;
+	float3 Position;
+	float Range;
+	float3 Direction;
+	float Spot;
+	float3 Att;
+};
+
 struct Material
 {
 	float4 Ambient;

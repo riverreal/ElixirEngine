@@ -5,7 +5,7 @@
 
 using namespace DirectX;
 
-
+#define Float4Align __declspec(align(16))
 
 struct DirectionalLight
 {
@@ -57,6 +57,49 @@ struct BasicLight
 	DirectionalLight Directional;
 	PointLight Point;
 	SpotLight Spot;
+};
+
+struct PBRDirectionalLight
+{
+	PBRDirectionalLight() { ZeroMemory(this, sizeof(this)); }
+	float LightColor[4];
+	float LightIntensity[4]; //Light Intensity, ambient intensity
+
+	float Direction[3];
+	float pad;
+};
+
+struct PBRPointLight
+{
+	PBRPointLight() { ZeroMemory(this, sizeof(this)); }
+	PBRPointLight(float posX, float posY, float posZ, float colorR, float colorG, float colorB, float range)
+		:Position(XMFLOAT3(posX, posY, posZ)),
+		LightColor(XMFLOAT4(colorR, colorG, colorB, 1.0f)),
+		Range(range)
+	{}
+	XMFLOAT4 LightColor;
+
+	XMFLOAT3 Position;
+	float Range;
+
+	XMFLOAT3 Att;
+	float pad;
+};
+
+struct PBRSpotLight
+{
+	PBRSpotLight() { ZeroMemory(this, sizeof(this)); }
+
+	XMFLOAT4 LightColor;
+
+	XMFLOAT3 Position;
+	float Range;
+
+	XMFLOAT3 Direction;
+	float Spot;
+
+	XMFLOAT3 Att;
+	float pad;
 };
 
 struct Material

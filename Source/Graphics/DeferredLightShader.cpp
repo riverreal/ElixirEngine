@@ -11,6 +11,7 @@ DeferredLightShader::DeferredLightShader()
 	m_layout(0),
 	m_samplerState(0),
 	m_fogBuffer(0),
+	m_cbPerObject(0),
 	m_lightBuffer(0)
 {
 }
@@ -38,7 +39,7 @@ void DeferredLightShader::Shutdown()
 	ShutdownShader();
 }
 
-bool DeferredLightShader::Render(ID3D11DeviceContext * deviceContext, offsetData offset, Object* object, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView* position, BasicLight lighting, XMFLOAT3 eyepos, Fog fog)
+bool DeferredLightShader::Render(ID3D11DeviceContext * deviceContext, offsetData offset, Object* object, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView* position, Light lighting, XMFLOAT3 eyepos, Fog fog)
 {
 	bool result;
 
@@ -136,10 +137,18 @@ bool DeferredLightShader::InitializeShader(ID3D11Device * device, HWND hWnd)
 	lightBufferDesc.MiscFlags = 0;
 	lightBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+	result = device->CreateBuffer(&lightBufferDesc, nullptr, &m_lightBuffer);
 	if (FAILED(result))
 	{
 		MessageBox(0, L"Cant create light buffer", L"Error", MB_OK);
+		return false;
+	}
+
+	lightBufferDesc.ByteWidth = sizeof(cbPerObject);
+	result = device->CreateBuffer(&lightBufferDesc, nullptr, &m_cbPerObject);
+	if (FAILED(result))
+	{
+		MessageBox(0, L"Cant create cdPerObject buffer", L"Error", MB_OK);
 		return false;
 	}
 
@@ -150,7 +159,7 @@ bool DeferredLightShader::InitializeShader(ID3D11Device * device, HWND hWnd)
 	fogBufferDesc.MiscFlags = 0;
 	fogBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&fogBufferDesc, NULL, &m_fogBuffer);
+	result = device->CreateBuffer(&fogBufferDesc, nullptr, &m_fogBuffer);
 	if (FAILED(result))
 	{
 		MessageBox(0, L"Cant create fog buffer", L"Error", MB_OK);
@@ -163,6 +172,7 @@ bool DeferredLightShader::InitializeShader(ID3D11Device * device, HWND hWnd)
 void DeferredLightShader::ShutdownShader()
 {
 	ReleaseCOM(m_fogBuffer);
+	ReleaseCOM(m_cbPerObject);
 	ReleaseCOM(m_lightBuffer);
 	ReleaseCOM(m_samplerState);
 	ReleaseCOM(m_layout);
@@ -170,12 +180,13 @@ void DeferredLightShader::ShutdownShader()
 	ReleaseCOM(m_vertexShader);
 }
 
-bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContext, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView * position, ID3D11ShaderResourceView * irradiance, ID3D11ShaderResourceView * envMap, BasicLight lighting, XMFLOAT3 eyePos, Fog fog)
+bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContext, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView * position, ID3D11ShaderResourceView * irradiance, ID3D11ShaderResourceView * envMap, Light lighting, XMFLOAT3 eyePos, Fog fog)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	UINT bufferNumber;
 	LightBufferType* dataPtr1;
+	cbPerObject* dataPtrPO;
 	FogBuffer* dataPtr2;
 
 	//Gbuffer Textures---------------------------------------------------------------------------
@@ -189,24 +200,46 @@ bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContex
 	deviceContext->PSSetShaderResources(5, 1, &envMap);
 
 	//Light Buffer-------------------------------------------------------------------------------
+	
+	PBRDirectionalLight dirL = lighting.GetDirectionalLight();
+	PBRPointLight pointL = lighting.GetPointLight(0);
+	PBRSpotLight spotL;
+
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
 	}
-
+	
 	dataPtr1 = (LightBufferType*)mappedResource.pData;
-	dataPtr1->dirLight = lighting.Directional;
-	dataPtr1->pointLight = lighting.Point;
-	dataPtr1->spotLight = lighting.Spot;
-	dataPtr1->eyePos = eyePos;
-
+	
+	dataPtr1->dirLight = dirL;
+	dataPtr1->pointLight = pointL;
+	dataPtr1->spotLight = spotL;
+	
 	deviceContext->Unmap(m_lightBuffer, 0);
+
 	bufferNumber = 0;
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
+	//cbPerObject Buffer-----------------------------------------------------------------------
+
+	result = deviceContext->Map(m_cbPerObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	dataPtrPO = (cbPerObject*)mappedResource.pData;
+
+	dataPtrPO->eyePos = eyePos;
+
+	deviceContext->Unmap(m_cbPerObject, 0);
+	bufferNumber = 1;
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_cbPerObject);
+
 	//Fog Buffer-------------------------------------------------------------------------------
-	result - deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
@@ -216,7 +249,7 @@ bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContex
 	dataPtr2->fog = fog;
 
 	deviceContext->Unmap(m_fogBuffer, 0);
-	bufferNumber = 1;
+	bufferNumber = 2;
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_fogBuffer);
 
 	return true;

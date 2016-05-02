@@ -5,8 +5,8 @@
 #include <DirectXMath.h>
 #include <fstream>
 #include "../Helper/TypeHelper.h"
-#include "../Helper/LightHelper.h"
 #include "../System/Object.h"
+#include "Light.h"
 
 using namespace std;
 
@@ -19,23 +19,26 @@ public:
 	bool Initialize(ID3D11Device* device, HWND hWnd);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext* deviceContext, offsetData offset,
-		Object* object, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, BasicLight lighting, DirectX::XMFLOAT3 eyePos, Fog fog);
+		Object* object, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, Light lighting, DirectX::XMFLOAT3 eyePos, Fog fog);
 
 private:
 
 	bool InitializeShader(ID3D11Device* device, HWND hWnd);
 	void ShutdownShader();
 	
-	bool setShaderParameters(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, ID3D11ShaderResourceView* irradiance, ID3D11ShaderResourceView* envMap, BasicLight lighting, DirectX::XMFLOAT3 eyePos, Fog fog);
+	bool setShaderParameters(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, ID3D11ShaderResourceView* irradiance, ID3D11ShaderResourceView* envMap, Light lighting, DirectX::XMFLOAT3 eyePos, Fog fog);
 	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
 	struct LightBufferType
+	{	
+		PBRDirectionalLight dirLight;
+		PBRPointLight pointLight;
+		PBRSpotLight spotLight;
+	};
+
+	struct cbPerObject
 	{
-		DirectionalLight dirLight;
-		PointLight pointLight;
-		SpotLight spotLight;
-		DirectX::XMFLOAT3 eyePos;
-		float pad;
+		Float4Align DirectX::XMFLOAT3 eyePos;
 	};
 
 	struct FogBuffer
@@ -50,5 +53,6 @@ private:
 	ID3D11InputLayout* m_layout;
 	ID3D11SamplerState* m_samplerState;	
 	ID3D11Buffer* m_lightBuffer;
+	ID3D11Buffer* m_cbPerObject;
 	ID3D11Buffer* m_fogBuffer;
 };

@@ -27,6 +27,7 @@ private:
 	TextureManager m_texureManager;
 	//Light
 	BasicLight m_basicLight;
+	Light m_lighting;
 	//Fog
 	Fog m_fog;
 	//buffer managers
@@ -126,23 +127,25 @@ bool SimpleApp::SceneInit()
 
 	m_plane[2]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/stone.jpg"), 0);
 	m_plane[1]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/low-value.jpg"), 3);
-	
 
-	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/radixbox-albedo.jpg"), 0);
+	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/sample-albedo.jpg"), 0);
 	m_radixBox->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1);
 	m_radixBox->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 2);
-	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/radixbox-roughness.jpg"), 3);
-	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/radixbox-metallic.jpg"), 4);
-	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/normal-map-fabric.jpg"), 5);
+	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/low-value.jpg"), 3);
+	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/no-value.jpg"), 4);
 
 	m_sky->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 0);
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
 	//-----------------------------------------------------------------------------------------------------
+
+	m_lighting.CreatePointLight(1.0f, 3.0f, 5.0f, 1.0f, 0.3f, 0.3f, 50.0f);
+
 	m_basicLight.Directional.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	m_basicLight.Directional.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	m_basicLight.Directional.Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_basicLight.Directional.Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
+
 	/*
 	m_basicLight.Spot.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_basicLight.Spot.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -210,8 +213,8 @@ bool SimpleApp::SceneInit()
 	m_plane[0]->SetPosition(0.0f, 3.0f, 5.0f);
 	m_plane[1]->SetPosition(3.0f, 3.0f, 5.0f);
 	m_plane[2]->SetPosition(-3.0f, 3.0f, 5.0f);
-	m_radixBox->SetPosition(0.0f, -1.0f, 5.0f);
-	m_radixBox->SetScale(10.0f, 10.0f, 10.0f);
+	m_radixBox->SetPosition(0.0f, 1.0f, 5.0f);
+	m_radixBox->SetScale(30.0f, 3.0f, 30.0f);
 	m_sky->SetPosition(0.0f, 0.0f, 0.0f);
 	m_sky->SetScale(30.0f, 30.0f, 30.0f);
 	//-----------------------------------------------------------------------------------------------------
@@ -395,7 +398,7 @@ void SimpleApp::Draw()
 	*/
 
 	m_ortho.Render(m_d3dDeviceContext);
-	m_rendererDeferredLS.Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_plane[0], m_deferredBuffers->GetShaderResourceView(0), m_deferredBuffers->GetShaderResourceView(1), m_deferredBuffers->GetShaderResourceView(2), m_deferredBuffers->GetShaderResourceView(3), m_basicLight, m_camera.GetPosition(), m_fog);
+	m_rendererDeferredLS.Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_plane[0], m_deferredBuffers->GetShaderResourceView(0), m_deferredBuffers->GetShaderResourceView(1), m_deferredBuffers->GetShaderResourceView(2), m_deferredBuffers->GetShaderResourceView(3), m_lighting, m_camera.GetPosition(), m_fog);
 
 	//-------render end
 	if (VSYNC_ENABLED)

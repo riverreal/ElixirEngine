@@ -14,16 +14,20 @@ TextureCube envMapTexture : register(t5);
 SamplerState SampleTypePoint : register(s0);
 
 //globals
-cbuffer LightBuffer
+cbuffer LightBuffer : register(b0)
 {
-	DirectionalLight gDirLight;
-	PointLight gPointLight;
-	SpotLight gSpotLight;
-	float3 gEyePosW;
+	PBRDirectionalLight gDirLight;
+	PBRPointLight gPointLight;
+	PBRSpotLight gSpotLight;
 	float pad;
 };
 
-cbuffer FogBuffer
+cbuffer cdPerObject : register(b1)
+{
+	float3 gEyePosW;
+};
+
+cbuffer FogBuffer : register(b2)
 {
 	Fog gFog;
 };
@@ -51,18 +55,24 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	material = materialTexture.Sample(SampleTypePoint, input.tex);
 	position = positionTexture.Sample(SampleTypePoint, input.tex);
 	normal = normalTexR.rgb;
+	
 	depth = material.b;
+
+	if (depth < 0.001f)
+	{
+		outputColor = albedo;
+		return outputColor;
+	}
+
 	//Gamma correction
 	albedo.rgb = pow(albedo.rgb, 2.2f);
 
 	//screen space normal
 	normal = 2.0f * normal - 1.0f;
 	normal = normalize(normal);
-
+	
 	//Variables------------------------------------------------------------------------
-	float lightIntensity = 8.0f;
-	float reflectionIntensity = 1.0;
-	float ambientIntensity = 0.8f;
+	
 	float roughness = clamp(material.r, 0.0, 1.0);
 	float metallic = clamp(material.g, 0.0, 1.0);
 	float2 texCoord = material.ba;
@@ -71,10 +81,8 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	toEye /= distToEye;
 	float3 refVec = reflect(-toEye, normal.rgb);
 	float mipIndex = roughness * roughness * 11.0f;
-	float3 lightColor = gDirLight.Diffuse.rgb;
-	float NoL = saturate(dot(normal, -gDirLight.Direction));
-	float3 halfVector = normalize(-gDirLight.Direction + toEye);
-	float VoH = saturate(dot(toEye, halfVector));
+	
+	
 	//Data for IBL --------------------------------------------------------------------
 	float3 irradiance = irradianceTexture.Sample(SampleTypePoint, normal.rgb);
 	float3 envMap = envMapTexture.SampleLevel(SampleTypePoint, refVec, mipIndex);
@@ -84,21 +92,48 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	float3 realAlbedo = albedo - albedo * metallic;
 	float3 realSpecularColor = lerp(0.03f, albedo, metallic);
 
-	//lighting calculation
-	float3 diff = Diffuse(realAlbedo);
-	float3 spec = CookTorranceSpecFactor(normal, toEye, metallic, roughness, gDirLight, albedo);
-	float3 light = lightColor * NoL * (diff * (1.0f - spec) + spec);
-	float3 envFresnel = (realSpecularColor + (max(1.0f - roughness*roughness, realSpecularColor) - realSpecularColor) * pow(1 - saturate(dot(normal, toEye)), 5));
+	//Per Light-----------------------------------------------------------------------------------------------------------------------
 
-	if (depth < 0.001f)
-	{
-		outputColor = albedo;
-	}
-	else
-	{
-		outputColor = float4( lightIntensity * light + envFresnel * envMap * reflectionIntensity + realAlbedo * irradiance * ambientIntensity, 1.0f);
-	}
+	float lightIntensity = gDirLight.LightIntensity.x;
+	float reflectionIntensity = 0.7;
+	float ambientIntensity = gDirLight.LightIntensity.y;
+
+	//Env factor----------------------------------------------------------------------------------------------------------------------
+	float3 envFresnel = (realSpecularColor + (max(1.0f - roughness*roughness, realSpecularColor) - realSpecularColor) * pow(1 - saturate(dot(normal, toEye)), 5));
+	float3 envFactor = envFresnel * envMap * reflectionIntensity;
+
+	//Directional Light---------------------------------------------------------------------------------------------------------------
+	float3 lightDir = gDirLight.Direction;
+	float3 lightColor = gDirLight.LightColor.rgb;
+	float NoL = saturate(dot(normal, -lightDir));
+	float3 halfVector = normalize(-lightDir + toEye);
+	float VoH = saturate(dot(toEye, halfVector));
+
+	float3 diff = lightColor * realAlbedo * NoL;
+	float3 spec = CookTorranceSpecFactor(normal, toEye, metallic, roughness, lightDir, albedo)  * lightColor * NoL * lightIntensity;
+
+	//Point Lights--------------------------------------------------------------------------------------------------------------------
 	
+	lightDir = -normalize(gPointLight.Position.rgb - position.rgb);
+	lightColor = gPointLight.LightColor.rgb;
+	NoL = saturate(dot(normal, -lightDir));
+	halfVector = normalize(-lightDir + toEye);
+	VoH = saturate(dot(toEye, halfVector));
+
+	float lightDist = length(gPointLight.Position.rgb - position.rgb);
+	float attenuation = clamp(1.0f - ((lightDist * lightDist)  / (gPointLight.Range*gPointLight.Range)), 0.0f, 1.0f);
+	attenuation = attenuation * attenuation;
+	//lighting calculation
+	diff += lightColor * realAlbedo * NoL * attenuation;
+	spec += CookTorranceSpecFactor(normal, toEye, metallic, roughness, lightDir, albedo) * attenuation * lightColor * NoL;
 	
-	return outputColor;
+	//Final Color--------------------------------------------------------------------------------------------------------------------
+
+	float3 specFactor = spec;
+	float3 diffuseFactor = diff;
+	float3 ambientFactor = realAlbedo * irradiance * ambientIntensity;
+
+	outputColor = float4( specFactor + diffuseFactor + ambientFactor + envFactor, 1.0f);
+	
+	return outputColor;// float4(specFactor, 1.0f);
 }

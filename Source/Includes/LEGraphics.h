@@ -10,3 +10,4 @@
 #include "../Graphics/DeferredRendering.h"
 #include "../Graphics/DeferredLightShader.h"
 #include "../Graphics/DeferredShader.h"
+#include "../Graphics/Light.h"
