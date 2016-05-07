@@ -41,7 +41,7 @@ bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, Object* object,
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, object->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix(), object->GetTexture(0), object->GetTexture(3), object->GetTexture(4), object->GetTexture(5));
+	result = SetShaderParameters(deviceContext, object->GetTexTransform(), object->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix(), object->GetTexture(0), object->GetTexture(3), object->GetTexture(4), object->GetTexture(5));
 	if (!result)
 	{
 		return false;
@@ -135,18 +135,19 @@ void DeferredShader::ShutdownShader()
 	ReleaseCOM(m_vertexShader);
 }
 
-bool DeferredShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, XMMATRIX & world, XMMATRIX & view, XMMATRIX & projection, ID3D11ShaderResourceView * albedoTexture, ID3D11ShaderResourceView * roughnessTexture, ID3D11ShaderResourceView * metallicTexture, ID3D11ShaderResourceView* normalTexture)
+bool DeferredShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, DirectX::XMMATRIX& texTransf, XMMATRIX & world, XMMATRIX & view, XMMATRIX & projection, ID3D11ShaderResourceView * albedoTexture, ID3D11ShaderResourceView * roughnessTexture, ID3D11ShaderResourceView * metallicTexture, ID3D11ShaderResourceView* normalTexture)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 	MatrixBufferType* dataPtr;
 
-	XMMATRIX worldCpy, viewCpy, projCpy;
+	XMMATRIX worldCpy, viewCpy, projCpy, texTransCpy;
 
 	worldCpy = XMMatrixTranspose(world);
 	viewCpy = XMMatrixTranspose(view);
 	projCpy = XMMatrixTranspose(projection);
+	texTransCpy = XMMatrixTranspose(texTransf);
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -158,6 +159,7 @@ bool DeferredShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, XM
 	dataPtr->world = worldCpy;
 	dataPtr->view = viewCpy;
 	dataPtr->projection = projCpy;
+	dataPtr->texTrans = texTransCpy;
 
 	deviceContext->Unmap(m_matrixBuffer, 0);
 

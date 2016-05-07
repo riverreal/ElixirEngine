@@ -176,6 +176,98 @@ offsetData Model::AddCustomGeometry(std::wstring fileName)
 	return offset;
 }
 
+offsetData Model::AddModelFromFile(std::string fileName)
+{
+	offsetData offset;
+	unsigned int numberOfMeshes;
+	Assimp::Importer imp;
+
+	auto scene = imp.ReadFile(fileName, aiProcess_CalcTangentSpace |
+		aiProcess_Triangulate |
+		aiProcess_GenSmoothNormals |
+		aiProcess_SplitLargeMeshes |
+		aiProcess_ConvertToLeftHanded |
+		aiProcess_SortByPType |
+		aiProcess_PreTransformVertices);
+
+	if (scene == NULL)
+	{
+		MessageBox(0, L"Failed to Import Scene with Assimp", 0, MB_OK);
+		return offset;
+	}
+
+	numberOfMeshes = scene->mNumMeshes;
+
+	std::vector<Vertex> vertices;
+	std::vector<UINT> indices;
+
+	UINT vertexCount = 0;
+	UINT indexCount = 0;
+
+	for (UINT i = 0; i < numberOfMeshes; ++i)
+	{
+		auto mesh = scene->mMeshes[i];
+		if (mesh)
+		{
+			for (UINT j = 0; j < mesh->mNumVertices; ++j)
+			{
+				Vertex v;
+				vertexCount++;
+				v.Position.x = mesh->mVertices[j].x;
+				v.Position.y = mesh->mVertices[j].y;
+				v.Position.z = mesh->mVertices[j].z;
+
+				v.Normal.x = mesh->mNormals[j].x;
+				v.Normal.y = mesh->mNormals[j].y;
+				v.Normal.z = mesh->mNormals[j].z;
+
+				if (mesh->HasTextureCoords(0))
+				{
+					v.Tex.x = mesh->mTextureCoords[0][j].x;
+					v.Tex.y = mesh->mTextureCoords[0][j].y;
+				}
+
+				vertices.push_back(v);
+				m_totalVertex.push_back(v);
+			}
+
+			for (UINT c = 0; c < mesh->mNumFaces; ++c)
+			{
+				for (UINT e = 0; e < mesh->mFaces[c].mNumIndices; ++e)
+				{
+					indexCount++;
+					indices.push_back(mesh->mFaces[c].mIndices[e]);
+					m_totalIndex.push_back(mesh->mFaces[c].mIndices[e]);
+				}
+			}
+		}
+	}
+
+	if (vertexCount == 0)
+	{
+		return offset;
+	}
+
+	//get the vertex and index count
+	m_totalVertexCount += vertexCount;
+	m_totalIndexCount += indexCount;
+
+	//get the index offset
+	m_lastIndexOffset += m_lastIndexSize;
+	m_lastIndexSize = indices.size();
+
+	//get the vertex offset
+	m_lastVertexOffset += m_lastVertexSize;
+	m_lastVertexSize = vertices.size();
+
+	//Calculate Offset
+	offset.indexCount = indexCount;
+	offset.indexOffset = m_lastIndexOffset;
+	offset.vertexOffset = m_lastVertexOffset;
+
+	return offset;
+}
+
 bool Model::Initialize(ID3D11Device* device)
 {
 	if (!InitializeBuffers(device))

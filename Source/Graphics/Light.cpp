@@ -12,8 +12,8 @@ Light::Light()
 	m_directionalLight.Direction[0] = 1.0f;
 	m_directionalLight.Direction[1] = -1.0f;
 	m_directionalLight.Direction[2] = 0.0f;
-	m_directionalLight.LightIntensity[0] = 1.0f;
-	m_directionalLight.LightIntensity[1] = 0.8f;
+	m_directionalLight.LightIntensity[0] = 2.0f;
+	m_directionalLight.LightIntensity[1] = 1.0f;
 	m_directionalLight.LightIntensity[2] = 1.0f;
 	m_directionalLight.LightIntensity[3] = 1.0f;
 }

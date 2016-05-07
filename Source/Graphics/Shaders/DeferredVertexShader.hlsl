@@ -3,6 +3,7 @@ cbuffer MatrixBuffer
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
+	matrix texTransf;
 };
 
 struct VertexInputType
@@ -32,7 +33,7 @@ PixelInputType DeferredVertexShader(VertexInputType input)
 
 	//output.position = input.position;
 	//texture
-	output.tex = input.tex;
+	output.tex = mul(float4(input.tex, 0.0f, 1.0f), texTransf).xy;
 	
 	//normal
 	output.normalW = mul(input.normal, (float3x3)worldMatrix);

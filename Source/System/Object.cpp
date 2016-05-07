@@ -7,13 +7,14 @@ Object::Object()
 	m_position(XMFLOAT3(0.0f, 0.0f, 0.0f)),
 	m_scale(XMFLOAT3(0.0f, 0.0f, 0.0f)),
 	m_texPos(XMFLOAT3(0.0f, 0.0f, 0.0f)),
-	m_texSca(XMFLOAT3(0.0f, 0.0f, 0.0f)),
+	m_texSca(XMFLOAT3(1.0f, 1.0f, 1.0f)),
 	m_texRot(XMFLOAT3(0.0f, 0.0f, 0.0f)),
 	m_texTrans(XMMatrixIdentity()),
 	m_world(XMMatrixIdentity()),
 	m_textureID(0),
 	m_materialID(0)
 {
+	Update();
 }
 
 Object::Object(bool staticObject)

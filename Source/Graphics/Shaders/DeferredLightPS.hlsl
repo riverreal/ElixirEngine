@@ -95,7 +95,7 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	//Per Light-----------------------------------------------------------------------------------------------------------------------
 
 	float lightIntensity = gDirLight.LightIntensity.x;
-	float reflectionIntensity = 0.7;
+	float reflectionIntensity = 1.0;
 	float ambientIntensity = gDirLight.LightIntensity.y;
 
 	//Env factor----------------------------------------------------------------------------------------------------------------------
@@ -135,5 +135,11 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 
 	outputColor = float4( specFactor + diffuseFactor + ambientFactor + envFactor, 1.0f);
 	
+	if (gFog.Enabled == true)
+	{
+		float fogLerp = saturate((distToEye - gFog.FogStart) / gFog.FogRange);
+		outputColor = lerp(outputColor, gFog.FogColor, fogLerp);
+	}
+
 	return outputColor;// float4(specFactor, 1.0f);
 }

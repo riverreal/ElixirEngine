@@ -4,6 +4,9 @@
 #include <DirectXMath.h>
 #include "Terrain.h"
 #include "BasicShapes.h"
+#include "../../External Soruce/Assimp/include/assimp/Importer.hpp"
+#include "../../External Soruce/Assimp/include/assimp/scene.h"
+#include "../../External Soruce/Assimp/include/assimp/postprocess.h"
 
 enum BasicModel
 {
@@ -24,6 +27,7 @@ public:
 
 	offsetData AddGeometry(int modelType);
 	offsetData AddCustomGeometry(std::wstring fileName);
+	offsetData AddModelFromFile(std::string fileName);
 	bool Initialize(ID3D11Device* device);
 	void Shutdown();
 	void Render(ID3D11DeviceContext* deviceContext);

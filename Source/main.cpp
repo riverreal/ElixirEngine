@@ -47,6 +47,8 @@ private:
 	Object* m_plane[3];
 	Object* m_sky;
 	Object* m_radixBox;
+	Object* m_pumba;
+	Object* m_ship;
 
 	DirectX::XMFLOAT3 m_eyePos;
 	DirectX::XMMATRIX m_baseViewMatrix;
@@ -86,6 +88,12 @@ SimpleApp::~SimpleApp()
 	delete m_radixBox;
 	m_radixBox = 0;
 
+	delete m_pumba;
+	m_pumba = 0;
+
+	delete m_ship;
+	m_ship = 0;
+
 	delete m_sky;
 	m_sky = 0;
 
@@ -106,6 +114,8 @@ bool SimpleApp::SceneInit()
 	//Object Init
 	m_sky = new Object;
 	m_radixBox = new Object;
+	m_pumba = new Object;
+	m_ship = new Object;
 	//-----------------------------------------------------------------------------------------------------
 	//        Texture Init
 	//-----------------------------------------------------------------------------------------------------
@@ -128,18 +138,30 @@ bool SimpleApp::SceneInit()
 	m_plane[2]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/stone.jpg"), 0);
 	m_plane[1]->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/low-value.jpg"), 3);
 
-	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/sample-albedo.jpg"), 0);
+	m_radixBox->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/grass.dds"), 0);
 	m_radixBox->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1);
 	m_radixBox->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 2);
-	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/low-value.jpg"), 3);
+	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/full-value.jpg"), 3);
 	m_radixBox->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/no-value.jpg"), 4);
+
+	m_pumba->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/pumba.BMP"), 0);
+	m_pumba->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1);
+	m_pumba->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 2);
+	m_pumba->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/semi-value.jpg"), 3);
+	m_pumba->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/no-value2.jpg"), 4);
+
+	m_ship->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/alduin.jpg"), 0);
+	m_ship->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"), 1);
+	m_ship->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 2);
+	m_ship->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/high-value.jpg"), 3);
+	m_ship->SetTexture(TextureLoader::CreateWICTexture(m_d3dDevice, L"Resources/Textures/no-value2.jpg"), 4);
 
 	m_sky->SetTexture(TextureLoader::CreateDDSTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/grasscube1024.dds"), 0);
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
 	//-----------------------------------------------------------------------------------------------------
 
-	m_lighting.CreatePointLight(1.0f, 3.0f, 5.0f, 1.0f, 0.3f, 0.3f, 50.0f);
+	m_lighting.CreatePointLight(1.0f, 3.0f, 5.0f, 1.0f, 0.3f, 0.3f, 1.0f);
 
 	m_basicLight.Directional.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	m_basicLight.Directional.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -175,24 +197,6 @@ bool SimpleApp::SceneInit()
 	//        Material Init
 	//-----------------------------------------------------------------------------------------------------
 	
-	m_plane[0]->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
-	m_plane[0]->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
-	m_plane[0]->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
-	m_plane[0]->SetMaterialProperties(XMFLOAT4(0.0f, 1.0f, 0.8f, 1.0f));
-
-	m_plane[1]->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
-	m_plane[1]->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
-	m_plane[1]->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
-	m_plane[1]->SetMaterialProperties(XMFLOAT4(0.2f, 0.0f, 0.1f, 1.0f));
-
-	m_plane[2]->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
-	m_plane[2]->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
-	m_plane[2]->SetMaterialSpecular(XMFLOAT4(1.0f, 1.0f, 1.0f, 80.0f));
-	m_plane[2]->SetMaterialProperties(XMFLOAT4(0.2f, 0.0f, 0.8f, 1.0f));
-
-	m_sky->SetMaterialAmbient(XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
-	m_sky->SetMaterialDiffuse(XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f));
-	m_sky->SetMaterialSpecular(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object Geometry Init
 	//-----------------------------------------------------------------------------------------------------
@@ -204,6 +208,8 @@ bool SimpleApp::SceneInit()
 	//m_plane[0]->SetOffset(m_shapes.AddCustomGeometry(L"Resources/Models/skull.txt"));
 	m_sky->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_SPHERE));
 	m_radixBox->SetOffset(m_shapes.AddGeometry(MODEL_TYPE_PLAIN));
+	m_pumba->SetOffset(m_shapes.AddModelFromFile("Resources/Models/pumba.obj"));
+	m_ship->SetOffset(m_shapes.AddModelFromFile("Resources/Models/alduin.obj"));
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init
 	//-----------------------------------------------------------------------------------------------------
@@ -214,7 +220,13 @@ bool SimpleApp::SceneInit()
 	m_plane[1]->SetPosition(3.0f, 3.0f, 5.0f);
 	m_plane[2]->SetPosition(-3.0f, 3.0f, 5.0f);
 	m_radixBox->SetPosition(0.0f, 1.0f, 5.0f);
-	m_radixBox->SetScale(30.0f, 3.0f, 30.0f);
+	m_radixBox->SetScale(200.0f, 200.0f, 200.0f);
+	m_radixBox->SetTexTransformScale(20.0f, 20.0f, 3.0f);
+	m_pumba->SetPosition(5.0f, 3.0f, 18.0f);
+	m_pumba->SetScale(1.05f, 1.05f, 1.05f);
+	m_ship->SetPosition(1.0f, 3.0f, 18.0f);
+	m_ship->SetScale(0.01f, 0.01f, 0.01f);
+	m_ship->SetRotationY(90);
 	m_sky->SetPosition(0.0f, 0.0f, 0.0f);
 	m_sky->SetScale(30.0f, 30.0f, 30.0f);
 	//-----------------------------------------------------------------------------------------------------
@@ -270,6 +282,8 @@ bool SimpleApp::SceneInit()
 		m_plane[i]->Update();
 	}
 	m_radixBox->Update();
+	m_pumba->Update();
+	m_ship->Update();
 
 	return true;
 }
@@ -366,6 +380,8 @@ void SimpleApp::Draw()
 		m_rendererDeferredShader.Render(m_d3dDeviceContext, m_plane[i], m_camera);
 	}
 	m_rendererDeferredShader.Render(m_d3dDeviceContext, m_radixBox, m_camera);
+	m_rendererDeferredShader.Render(m_d3dDeviceContext, m_pumba, m_camera);
+	m_rendererDeferredShader.Render(m_d3dDeviceContext, m_ship, m_camera);
 
 	//-------------Sky
 	m_d3dDeviceContext->RSSetViewports(1, &m_deferredSkyViewport);

@@ -22,7 +22,7 @@ private:
 	bool InitializeShader(ID3D11Device* device, HWND window);
 	void ShutdownShader();
 
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, DirectX::XMMATRIX& world,
+	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, DirectX::XMMATRIX& texTrans, DirectX::XMMATRIX& world,
 		DirectX::XMMATRIX& view, DirectX::XMMATRIX& projection, ID3D11ShaderResourceView* albedoSRV, ID3D11ShaderResourceView* roughnessSRV, ID3D11ShaderResourceView* metallicSRV, ID3D11ShaderResourceView* normalSRV);
 	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
@@ -31,6 +31,7 @@ private:
 		DirectX::XMMATRIX world;
 		DirectX::XMMATRIX view;
 		DirectX::XMMATRIX projection;
+		DirectX::XMMATRIX texTrans;
 		float pad;
 	};
 
