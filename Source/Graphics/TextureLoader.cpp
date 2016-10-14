@@ -2,6 +2,27 @@
 #include "../../External Soruce/DDSTextureLoader/DDSTextureLoader.h"
 #include "../../External Soruce/WICTextureLoader/WICTextureLoader.h"
 
+ID3D11ShaderResourceView * TextureLoader::CreateTexture(ID3D11Device * device, LPCWSTR filePath)
+{
+	std::string path;
+	path = wstrtostr(filePath);
+	auto pathLen = path.length();
+	auto fileType = path.substr(pathLen - 4, 4);
+
+	ID3D11ShaderResourceView* result;
+
+	if (fileType == ".dds")
+	{
+		result = TextureLoader::CreateDDSTexture(device, filePath);
+	}
+	else
+	{
+		result = TextureLoader::CreateWICTexture(device, filePath);
+	}
+
+	return result;
+}
+
 ID3D11ShaderResourceView* TextureLoader::CreateDDSTexture(ID3D11Device* device, LPCWSTR filePath)
 {
 	ID3D11ShaderResourceView* textureView;

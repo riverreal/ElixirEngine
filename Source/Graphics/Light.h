@@ -19,6 +19,9 @@ public:
 	void CreatePointLight(float posX, float posY, float posZ, float lightColorR, float lightColorG, float lightColorB, float range);
 
 	PBRDirectionalLight GetDirectionalLight();
+
+	void SetDirectionalLight(PBRDirectionalLight dirL);
+
 	PBRPointLight GetPointLight(int index);
 	PBRSpotLight GetSpotLight(int index);
 

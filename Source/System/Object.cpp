@@ -12,7 +12,9 @@ Object::Object()
 	m_texTrans(XMMatrixIdentity()),
 	m_world(XMMatrixIdentity()),
 	m_textureID(0),
-	m_materialID(0)
+	m_materialID(0),
+	m_disabled(false),
+	m_dynamic(true)
 {
 	Update();
 }
@@ -30,26 +32,31 @@ Object::~Object()
 void Object::SetPosition(XMFLOAT3 position)
 {
 	m_position = position;
+	Update();
 }
 
 void Object::SetPosition(float x, float y, float z)
 {
 	m_position = XMFLOAT3(x, y, z);
+	Update();
 }
 
 void Object::SetPostiionX(float x)
 {
 	m_position.x = x;
+	Update();
 }
 
 void Object::SetPositionY(float y)
 {
 	m_position.y = y;
+	Update();
 }
 
 void Object::SetPositionZ(float z)
 {
 	m_position.z = z;
+	Update();
 }
 
 XMFLOAT3 Object::GetPosition()
@@ -75,26 +82,31 @@ float Object::GetPositionZ()
 void Object::SetRotation(XMFLOAT3 rotation)
 {
 	m_rotation = rotation;
+	Update();
 }
 
 void Object::SetRotation(float x, float y, float z)
 {
 	m_rotation = XMFLOAT3(x, y, z);
+	Update();
 }
 
 void Object::SetRotationX(float x)
 {
 	m_rotation.x = x;
+	Update();
 }
 
 void Object::SetRotationY(float y)
 {
 	m_rotation.y = y;
+	Update();
 }
 
 void Object::SetRotationZ(float z)
 {
 	m_rotation.z = z;
+	Update();
 }
 
 XMFLOAT3 Object::GetRotation()
@@ -120,26 +132,31 @@ float Object::GetRotationZ()
 void Object::SetScale(XMFLOAT3 scale)
 {
 	m_scale = scale;
+	Update();
 }
 
 void Object::SetScale(float x, float y, float z)
 {
 	m_scale = XMFLOAT3(x, y, z);
+	Update();
 }
 
 void Object::SetScaleX(float x)
 {
 	m_scale.x = x;
+	Update();
 }
 
 void Object::SetScaleY(float y)
 {
 	m_scale.y = y;
+	Update();
 }
 
 void Object::SetScaleZ(float z)
 {
 	m_scale.z = z;
+	Update();
 }
 
 XMFLOAT3 Object::GetScale()
@@ -180,16 +197,19 @@ XMMATRIX Object::GetWorldMatrix()
 void Object::SetTexTransformPos(float px, float py, float pz)
 {
 	m_texPos = XMFLOAT3(px, py, pz);
+	Update();
 }
 
 void Object::SetTexTransformRotate(float rx, float ry, float rz)
 {
 	m_texRot = XMFLOAT3(rx, ry, rz);
+	Update();
 }
 
 void Object::SetTexTransformScale(float sx, float sy, float sz)
 {
 	m_texSca = XMFLOAT3(sx, sy, sz);
+	Update();
 }
 
 XMMATRIX Object::GetTexTransform()
@@ -255,6 +275,46 @@ void Object::SetMaterial(Material material)
 Material Object::GetMaterial()
 {
 	return m_material;
+}
+
+void Object::SetTag(unsigned int tag)
+{
+	m_tag = tag;
+}
+
+unsigned int Object::GetTag()
+{
+	return m_tag;
+}
+
+void Object::SetName(std::string name)
+{
+	m_name = name;
+}
+
+std::string Object::GetName()
+{
+	return m_name;
+}
+
+void Object::SetDisabled(bool disabled)
+{
+	m_disabled = disabled;
+}
+
+bool Object::GetDisabled()
+{
+	return m_disabled;
+}
+
+void Object::SetDynamic(bool dynamic)
+{
+	m_dynamic = dynamic;
+}
+
+bool Object::GetDynamic()
+{
+	return m_dynamic;
 }
 
 void Object::SetTexture(ID3D11ShaderResourceView* texture, UINT slot)

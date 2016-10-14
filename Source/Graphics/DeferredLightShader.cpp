@@ -39,11 +39,13 @@ void DeferredLightShader::Shutdown()
 	ShutdownShader();
 }
 
-bool DeferredLightShader::Render(ID3D11DeviceContext * deviceContext, offsetData offset, Object* object, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView* position, Light lighting, XMFLOAT3 eyepos, Fog fog)
+bool DeferredLightShader::Render(ID3D11DeviceContext* deviceContext, offsetData offset,
+	ID3D11ShaderResourceView* envMap, ID3D11ShaderResourceView* irradiance, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, 
+	ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, Light* lighting, DirectX::XMFLOAT3 eyePos, Fog fog)
 {
 	bool result;
 
-	result = setShaderParameters(deviceContext, albedo, normal, matProp, position, object->GetTexture(1), object->GetTexture(2), lighting, eyepos, fog);
+	result = setShaderParameters(deviceContext, albedo, normal, matProp, position, irradiance, envMap, lighting, eyePos, fog);
 	if (!result)
 	{
 		MessageBox(0, L"Cant initalize set parameters for deferred light shader", L"Error", MB_OK);
@@ -180,7 +182,7 @@ void DeferredLightShader::ShutdownShader()
 	ReleaseCOM(m_vertexShader);
 }
 
-bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContext, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView * position, ID3D11ShaderResourceView * irradiance, ID3D11ShaderResourceView * envMap, Light lighting, XMFLOAT3 eyePos, Fog fog)
+bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContext, ID3D11ShaderResourceView * albedo, ID3D11ShaderResourceView * normal, ID3D11ShaderResourceView * matProp, ID3D11ShaderResourceView * position, ID3D11ShaderResourceView * irradiance, ID3D11ShaderResourceView * envMap, Light* lighting, XMFLOAT3 eyePos, Fog fog)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -201,8 +203,8 @@ bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContex
 
 	//Light Buffer-------------------------------------------------------------------------------
 	
-	PBRDirectionalLight dirL = lighting.GetDirectionalLight();
-	PBRPointLight pointL = lighting.GetPointLight(0);
+	PBRDirectionalLight dirL = lighting->GetDirectionalLight();
+	PBRPointLight pointL = lighting->GetPointLight(0);
 	PBRSpotLight spotL;
 
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

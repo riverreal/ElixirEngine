@@ -5,14 +5,14 @@ using namespace DirectX;
 Light::Light()
 {
 	m_directionalLight = PBRDirectionalLight();
-	m_directionalLight.LightColor[0] = 0.5f;
-	m_directionalLight.LightColor[1] = 0.5f;
-	m_directionalLight.LightColor[2] = 0.5f;
+	m_directionalLight.LightColor[0] = 0.3f;
+	m_directionalLight.LightColor[1] = 0.3f;
+	m_directionalLight.LightColor[2] = 0.3f;
 	m_directionalLight.LightColor[3] = 1.0f;
 	m_directionalLight.Direction[0] = 1.0f;
 	m_directionalLight.Direction[1] = -1.0f;
 	m_directionalLight.Direction[2] = 0.0f;
-	m_directionalLight.LightIntensity[0] = 2.0f;
+	m_directionalLight.LightIntensity[0] = 0.6f;
 	m_directionalLight.LightIntensity[1] = 1.0f;
 	m_directionalLight.LightIntensity[2] = 1.0f;
 	m_directionalLight.LightIntensity[3] = 1.0f;
@@ -38,6 +38,11 @@ PBRDirectionalLight Light::GetDirectionalLight()
 	return m_directionalLight;
 }
 
+void Light::SetDirectionalLight(PBRDirectionalLight dirL)
+{
+	m_directionalLight = dirL;
+}
+
 PBRPointLight Light::GetPointLight(int index)
 {
 	return m_pointLightVector[index];
@@ -47,3 +52,5 @@ PBRSpotLight Light::GetSpotLight(int index)
 {
 	return m_spotLightVector[index];
 }
+
+

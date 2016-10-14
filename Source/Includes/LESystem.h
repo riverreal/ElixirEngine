@@ -8,3 +8,4 @@
 #include "System\Object.h"
 #include "System\BaseApp.h"
 #include "Helper\MathHelper.h"
+#include "../System/RadixScene.h"

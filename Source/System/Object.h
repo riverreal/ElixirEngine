@@ -96,6 +96,18 @@ public:
 	void SetMaterial(Material material);
 	Material GetMaterial();
 
+	void SetTag(unsigned int tag);
+	unsigned int GetTag();
+
+	void SetName(std::string name);
+	std::string GetName();
+
+	void SetDisabled(bool disabled);
+	bool GetDisabled();
+
+	void SetDynamic(bool dynamic);
+	bool GetDynamic();
+
 	void SetTexture(ID3D11ShaderResourceView* texture, UINT slot);
 	ID3D11ShaderResourceView* GetTexture(UINT slot);
 
@@ -141,5 +153,18 @@ private:
 	UINT m_materialID;
 	//Temporal material storage will be removed once material manager is completed
 	Material m_material;
+
+	//A name that identifies the object
+	std::string m_name;
+
+	//A tag that identifies the object
+	unsigned int m_tag;
+
+	//object not processed if disabled
+	bool m_disabled;
+
+	//object not updated if not dynamic
+	bool m_dynamic;
+
 	ID3D11ShaderResourceView* m_texture[6]; //0 albedo, 1 irradiance, 2 env map, 3 roughness, 4 metallic 5 normal
 };

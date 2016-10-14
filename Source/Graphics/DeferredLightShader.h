@@ -19,14 +19,14 @@ public:
 	bool Initialize(ID3D11Device* device, HWND hWnd);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext* deviceContext, offsetData offset,
-		Object* object, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, Light lighting, DirectX::XMFLOAT3 eyePos, Fog fog);
+		ID3D11ShaderResourceView* envMap, ID3D11ShaderResourceView* irradiance, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, Light* lighting, DirectX::XMFLOAT3 eyePos, Fog fog);
 
 private:
 
 	bool InitializeShader(ID3D11Device* device, HWND hWnd);
 	void ShutdownShader();
 	
-	bool setShaderParameters(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, ID3D11ShaderResourceView* irradiance, ID3D11ShaderResourceView* envMap, Light lighting, DirectX::XMFLOAT3 eyePos, Fog fog);
+	bool setShaderParameters(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* albedo, ID3D11ShaderResourceView* normal, ID3D11ShaderResourceView* matProp, ID3D11ShaderResourceView* position, ID3D11ShaderResourceView* irradiance, ID3D11ShaderResourceView* envMap, Light* lighting, DirectX::XMFLOAT3 eyePos, Fog fog);
 	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
 	struct LightBufferType

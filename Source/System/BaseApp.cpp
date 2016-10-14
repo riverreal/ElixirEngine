@@ -25,12 +25,28 @@ BaseApp::BaseApp(HINSTANCE instance, int width, int height)
 	m_depthStencilView(0),
 	//m_depthSRV(0),
 	m_solidRS(0),
-	m_wireFrameRS(0)
+	m_wireFrameRS(0),
+	m_currentScene(0)
 {
+	AllocConsole();
+	freopen("conin$", "r", stdin);
+	freopen("conout$", "w", stdout);
+	freopen("conout$", "w", stderr);
 }
 
 BaseApp::~BaseApp()
 {
+	//Draw related shutdown
+	m_deferredBuffers->Shutdown();
+	m_deferredLightShader->Shutdown();
+	m_deferredShader->Shutdown();
+
+	SafeRelease(m_deferredBuffers);
+	SafeRelease(m_deferredLightShader);
+	SafeRelease(m_deferredShader);
+
+	m_ortho.Shutdown();
+
 	//D3D Shutdown
 	if (m_swapChain)
 	{
@@ -72,6 +88,12 @@ bool BaseApp::Init()
 	if (!InitD3D())
 	{
 		MessageBox(0, L"Failed Initializing DirectX", L"ERROR!", MB_OK);
+		return false;
+	}
+
+	if (!InitDraw())
+	{
+		MessageBox(0, L"Failed Preparing Draw", L"ERROR!", MB_OK);
 		return false;
 	}
 
@@ -125,6 +147,61 @@ int BaseApp::Run()
 	return (int)msg.wParam;
 }
 
+void BaseApp::Draw()
+{
+	assert(m_d3dDeviceContext);
+	assert(m_swapChain);
+
+	
+
+	if (m_currentScene != 0 && m_currentScene->IsSceneReady())
+	{
+		m_currentScene->GetCamera()->Update();
+		if (m_currentScene->GetRenderMode() == RENDER_MODE::DEFERRED_RENDERING)
+		{
+			
+
+			m_deferredBuffers->SetRenderTargets(m_d3dDeviceContext);
+			m_deferredBuffers->ClearRenderTargets(m_d3dDeviceContext);
+
+			m_currentScene->GetModel()->Render(m_d3dDeviceContext);
+
+			m_d3dDeviceContext->RSSetViewports(1, &m_deferredViewport);
+
+			//iterate through every object to render it
+			for (auto &object : m_currentScene->GetChildren())
+			{
+				//render if not disabled
+				if (object->GetDisabled() == false)
+				{
+					m_deferredShader->Render(m_d3dDeviceContext, object, m_currentScene->GetCamera());
+				}
+			}
+
+			SetDefaultRenderTargetOn();
+
+			float color[4] = { 255, 255, 255, 255 };
+			m_d3dDeviceContext->ClearRenderTargetView(m_renderTargetView, color);
+			m_d3dDeviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+			m_d3dDeviceContext->RSSetState(m_solidRS);
+
+			m_ortho.Render(m_d3dDeviceContext);
+			m_deferredLightShader->Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_currentScene->GetEnvMap(), m_currentScene->GetIrradiance(), m_deferredBuffers->GetShaderResourceView(0), m_deferredBuffers->GetShaderResourceView(1), m_deferredBuffers->GetShaderResourceView(2), m_deferredBuffers->GetShaderResourceView(3), m_currentScene->GetLight(), m_currentScene->GetCamera()->GetPosition(), m_currentScene->GetFog());
+		}
+	}
+
+	//-------render end
+	if (VSYNC_ENABLED)
+	{
+		m_swapChain->Present(1, 0);
+	}
+	else
+	{
+		m_swapChain->Present(0, 0);
+	}
+}
+
 void BaseApp::Frame()
 {
 	m_frameCnt++;
@@ -163,18 +240,24 @@ bool BaseApp::InitWindow()
 	int totalWidth = GetSystemMetrics(SM_CXSCREEN);
 	int totalHeight = GetSystemMetrics(SM_CYSCREEN);
 
+	//default window style (windowed mode)
+	DWORD windowStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION;
+
 	//FULL SCREEN compatibility
 	if (FULL_SCREEN)
 	{
+		
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
 		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
 		dmScreenSettings.dmPelsWidth = (unsigned long)m_width;
 		dmScreenSettings.dmPelsHeight = (unsigned long)m_height;
+		
 		dmScreenSettings.dmBitsPerPel = 32;
 		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 		posX = posY = 0;
+		windowStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU;
 	}
 	else //Windowed mode with no borders.
 	{
@@ -182,7 +265,7 @@ bool BaseApp::InitWindow()
 		posY = (totalHeight - m_height) / 2;
 	}
 
-	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_appName, m_appName, WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION, posX, posY, m_width, m_height, NULL, NULL, m_instance, NULL);
+	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_appName, m_appName, windowStyle, posX, posY, m_width, m_height, NULL, NULL, m_instance, NULL);
 	if (!m_hWnd)
 	{
 		
@@ -222,6 +305,16 @@ bool BaseApp::InitD3D()
 	D3D11_VIEWPORT viewport;
 	float fieldOfView, screenAspect;
 
+	unsigned int adapterNum;
+
+	//Get the real client rect to avoid dedicated graphics client size errors when initializing dx11
+	//Source: Gamedev.net (User: NightCreature83)
+	//"If you dont pass it the actual GetClientRect window size the problem I was seeing with Dedicated GPUs 
+	//was that the compositing and final output to the window was actually still happening on the iGPU instead of on the dGPU."
+
+	RECT realClientSize;
+	GetClientRect(m_hWnd, &realClientSize);
+
 	//-------------------------------------------------------------------
 	//Get PC Information
 	//-------------------------------------------------------------------
@@ -240,6 +333,8 @@ bool BaseApp::InitD3D()
 		outs << j;
 		//MessageBox(0, outs.str().c_str(), L"Iteration", MB_OK);
 	}
+
+	//vAdapters.pop_back();
 
 	result = vAdapters[0]->EnumOutputs(0, &adapterOutput);
 	if (FAILED(result))
@@ -268,17 +363,46 @@ bool BaseApp::InitD3D()
 	//Screen Refresh rate
 	for (i = 0; i < numModes; i++)
 	{
-		if (displayModelList[i].Width == (unsigned int)m_width)
+		if (displayModelList[i].Width == (unsigned int) m_width)
 		{
-			if (displayModelList[i].Height == (unsigned int)m_height)
+			if (displayModelList[i].Height == (unsigned int) m_height)
 			{
 				numerator = displayModelList[i].RefreshRate.Numerator;
 				denominator = displayModelList[i].RefreshRate.Denominator;
 			}
 		}
 	}
+	
+	//Get the video ram from every adapter
+	std::vector<int> vRam;
+	for (auto &adapter : vAdapters)
+	{
+		result = adapter->GetDesc(&adapterDesc);
+		if (FAILED(result))
+		{
+		}
+		else
+		{
+			vRam.push_back(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+		}
+	}
 
-	result = vAdapters[0]->GetDesc(&adapterDesc);
+	//Simple loop to get greatest video ram
+	int greatest = 0;
+	int iteration = 0;
+	for (auto &memory : vRam)
+	{
+		if (memory > greatest)
+		{
+			greatest = memory;
+			//Select the best video card by choosing the one with largest vram
+			adapterNum = iteration;
+		}
+
+		iteration++;
+	}
+
+	result = vAdapters[adapterNum]->GetDesc(&adapterDesc);
 	if (FAILED(result))
 	{
 		return false;
@@ -338,8 +462,8 @@ bool BaseApp::InitD3D()
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
 	swapChainDesc.BufferCount = 1;
-	swapChainDesc.BufferDesc.Width = m_width;
-	swapChainDesc.BufferDesc.Height = m_height;
+	swapChainDesc.BufferDesc.Width = realClientSize.right;
+	swapChainDesc.BufferDesc.Height = realClientSize.bottom;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	if (VSYNC_ENABLED) 
@@ -394,18 +518,20 @@ bool BaseApp::InitD3D()
 		D3D_FEATURE_LEVEL_9_1
 	};
 
-	result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, 
+	result = D3D11CreateDeviceAndSwapChain(vAdapters[adapterNum], D3D_DRIVER_TYPE_UNKNOWN, nullptr, 0,
 		featureLevels, _countof(featureLevels), D3D11_SDK_VERSION, &swapChainDesc, 
 		&m_swapChain, &m_d3dDevice, &featureLevel, &m_d3dDeviceContext);
 
 	if (result == E_INVALIDARG)
 	{
-		result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
+		result = D3D11CreateDeviceAndSwapChain(vAdapters[adapterNum], D3D_DRIVER_TYPE_UNKNOWN, nullptr, 0,
 			&featureLevels[1], _countof(featureLevels) - 1, D3D11_SDK_VERSION, &swapChainDesc,
 			&m_swapChain, &m_d3dDevice, &featureLevel, &m_d3dDeviceContext);
+		MessageBox(0, L"Changing Feature Level to 11_0", L"Feature Level 11_1 not Supported", MB_OK);
 	}
 	if (FAILED(result))
 	{
+		MessageBox(0, L"Unable to create Device and SwapChain", L"Error", MB_OK);
 		return false;
 	}
 
@@ -433,8 +559,8 @@ bool BaseApp::InitD3D()
 	//---------Depth Buffer
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
 
-	depthBufferDesc.Width = m_width;
-	depthBufferDesc.Height = m_height;
+	depthBufferDesc.Width = realClientSize.right;
+	depthBufferDesc.Height = realClientSize.bottom;
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
@@ -745,7 +871,7 @@ bool BaseApp::InitD3D()
 
 	//---------Projection
 	fieldOfView = 3.141592654f / 4.0f;
-	screenAspect = (float)m_width / (float)m_height;
+	screenAspect = (float)realClientSize.right / (float)realClientSize.bottom;
 
 	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
 
@@ -753,7 +879,40 @@ bool BaseApp::InitD3D()
 	m_worldMatrix = XMMatrixIdentity();
 
 	//---------Ortho
-	m_orthoMatrix = XMMatrixOrthographicLH((float)m_width, (float)m_height, SCREEN_NEAR, SCREEN_DEPTH);
+	m_orthoMatrix = XMMatrixOrthographicLH((float)realClientSize.right, (float)realClientSize.bottom, SCREEN_NEAR, SCREEN_DEPTH);
+
+	return true;
+}
+
+bool BaseApp::InitDraw()
+{
+	m_deferredBuffers = new DeferredRendering();
+	XMFLOAT2 specResolution = GetSpecResolution(m_width, m_height);
+	if (!m_deferredBuffers->Initialize(m_d3dDevice, specResolution.x, specResolution.y, SCREEN_DEPTH, SCREEN_NEAR))
+	{
+		MessageBox(0, L"Cant initalize deferred buffers", L"Error", MB_OK);
+		return false;
+	}
+
+	m_deferredLightShader = new DeferredLightShader();
+	if (!m_deferredLightShader->Initialize(m_d3dDevice, m_hWnd))
+	{
+		MessageBox(0, L"Cant initalize deferred light shader", L"Error", MB_OK);
+		return false;
+	}
+
+	m_deferredShader = new DeferredShader();
+	if (!m_deferredShader->Initialize(m_d3dDevice, m_hWnd))
+	{
+		MessageBox(0, L"Cant initalize deferred shader", L"Error", MB_OK);
+		return false;
+	}
+
+	if(!m_ortho.Initialize(m_d3dDevice, m_width, m_height))
+	{
+		MessageBox(0, L"Cant initalize ortho manager", L"Error", MB_OK);
+		return false;
+	}
 
 	return true;
 }
@@ -917,4 +1076,9 @@ XMFLOAT2 BaseApp::GetSpecResolution(int screenWidth, int screenHeight)
 		}
 	}
 	return DirectX::XMFLOAT2(width, height);
+}
+
+void BaseApp::SetScene(Scene * scene)
+{
+	m_currentScene = scene;
 }

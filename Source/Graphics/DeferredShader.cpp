@@ -37,11 +37,11 @@ void DeferredShader::Shutdown()
 	ShutdownShader();
 }
 
-bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, Object* object, Camera camera)
+bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, Object* object, Camera* camera)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, object->GetTexTransform(), object->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix(), object->GetTexture(0), object->GetTexture(3), object->GetTexture(4), object->GetTexture(5));
+	result = SetShaderParameters(deviceContext, object->GetTexTransform(), object->GetWorldMatrix(), camera->GetViewMatrix(), camera->GetProjectionMatrix(), object->GetTexture(0), object->GetTexture(3), object->GetTexture(4), object->GetTexture(5));
 	if (!result)
 	{
 		return false;

@@ -13,6 +13,9 @@
 #include <sstream>
 #include <vector>
 #include "Timer.h"
+#include "RadixScene.h"
+#include "../Includes/RDeferred.h"
+#include "../Graphics/OrthoManager.h"
 
 using namespace DirectX;
 
@@ -35,7 +38,7 @@ public:
 
 	virtual bool Init();
 	virtual void Update(float dt) = 0;
-	virtual void Draw() = 0;
+	virtual void Draw();
 	virtual void Frame();
 	int Run();
 
@@ -48,12 +51,13 @@ public:
 protected:
 	bool InitWindow();
 	bool InitD3D();
+	bool InitDraw();
 	void displayFPS(); //in Caption
 	void SetZBufferOn();
 	void SetZBufferOff();
 	void SetDefaultRenderTargetOn();
 	DirectX::XMFLOAT2 GetSpecResolution(int screenWidth, int screenHeight);
-	
+	void SetScene(Scene* scene);
 
 protected:
 	HINSTANCE m_instance;
@@ -114,6 +118,17 @@ protected:
 	DirectX::XMMATRIX m_projectionMatrix;
 	DirectX::XMMATRIX m_worldMatrix;
 	DirectX::XMMATRIX m_orthoMatrix;
+
+	Scene* m_currentScene;
+
+	//Draw related----
+
+	OrthoManager m_ortho;
+
+	DeferredRendering* m_deferredBuffers;
+	DeferredLightShader* m_deferredLightShader;
+	DeferredShader* m_deferredShader;
+
 };
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

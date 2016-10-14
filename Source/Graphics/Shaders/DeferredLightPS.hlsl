@@ -141,5 +141,33 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 		outputColor = lerp(outputColor, gFog.FogColor, fogLerp);
 	}
 
+	
+	//Tone mapping test------------------------------
+
+	outputColor *= 16;
+
+	float A = 0.15;
+	float B = 0.50;
+	float C = 0.10;
+	float D = 0.20;
+	float E = 0.02;
+	float F = 0.30;
+	float W = 11.2;
+
+	
+	
+	float exposureBias = 2.0f;
+	
+	float3 x = exposureBias * outputColor.rgb;
+
+	float3 curr = ((x*(A*x + C*B) + D*E) / (x*(A*x + B) + D*F)) - E / F;
+
+	float3 whiteScale = 1.0f / ((W*(A*W + C*B) + D*E) / (W*(A*W + B) + D*F)) - E / F;
+	float3 color = curr * whiteScale;
+
+	float3 retColor = pow(outputColor.rgb, 1 / 2.2);
+
+	outputColor = float4(color, 1.0f);
+	
 	return outputColor;// float4(specFactor, 1.0f);
 }

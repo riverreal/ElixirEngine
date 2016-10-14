@@ -66,3 +66,9 @@ struct offsetData
 	UINT indexOffset;
 	UINT vertexOffset;
 };
+
+enum RENDER_MODE
+{
+	DEFERRED_RENDERING,
+	FOREWARD_RENDERING
+};

@@ -16,7 +16,7 @@ public:
 
 	bool Initialize(ID3D11Device* device, HWND window);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext* deviceContext, Object* object, Camera camera);
+	bool Render(ID3D11DeviceContext* deviceContext, Object* object, Camera* camera);
 
 private:
 	bool InitializeShader(ID3D11Device* device, HWND window);
