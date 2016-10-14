@@ -144,7 +144,7 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	
 	//Tone mapping test------------------------------
 
-	outputColor *= 16;
+	outputColor *= 20;
 
 	float A = 0.15;
 	float B = 0.50;
@@ -153,8 +153,6 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	float E = 0.02;
 	float F = 0.30;
 	float W = 11.2;
-
-	
 	
 	float exposureBias = 2.0f;
 	
