@@ -41,7 +41,7 @@ void Object::SetPosition(float x, float y, float z)
 	Update();
 }
 
-void Object::SetPostiionX(float x)
+void Object::SetPositionX(float x)
 {
 	m_position.x = x;
 	Update();

@@ -1,5 +1,8 @@
 #include "BRDF.hlsli"
 
+#define MAX_POINT_LIGHT 50
+#define MAX_SPOT_LIGHT 20
+
 //each GBuffer texture
 Texture2D albedoTexture : register(t0);
 Texture2D normalTexture : register(t1);
@@ -17,9 +20,12 @@ SamplerState SampleTypePoint : register(s0);
 cbuffer LightBuffer : register(b0)
 {
 	PBRDirectionalLight gDirLight;
-	PBRPointLight gPointLight;
-	PBRSpotLight gSpotLight;
-	float pad;
+	U32 gNumPointLights;
+	float3 pad;
+	U32 gNumSpotLights;
+	float3 pad2;
+	PBRPointLight gPointLight[MAX_POINT_LIGHT];
+	PBRSpotLight gSpotLight[MAX_SPOT_LIGHT];
 };
 
 cbuffer cdPerObject : register(b1)
@@ -82,7 +88,6 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	float3 refVec = reflect(-toEye, normal.rgb);
 	float mipIndex = roughness * roughness * 11.0f;
 	
-	
 	//Data for IBL --------------------------------------------------------------------
 	float3 irradiance = irradianceTexture.Sample(SampleTypePoint, normal.rgb);
 	float3 envMap = envMapTexture.SampleLevel(SampleTypePoint, refVec, mipIndex);
@@ -95,7 +100,7 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	//Per Light-----------------------------------------------------------------------------------------------------------------------
 
 	float lightIntensity = gDirLight.LightIntensity.x;
-	float reflectionIntensity = 1.0;
+	float reflectionIntensity = gDirLight.LightIntensity.y;
 	float ambientIntensity = gDirLight.LightIntensity.y;
 
 	//Env factor----------------------------------------------------------------------------------------------------------------------
@@ -108,64 +113,77 @@ float4 DeferredLightPS(PixelInputType input) : SV_TARGET
 	float NoL = saturate(dot(normal, -lightDir));
 	float3 halfVector = normalize(-lightDir + toEye);
 	float VoH = saturate(dot(toEye, halfVector));
-
-	float3 diff = lightColor * realAlbedo * NoL;
-	float3 spec = CookTorranceSpecFactor(normal, toEye, metallic, roughness, lightDir, albedo)  * lightColor * NoL * lightIntensity;
+	float3 diff = lightColor * realAlbedo * NoL * irradiance * lightIntensity;
+	float3 spec = GGXSpecFactor(normal, toEye, metallic, roughness, lightDir, albedo)  * lightColor * NoL * lightIntensity;
 
 	//Point Lights--------------------------------------------------------------------------------------------------------------------
-	
-	lightDir = -normalize(gPointLight.Position.rgb - position.rgb);
-	lightColor = gPointLight.LightColor.rgb;
-	NoL = saturate(dot(normal, -lightDir));
-	halfVector = normalize(-lightDir + toEye);
-	VoH = saturate(dot(toEye, halfVector));
+	uint numPoint = gNumSpotLights;
+	numPoint = clamp(numPoint, 0, MAX_POINT_LIGHT);
 
-	float lightDist = length(gPointLight.Position.rgb - position.rgb);
-	float attenuation = clamp(1.0f - ((lightDist * lightDist)  / (gPointLight.Range*gPointLight.Range)), 0.0f, 1.0f);
-	attenuation = attenuation * attenuation;
-	//lighting calculation
-	diff += lightColor * realAlbedo * NoL * attenuation;
-	spec += CookTorranceSpecFactor(normal, toEye, metallic, roughness, lightDir, albedo) * attenuation * lightColor * NoL;
+	int debugZero = 1;
+
+	for (uint i = 0; i < numPoint; ++i)
+	{
+		lightDir = -normalize(gPointLight[i].Position.rgb - position.rgb);
+		lightColor = gPointLight[i].LightColor.rgb;
+		NoL = saturate(dot(normal, -lightDir));
+		halfVector = normalize(-lightDir + toEye);
+		VoH = saturate(dot(toEye, halfVector));
+
+		float lightDist = length(gPointLight[i].Position.rgb - position.rgb);
+		float attenuation = clamp(1.0f - ((lightDist * lightDist) / (gPointLight[i].Range*gPointLight[i].Range)), 0.0f, 1.0f);
+		attenuation = attenuation * attenuation;
+		//lighting calculation
+		diff += lightColor * realAlbedo * NoL * attenuation * gPointLight[i].LightColor.a;
+		spec += GGXSpecFactor(normal, toEye, metallic, roughness, lightDir, albedo) * attenuation * lightColor * NoL * gPointLight[i].LightColor.a;
+	}
+	
+	//Spot Lights--------------------------------------------------------------------------------------------------------------------
+	
+	uint numSpot = gNumSpotLights;
+	numSpot = clamp(numSpot, 0, MAX_SPOT_LIGHT);
+
+	for (uint i = 0; i < numSpot; ++i)
+	{
+		
+		//lightDir = -normalize(gSpotLight[i].Position.rgb - position.rgb);
+		lightDir = gSpotLight[i].Direction;
+		float3 lightVec = gSpotLight[i].Position.rgb - position.rgb;
+		float d = length(lightVec);
+
+		//Skip iteration if light is out of range
+		if (d > gSpotLight[i].Range)
+		{
+			continue;
+		}
+
+		lightVec /= d;
+		lightColor = gSpotLight[i].LightColor.rgb;
+		NoL = saturate(dot(normal, -lightDir));
+		halfVector = normalize(-lightDir + toEye);
+		VoH = saturate(dot(toEye, halfVector));
+
+		//angle of the spotlight
+		float spot = pow(max(dot(-lightVec, lightDir), 0.0f), gSpotLight[i].Spot);
+		float att = spot / dot(gSpotLight[i].Att, float3(1.0f, d, d * d));
+
+		diff += gSpotLight[i].LightColor.rgb * realAlbedo * NoL * att * gSpotLight[i].LightColor.a;
+		spec += GGXSpecFactor(normal, toEye, metallic, roughness, lightDir, albedo) * att * gSpotLight[i].LightColor * NoL * gSpotLight[i].LightColor.a;
+	}
 	
 	//Final Color--------------------------------------------------------------------------------------------------------------------
 
-	float3 specFactor = spec;
-	float3 diffuseFactor = diff;
-	float3 ambientFactor = realAlbedo * irradiance * ambientIntensity;
-
-	outputColor = float4( specFactor + diffuseFactor + ambientFactor + envFactor, 1.0f);
+	float3 specFactor = spec * debugZero;
+	float3 diffuseFactor = diff * (1 - metallic);
+	float3 ambientFactor = realAlbedo * ambientIntensity;
+	
+	outputColor = float4(ambientFactor + envFactor + diffuseFactor + specFactor, 1.0f);
 	
 	if (gFog.Enabled == true)
 	{
 		float fogLerp = saturate((distToEye - gFog.FogStart) / gFog.FogRange);
 		outputColor = lerp(outputColor, gFog.FogColor, fogLerp);
 	}
-
-	
-	//Tone mapping test------------------------------
-
-	outputColor *= 20;
-
-	float A = 0.15;
-	float B = 0.50;
-	float C = 0.10;
-	float D = 0.20;
-	float E = 0.02;
-	float F = 0.30;
-	float W = 11.2;
-	
-	float exposureBias = 2.0f;
-	
-	float3 x = exposureBias * outputColor.rgb;
-
-	float3 curr = ((x*(A*x + C*B) + D*E) / (x*(A*x + B) + D*F)) - E / F;
-
-	float3 whiteScale = 1.0f / ((W*(A*W + C*B) + D*E) / (W*(A*W + B) + D*F)) - E / F;
-	float3 color = curr * whiteScale;
-
-	float3 retColor = pow(outputColor.rgb, 1 / 2.2);
-
-	outputColor = float4(color, 1.0f);
 	
 	return outputColor;// float4(specFactor, 1.0f);
 }

@@ -5,6 +5,9 @@
 
 typedef unsigned int UINT;
 typedef unsigned long DWORD;
+typedef unsigned int U32;
+typedef float F32;
+
 
 struct Vertex2
 {
@@ -71,4 +74,13 @@ enum RENDER_MODE
 {
 	DEFERRED_RENDERING,
 	FOREWARD_RENDERING
+};
+
+enum TEXTURE_TYPE
+{
+	ALBEDO,
+	IRRADIANCE,
+	ENV_MAP,
+	ROUGHNESS,
+	METALLIC
 };

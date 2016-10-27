@@ -16,15 +16,14 @@ public:
 
 	bool Initialize(ID3D11Device* device, HWND window);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext* deviceContext, Object* object, Camera camera, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog);
+	bool Render(ID3D11DeviceContext* deviceContext, Object* object, Camera* camera);
 
 private:
 	bool InitializeShader(ID3D11Device* device, HWND window);
 	void ShutdownShader();
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const DirectX::XMMATRIX &world,
-		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, BasicLight lightData, Fog fog,
-		DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const DirectX::XMMATRIX &textTransf, Material material);
+		const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &proj, DirectX::XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture);
 	void RenderShader(ID3D11DeviceContext* deviceContext, offsetData offset);
 
 	struct MatrixBuffer //Used in Vertex Shader

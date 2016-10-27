@@ -16,120 +16,126 @@
 #include "RadixScene.h"
 #include "../Includes/RDeferred.h"
 #include "../Graphics/OrthoManager.h"
+#include "../Graphics/Post-processingShader.h"
+#include "../Graphics/SkyDome.h"
 
 using namespace DirectX;
 
-const bool FULL_SCREEN = false; 
-//const bool RESIZEABLE = false; ------------- Feature Not Added
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
-const bool VSYNC_ENABLED = true;
-const bool MSAA_ENABLED = false; //4X MSAA --- for forward rendering
-const float FPS_CAP = 60.0f; //When Vsync is disabled --- NOT WORKING
-const bool ENABLE_FPS_CAP = false; //NOT WORKING
-const bool HIDE_CURSOR = false;
-const int SPEC_INDEX = 0; //0 ULTRA / 1 HIGH / 2 LOW
-
-class BaseApp
+namespace radix
 {
-public:
-	BaseApp(HINSTANCE instance, int width, int height);
-	virtual ~BaseApp();
+	const bool FULL_SCREEN = false;
+	//const bool RESIZEABLE = false; ------------- Feature Not Added
+	const float SCREEN_DEPTH = 1000.0f;
+	const float SCREEN_NEAR = 0.1f;
+	const bool VSYNC_ENABLED = true;
+	const bool MSAA_ENABLED = false; //4X MSAA --- for forward rendering
+	const float FPS_CAP = 60.0f; //When Vsync is disabled --- NOT WORKING
+	const bool ENABLE_FPS_CAP = false; //NOT WORKING
+	const bool HIDE_CURSOR = false;
+	const int SPEC_INDEX = 0; //0 ULTRA / 1 HIGH / 2 LOW
 
-	virtual bool Init();
-	virtual void Update(float dt) = 0;
-	virtual void Draw();
-	virtual void Frame();
-	int Run();
+	class BaseApp
+	{
+	public:
+		BaseApp(HINSTANCE instance, int width, int height);
+		virtual ~BaseApp();
 
-	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		virtual bool Init();
+		virtual void Update(float dt) = 0;
+		virtual void Draw();
+		virtual void Frame();
+		int Run();
 
-	virtual void OnMouseDown(WPARAM btnState, int x, int y){}
-	virtual void OnMouseUp(WPARAM btnState, int x, int y) {}
-	virtual void OnMouseMove(WPARAM btnState, int x, int y) {}
+		virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-protected:
-	bool InitWindow();
-	bool InitD3D();
-	bool InitDraw();
-	void displayFPS(); //in Caption
-	void SetZBufferOn();
-	void SetZBufferOff();
-	void SetDefaultRenderTargetOn();
-	DirectX::XMFLOAT2 GetSpecResolution(int screenWidth, int screenHeight);
-	void SetScene(Scene* scene);
+		virtual void OnMouseDown(WPARAM btnState, int x, int y) {}
+		virtual void OnMouseUp(WPARAM btnState, int x, int y) {}
+		virtual void OnMouseMove(WPARAM btnState, int x, int y) {}
 
-protected:
-	HINSTANCE m_instance;
-	HWND m_hWnd;
-	//window size
-	int m_width;
-	int m_height;
+	protected:
+		bool InitWindow();
+		bool InitD3D();
+		bool InitDraw();
+		void displayFPS(); //in Caption
+		void SetZBufferOn();
+		void SetZBufferOff();
+		void SetDefaultRenderTargetOn();
+		DirectX::XMFLOAT2 GetSpecResolution(int screenWidth, int screenHeight);
+		void SetScene(Scene* scene);
 
-	//in megabytes
-	int m_gpuMemory;
-	//stores gpu name
-	char m_gpuDesc[128];
-	//stores 4xMSAA quality
-	UINT m_4xMsaaQuality;
+	protected:
+		HINSTANCE m_instance;
+		HWND m_hWnd;
+		//window size
+		int m_width;
+		int m_height;
 
-	LPCWSTR m_appName;
-	LPCWSTR m_caption;
+		//in megabytes
+		int m_gpuMemory;
+		//stores gpu name
+		char m_gpuDesc[128];
+		//stores 4xMSAA quality
+		UINT m_4xMsaaQuality;
 
-	bool m_resizing; //not used
-	bool m_appPaused;
+		LPCWSTR m_appName;
+		LPCWSTR m_caption;
 
-	Timer m_gameTimer;
-	static int m_frameCnt;
-	static float m_timeElapsed;
+		bool m_resizing; //not used
+		bool m_appPaused;
 
-	//d3d related
-	IDXGISwapChain* m_swapChain;
-	ID3D11Device* m_d3dDevice;
-	ID3D11DeviceContext* m_d3dDeviceContext;
-	ID3D11RenderTargetView* m_renderTargetView;
-	ID3D11Texture2D* m_depthStencilBuffer;
-	//default
-	ID3D11DepthStencilState* m_depthStencilState; 
-	ID3D11DepthStencilState* m_skyDSS;
-	ID3D11DepthStencilState* m_disabledDepthDDS;
-	//for mirror rendering
-	ID3D11DepthStencilState* m_markMirrorDSS;
-	//for mirror rendering
-	ID3D11DepthStencilState* m_drawReflecDSS; 
-	//For preventing double blending (shadows)
-	//Specify StencilRef to 0 when setting Stencil State
-	ID3D11DepthStencilState* m_noDoubleBlendDSS;
-	ID3D11DepthStencilView* m_depthStencilView;
-	//ID3D11ShaderResourceView* m_depthSRV;
-	//default
-	ID3D11RasterizerState* m_solidRS; 
-	ID3D11RasterizerState* m_wireFrameRS;
-	//for transparent objects
-	ID3D11RasterizerState* m_solidNoCullRS; 
-	//for reflected objects
-	ID3D11RasterizerState* m_cullClockWiseRS;
+		Timer m_gameTimer;
+		static int m_frameCnt;
+		static float m_timeElapsed;
 
-	//viewports
-	D3D11_VIEWPORT m_defaultViewport;
-	D3D11_VIEWPORT m_deferredViewport;
-	D3D11_VIEWPORT m_deferredSkyViewport;
+		//d3d related
+		IDXGISwapChain* m_swapChain;
+		ID3D11Device* m_d3dDevice;
+		ID3D11DeviceContext* m_d3dDeviceContext;
+		ID3D11RenderTargetView* m_renderTargetView;
+		ID3D11Texture2D* m_depthStencilBuffer;
+		//default
+		ID3D11DepthStencilState* m_depthStencilState;
+		ID3D11DepthStencilState* m_skyDSS;
+		ID3D11DepthStencilState* m_disabledDepthDDS;
+		//for mirror rendering
+		ID3D11DepthStencilState* m_markMirrorDSS;
+		//for mirror rendering
+		ID3D11DepthStencilState* m_drawReflecDSS;
+		//For preventing double blending (shadows)
+		//Specify StencilRef to 0 when setting Stencil State
+		ID3D11DepthStencilState* m_noDoubleBlendDSS;
+		ID3D11DepthStencilView* m_depthStencilView;
+		//ID3D11ShaderResourceView* m_depthSRV;
+		//default
+		ID3D11RasterizerState* m_solidRS;
+		ID3D11RasterizerState* m_wireFrameRS;
+		//for transparent objects
+		ID3D11RasterizerState* m_solidNoCullRS;
+		//for reflected objects
+		ID3D11RasterizerState* m_cullClockWiseRS;
 
-	DirectX::XMMATRIX m_projectionMatrix;
-	DirectX::XMMATRIX m_worldMatrix;
-	DirectX::XMMATRIX m_orthoMatrix;
+		//viewports
+		D3D11_VIEWPORT m_defaultViewport;
+		D3D11_VIEWPORT m_deferredViewport;
+		D3D11_VIEWPORT m_deferredSkyViewport;
 
-	Scene* m_currentScene;
+		DirectX::XMMATRIX m_projectionMatrix;
+		DirectX::XMMATRIX m_worldMatrix;
+		DirectX::XMMATRIX m_orthoMatrix;
 
-	//Draw related----
+		Scene* m_currentScene;
 
-	OrthoManager m_ortho;
+		//Draw related----
 
-	DeferredRendering* m_deferredBuffers;
-	DeferredLightShader* m_deferredLightShader;
-	DeferredShader* m_deferredShader;
+		OrthoManager m_ortho;
 
-};
+		DeferredRendering* m_deferredBuffers;
+		DeferredLightShader* m_deferredLightShader;
+		DeferredShader* m_deferredShader;
+		PostProcessShader* m_postProcessingShader;
+		SkyDome* m_skyShader;
+	};
 
-static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static BaseApp* g_baseApp = 0;
+	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	static BaseApp* g_baseApp = 0;
+}

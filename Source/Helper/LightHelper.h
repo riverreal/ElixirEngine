@@ -89,15 +89,28 @@ struct PBRPointLight
 struct PBRSpotLight
 {
 	PBRSpotLight() { ZeroMemory(this, sizeof(this)); }
+	PBRSpotLight(float posX, float posY, float posZ, float colorR, float colorG, float colorB, float range, float spot, float constAtt, float linearAtt, float quadAtt, float dirX, float dirY, float dirZ)
+		:Position(XMFLOAT3(posX, posY, posZ)),
+		LightColor(XMFLOAT4(colorR, colorG, colorB, 1.0f)),
+		Range(range),
+		Spot(spot),
+		Att(XMFLOAT3(constAtt, linearAtt, quadAtt)),
+		Direction(XMFLOAT3(dirX, dirY, dirZ))
+	{
+	}
 
 	XMFLOAT4 LightColor;
 
 	XMFLOAT3 Position;
+	//Range of the light
 	float Range;
 
+	//Direction of the spot light
 	XMFLOAT3 Direction;
+	//Exponent that controls the spotlight cone (angle)
 	float Spot;
 
+	//Three attenuation constants that controls the fall off with distance
 	XMFLOAT3 Att;
 	float pad;
 };

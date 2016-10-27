@@ -15,11 +15,16 @@ Scene::Scene(Model* model, DirectX::XMMATRIX& projMatrix)
 	m_fog.FogColor = DirectX::XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 	m_fog.FogStart = 15.0f;
 	m_fog.FogRange = 175.0f;
+
+	m_sky = new Object();
+	m_sky->SetOffset(m_model->AddGeometry(MODEL_TYPE_SPHERE));
+	m_sky->SetScale(30.0f, 30.0f, 30.0f);
 }
 
 Scene::~Scene()
 {
 	CleanMemory();
+	SafeRelease(m_sky);
 	SafeRelease(m_camera);
 }
 
@@ -48,41 +53,19 @@ void Scene::RemoveObject(Object* obj)
 
 void Scene::RemoveObjectByName(std::string name)
 {
-	bool found = false;
-	for (auto &object : m_objChildren)
+	auto object = GetObjectByName(name);
+	if (object != nullptr)
 	{
-		auto objName = object->GetName();
-		if (name == objName)
-		{
-			found = true;
-			RemoveObject(object);
-		}
-	}
-
-	if (!found)
-	{
-		//Could not find the object
-		RadixLog("Could not find object.");
+		RemoveObject(object);
 	}
 }
 
 void Scene::RemoveObjectByTag(unsigned int tag)
 {
-	bool found = false;
-	for (auto &object : m_objChildren)
+	auto object = GetObjectByTag(tag);
+	if (object != nullptr)
 	{
-		auto objTag = object->GetTag();
-		if (tag == objTag)
-		{
-			found = true;
-			RemoveObject(object);
-		}
-	}
-
-	if (!found)
-	{
-		//Could not find the object
-		RadixLog("Could not find object.");
+		RemoveObject(object);
 	}
 }
 
@@ -106,6 +89,11 @@ void Scene::UpdateScene()
 			object->Update();
 		}
 	}
+
+	if (m_sky)
+	{
+		m_sky->SetPosition(m_camera->GetPosition());
+	}
 }
 
 Camera * Scene::GetCamera()
@@ -116,6 +104,50 @@ Camera * Scene::GetCamera()
 std::vector<Object*> Scene::GetChildren()
 {
 	return m_objChildren;
+}
+
+Object * Scene::GetObjectByName(std::string name)
+{
+	//bool found = false;
+	for (auto &object : m_objChildren)
+	{
+		auto objName = object->GetName();
+		if (name == objName)
+		{
+			//found = true;
+			return object;
+		}
+	}
+
+	//if (!found)
+	{
+		//Could not find the object
+		RadixLog("Could not find object.");
+	}
+
+	return nullptr;
+}
+
+Object * Scene::GetObjectByTag(unsigned int tag)
+{
+	//bool found = false;
+	for (auto &object : m_objChildren)
+	{
+		auto objTag = object->GetTag();
+		if (tag == objTag)
+		{
+			//found = true;
+			return object;
+		}
+	}
+
+	//if (!found)
+	{
+		//Could not find the object
+		RadixLog("Could not find object.");
+	}
+
+	return nullptr;
 }
 
 Model * Scene::GetModel()
@@ -131,6 +163,9 @@ unsigned int Scene::GetRenderMode()
 void Scene::SetEnvMap(ID3D11ShaderResourceView * envMap)
 {
 	m_envMap = envMap;
+
+	//Sky Object will only need albedo texture to work as a skydome.
+	m_sky->SetTexture(m_envMap, TEXTURE_TYPE::ALBEDO);
 }
 
 ID3D11ShaderResourceView * Scene::GetEnvMap()
@@ -171,6 +206,11 @@ void Scene::SceneReady()
 bool Scene::IsSceneReady()
 {
 	return m_sceneReady;
+}
+
+Object * Scene::GetSky()
+{
+	return m_sky;
 }
 
 

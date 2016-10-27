@@ -2,6 +2,7 @@
 #include "Shaders\Compiled\DeferredLightVS.h"
 #include "Shaders\Compiled\DeferredLightPS.h"
 #include "../Helper/GeneralHelper.h"
+#include <string>
 
 using namespace DirectX;
 
@@ -186,8 +187,9 @@ bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContex
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 	UINT bufferNumber;
-	LightBufferType* dataPtr1;
+	LightBufferType* dataPtr1 = new LightBufferType;
 	cbPerObject* dataPtrPO;
 	FogBuffer* dataPtr2;
 
@@ -204,8 +206,8 @@ bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContex
 	//Light Buffer-------------------------------------------------------------------------------
 	
 	PBRDirectionalLight dirL = lighting->GetDirectionalLight();
-	PBRPointLight pointL = lighting->GetPointLight(0);
-	PBRSpotLight spotL;
+	auto numPoint = lighting->GetPointLightCount();
+	auto numSpot = lighting->GetSpotLightCount();
 
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -213,17 +215,31 @@ bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContex
 		return false;
 	}
 	
-	dataPtr1 = (LightBufferType*)mappedResource.pData;
+	//dataPtr1 = (LightBufferType*)mappedResource.pData;
 	
 	dataPtr1->dirLight = dirL;
-	dataPtr1->pointLight = pointL;
-	dataPtr1->spotLight = spotL;
+	dataPtr1->numPointLights = numPoint;
+	dataPtr1->numSpotLights = numSpot;
+	RadixLog("PointLights: " + std::to_string(lighting->GetPointLightCount()));
+	RadixLog("SpotLights: " + std::to_string(lighting->GetSpotLightCount()));
+	for (U32 i = 0; i < lighting->GetPointLightCount(); ++i)
+	{
+		dataPtr1->pointLight[i] = lighting->GetPointLight(i);
+	}
 	
+	for (U32 i = 0; i < lighting->GetSpotLightCount(); ++i)
+	{
+		dataPtr1->spotLight[i] = lighting->GetSpotLight(i);
+	}
+	
+	memcpy(mappedResource.pData, dataPtr1, sizeof(LightBufferType));
+
 	deviceContext->Unmap(m_lightBuffer, 0);
 
 	bufferNumber = 0;
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
+	SafeRelease(dataPtr1);
 	//cbPerObject Buffer-----------------------------------------------------------------------
 
 	result = deviceContext->Map(m_cbPerObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

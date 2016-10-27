@@ -38,19 +38,18 @@ void SkyDome::Shutdown()
 	ShutdownShader();
 }
 
-bool SkyDome::Render(ID3D11DeviceContext* deviceContext, Object* object, Camera camera, const XMMATRIX &proj, BasicLight lightData, Fog fog)
+bool SkyDome::Render(ID3D11DeviceContext* deviceContext, Object* object, Camera* camera)
 {
 	bool result;
 
 	XMMATRIX world = object->GetWorldMatrix();
-	XMMATRIX view = camera.GetViewMatrix();
-	XMFLOAT3 eyePos = camera.GetPosition();
+	XMMATRIX view = camera->GetViewMatrix();
+	XMFLOAT3 eyePos = camera->GetPosition();
+	XMMATRIX proj = camera->GetProjectionMatrix();
 	ID3D11ShaderResourceView* texture = object->GetTexture(0);
-	XMMATRIX textTransf = object->GetTexTransform();
-	Material material = object->GetMaterial();
 	offsetData offset = object->GetOffset();
 
-	result = SetShaderParameters(deviceContext, world, view, proj, lightData, fog, eyePos, texture, textTransf, material);
+	result = SetShaderParameters(deviceContext, world, view, proj, eyePos, texture);
 	if (!result)
 	{
 		return false;
@@ -143,8 +142,7 @@ void SkyDome::ShutdownShader()
 }
 
 bool SkyDome::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, BasicLight lightData,
-	Fog fog, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture, const XMMATRIX &textTransf, Material material)
+	const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &proj, XMFLOAT3 eyePos, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;

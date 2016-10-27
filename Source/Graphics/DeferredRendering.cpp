@@ -10,15 +10,22 @@ DeferredRendering::DeferredRendering()
 		m_gBufferSRV[i] = 0;
 	}
 
+	m_postpBuffer = 0;
+	m_postpRTV = 0;
+	m_postpSRV = 0;
+
 	m_depthStencilBuffer = 0;
 	m_depthStencilView = 0;
+
+	m_ppdepthStencilBuffer = 0;
+	m_ppdepthStencilView = 0;
 }
 
 DeferredRendering::~DeferredRendering()
 {
 }
 
-bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int textureHeight, float screenDepth, float screenNear)
+bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int textureHeight, float screenDepth, float screenNear, int spec)
 {
 	D3D11_TEXTURE2D_DESC texDesc;
 	HRESULT result;
@@ -29,8 +36,7 @@ bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int 
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	int i;
 
-	m_textureWidth = textureWidth;
-	m_textureHeight = textureHeight;
+	SpecDefiner(textureWidth, textureHeight, spec);
 
 	ZeroMemory(&texDesc, sizeof(texDesc));
 	
@@ -54,6 +60,16 @@ bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int 
 		}
 	}
 
+	texDesc.Width = m_realWidth;
+	texDesc.Height = m_realHeight;
+
+	result = device->CreateTexture2D(&texDesc, NULL, &m_postpBuffer);
+	if (FAILED(result))
+	{
+		RadixLog("Failed to create post processing buffer");
+		return false;
+	}
+
 	rtvDesc.Format = texDesc.Format;
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
@@ -65,6 +81,13 @@ bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int 
 		{
 			return false;
 		}
+	}
+
+	result = device->CreateRenderTargetView(m_postpBuffer, &rtvDesc, &m_postpRTV);
+	if (FAILED(result))
+	{
+		RadixLog("Failed to create post processing RTV");
+		return false;
 	}
 
 	srvDesc.Format = texDesc.Format;
@@ -79,6 +102,13 @@ bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int 
 		{
 			return false;
 		}
+	}
+
+	result = device->CreateShaderResourceView(m_postpBuffer, &srvDesc, &m_postpSRV);
+	if (FAILED(result))
+	{
+		RadixLog("Failed to create post processing SRV");
+		return false;
 	}
 
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
@@ -101,6 +131,15 @@ bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int 
 		return false;
 	}
 
+	depthBufferDesc.Width = m_realWidth;
+	depthBufferDesc.Height = m_realHeight;
+
+	result = device->CreateTexture2D(&depthBufferDesc, NULL, &m_ppdepthStencilBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
 
 	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -113,13 +152,26 @@ bool DeferredRendering::Initialize(ID3D11Device * device, int textureWidth, int 
 		return false;
 	}
 
+	result = device->CreateDepthStencilView(m_ppdepthStencilBuffer, &dsvDesc, &m_ppdepthStencilView);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	return true;
 }
 
 void DeferredRendering::Shutdown()
 {
+	ReleaseCOM(m_ppdepthStencilView);
+	ReleaseCOM(m_ppdepthStencilBuffer);
+
 	ReleaseCOM(m_depthStencilView);
 	ReleaseCOM(m_depthStencilBuffer);
+
+	ReleaseCOM(m_postpBuffer);
+	ReleaseCOM(m_postpRTV);
+	ReleaseCOM(m_postpSRV);
 
 	for (int i = 0; i < G_BUFFER_COUNT; ++i)
 	{
@@ -131,6 +183,9 @@ void DeferredRendering::Shutdown()
 
 void DeferredRendering::SpecDefiner(int screenWidth, int screenHeight, int spec)
 {
+	m_realWidth = screenWidth;
+	m_realHeight = screenHeight;
+
 	if (spec == 0) //Ultra
 	{
 		//No resolution down grade
@@ -176,13 +231,13 @@ void DeferredRendering::SpecDefiner(int screenWidth, int screenHeight, int spec)
 			}
 			else if (screenWidth == 1920)
 			{
-				m_textureWidth = 720;
-				m_textureHeight = 480;
+				m_textureWidth = 1280;
+				m_textureHeight = 720;
 			}
 			else
 			{
-				m_textureWidth = 640;
-				m_textureHeight = 360;
+				m_textureWidth = 720;
+				m_textureHeight = 480;
 			}
 		}
 		else
@@ -210,7 +265,26 @@ void DeferredRendering::ClearRenderTargets(ID3D11DeviceContext * deviceContext)
 	deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
+void DeferredRendering::SetPostpRenderTarget(ID3D11DeviceContext* deviceContext)
+{
+	deviceContext->OMSetRenderTargets(1, &m_postpRTV, m_depthStencilView);
+}
+
+void DeferredRendering::ClearPostpRenderTarget(ID3D11DeviceContext* deviceContext)
+{
+	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+	deviceContext->ClearRenderTargetView(m_postpRTV, color);
+	
+	deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
 ID3D11ShaderResourceView * DeferredRendering::GetShaderResourceView(int index)
 {
 	return m_gBufferSRV[index];
+}
+
+ID3D11ShaderResourceView * DeferredRendering::GetPostpSRV()
+{
+	return m_postpSRV;
 }

@@ -14,7 +14,7 @@ public:
 
 	void SetPosition(DirectX::XMFLOAT3 position);
 	void SetPosition(float x, float y, float z);
-	void SetPostiionX(float x);
+	void SetPositionX(float x);
 	void SetPositionY(float y);
 	void SetPositionZ(float z);
 	DirectX::XMFLOAT3 GetPosition();

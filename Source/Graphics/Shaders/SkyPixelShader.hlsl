@@ -17,5 +17,6 @@ PixelOut SkyPS(VertexOut input) : SV_TARGET
 {
 	PixelOut output;
 	output.albedo = gCubeMap.Sample(samAnisotropic, input.PosL);
+	output.albedo.rgb = pow(output.albedo.rgb, 2.2);
 	return output;
 }

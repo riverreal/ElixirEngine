@@ -32,8 +32,18 @@ private:
 	struct LightBufferType
 	{	
 		PBRDirectionalLight dirLight;
-		PBRPointLight pointLight;
-		PBRSpotLight spotLight;
+
+		//With padding to align 16 byte
+		U32 numPointLights;
+		DirectX::XMFLOAT3 pad;
+
+		//With padding to align 16 byte
+		U32 numSpotLights;
+		DirectX::XMFLOAT3 pad2;
+
+		PBRPointLight pointLight[50];
+		PBRSpotLight spotLight[20];
+		
 	};
 
 	struct cbPerObject

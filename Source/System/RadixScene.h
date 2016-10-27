@@ -47,6 +47,12 @@ public:
 	//Returns the vector of objects
 	std::vector<Object*> GetChildren();
 
+	//Returns an object by name
+	Object* GetObjectByName(std::string name);
+
+	//Returns an object by tag
+	Object* GetObjectByTag(unsigned int tag);
+
 	//Returns the ModelManager
 	Model* GetModel();
 
@@ -77,6 +83,9 @@ public:
 	void SceneReady();
 
 	bool IsSceneReady();
+
+	Object* GetSky();
+	
 private:
 	//Removes every children from memory
 	void CleanMemory();
@@ -86,6 +95,7 @@ private:
 private:
 	//A vector of all objects added to the scene
 	std::vector<Object*> m_objChildren;
+	Object* m_sky;
 	Camera* m_camera;
 	Model* m_model;
 	//Deferred(Default) or Foreward

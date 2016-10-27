@@ -3,6 +3,8 @@
 using namespace DirectX;
 
 Light::Light()
+	:m_pointLightCount(0),
+	m_spotLightCount(0)
 {
 	m_directionalLight = PBRDirectionalLight();
 	m_directionalLight.LightColor[0] = 0.3f;
@@ -24,13 +26,40 @@ Light::~Light()
 
 void Light::CreatePointLight(PBRPointLight pointLight)
 {
-	m_pointLightVector.push_back(pointLight);
+	if (m_pointLightCount < MAX_POINT_LIGHTS)
+	{
+		m_pointLightVector.push_back(pointLight);
+		m_pointLightCount++;
+	}
 }
 
 void Light::CreatePointLight(float posX, float posY, float posZ, float lightColorR, float lightColorG, float lightColorB, float range)
 {
-	PBRPointLight pointLight(posX, posY, posZ, lightColorR, lightColorG, lightColorB, range);
-	m_pointLightVector.push_back(pointLight);
+	if (m_pointLightCount < MAX_POINT_LIGHTS)
+	{
+		PBRPointLight pointLight(posX, posY, posZ, lightColorR, lightColorG, lightColorB, range);
+		m_pointLightVector.push_back(pointLight);
+		m_pointLightCount++;
+	}
+}
+
+void Light::CreateSpotLight(PBRSpotLight spotLight)
+{
+	if (m_spotLightCount < MAX_SPOT_LIGHTS)
+	{
+		m_spotLightVector.push_back(spotLight);
+		m_spotLightCount++;
+	}
+}
+
+void Light::CreateSpotLight(float posX, float posY, float posZ, float lightColorR, float lightColorG, float lightColorB, float range, DirectX::XMFLOAT3 dir, float spot, float constAtt, float linearAtt, float quadranticAtt)
+{
+	if (m_spotLightCount < MAX_SPOT_LIGHTS)
+	{
+		PBRSpotLight spotLight(posX, posY, posZ, lightColorR, lightColorG, lightColorB, range, spot, constAtt, linearAtt, quadranticAtt, dir.x, dir.y, dir.z);
+		m_spotLightVector.push_back(spotLight);
+		m_spotLightCount++;
+	}
 }
 
 PBRDirectionalLight Light::GetDirectionalLight()
@@ -51,6 +80,26 @@ PBRPointLight Light::GetPointLight(int index)
 PBRSpotLight Light::GetSpotLight(int index)
 {
 	return m_spotLightVector[index];
+}
+
+PBRPointLight * Light::GetModPointLight(int index)
+{
+	return &m_pointLightVector[index];
+}
+
+PBRSpotLight * Light::GetModSpotLight(int index)
+{
+	return &m_spotLightVector[index];
+}
+
+U32 Light::GetPointLightCount()
+{
+	return m_pointLightCount;
+}
+
+U32 Light::GetSpotLightCount()
+{
+	return m_spotLightCount;
 }
 
 

@@ -420,3 +420,5 @@ float3 Uncharted2Tonemap(float3 x)
 {
 	return ((x*(A*x + C*B) + D*E) / (x*(A*x + B) + D*F)) - E / F;
 }
+
+typedef uint U32;
