@@ -67,6 +67,11 @@ PBRDirectionalLight Light::GetDirectionalLight()
 	return m_directionalLight;
 }
 
+PBRDirectionalLight * Light::GetModDirectionalLight()
+{
+	return &m_directionalLight;
+}
+
 void Light::SetDirectionalLight(PBRDirectionalLight dirL)
 {
 	m_directionalLight = dirL;

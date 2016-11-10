@@ -42,7 +42,7 @@ namespace radix
 
 		virtual bool Init();
 		virtual void Update(float dt) = 0;
-		virtual void Draw();
+		virtual void Draw(float dt);
 		virtual void Frame();
 		int Run();
 

@@ -23,15 +23,25 @@ struct PixelOutputType
 PixelOutputType DeferredPixelShader(PixelInputType input) : SV_TARGET
 {
 	PixelOutputType output;
-
-	float4 roughnessValues = gRoughness.Sample(samAnisotropic, input.tex);
-	float4 metallicValues = gMetallic.Sample(samAnisotropic, input.tex);
 	
-	output.albedo = gAlbedo.Sample(samAnisotropic, input.tex);
-	float depth = input.position.z / input.position.w;
-	output.normal = float4(input.normalW, input.tex.r);
-	output.materialProp = float4(roughnessValues.r, metallicValues.r, depth, input.tex.g);
-	output.position = float4(input.positionW, 1.0f);
+
+	float4 albedoValues = gAlbedo.Sample(samAnisotropic, input.tex);
+	if (albedoValues.a == 0.0f)
+	{
+		discard;
+	}
+	else
+	{
+		float4 roughnessValues = gRoughness.Sample(samAnisotropic, input.tex);
+		float4 metallicValues = gMetallic.Sample(samAnisotropic, input.tex);
+
+
+		output.albedo = float4(albedoValues.rgb, 1.0f);
+		float depth = input.position.z / input.position.w;
+		output.normal = float4(input.normalW, input.tex.r);
+		output.materialProp = float4(roughnessValues.r, metallicValues.r, depth, input.tex.g);
+		output.position = float4(input.positionW, 1.0f);
+	}
 
 	return output;
 }

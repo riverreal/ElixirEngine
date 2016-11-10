@@ -25,4 +25,7 @@ public:
 	static XMMATRIX WorldToBillboard(const XMMATRIX &source, XMFLOAT3 eyePos);
 
 	static const float Pi;
+
+	static float lerp(float a, float b, float x);
+	static XMFLOAT3 lerp(XMFLOAT3 a, XMFLOAT3 b, float x);
 };

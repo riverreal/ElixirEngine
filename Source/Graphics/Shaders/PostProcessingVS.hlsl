@@ -1,8 +1,3 @@
-struct VertexIn
-{
-	float3 PosL: POSITION;
-};
-
 struct VertexOut
 {
 	float4 PosL : SV_POSITION;

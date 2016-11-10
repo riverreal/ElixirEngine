@@ -34,8 +34,11 @@ public:
 	//Attenuation Const, Linear, Quadrantic
 	void CreateSpotLight(float posX, float posY, float posZ, float lightColorR, float lightColorG, float lightColorB, float range, DirectX::XMFLOAT3 dir, float spot, float constAtt, float linearAtt, float quadranticAtt);
 
+	//Get a copy of the directional light
 	PBRDirectionalLight GetDirectionalLight();
-
+	//Get the modifyable version of the directional light
+	PBRDirectionalLight* GetModDirectionalLight();
+	
 	void SetDirectionalLight(PBRDirectionalLight dirL);
 
 	PBRPointLight GetPointLight(int index);

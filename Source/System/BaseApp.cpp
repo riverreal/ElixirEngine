@@ -158,7 +158,7 @@ namespace radix
 		return (int)msg.wParam;
 	}
 
-	void BaseApp::Draw()
+	void BaseApp::Draw(float dt)
 	{
 		assert(m_d3dDeviceContext);
 		assert(m_swapChain);
@@ -192,26 +192,28 @@ namespace radix
 				m_d3dDeviceContext->RSSetState(m_solidRS);
 				m_d3dDeviceContext->RSSetViewports(1, &m_deferredViewport);
 
-				m_deferredBuffers->SetPostpRenderTarget(m_d3dDeviceContext);
-				m_deferredBuffers->ClearPostpRenderTarget(m_d3dDeviceContext);
+				//m_deferredBuffers->SetPostpRenderTarget(m_d3dDeviceContext);
+				//Render to aux 0
+				m_postProcessingShader->SetPostPRenderTarget(m_d3dDeviceContext);
+				//m_deferredBuffers->ClearPostpRenderTarget(m_d3dDeviceContext);
+				m_postProcessingShader->ClearPostPRenderTarget(m_d3dDeviceContext);
 				m_ortho.Render(m_d3dDeviceContext);
 				m_deferredLightShader->Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_currentScene->GetEnvMap(), m_currentScene->GetIrradiance(), m_deferredBuffers->GetShaderResourceView(0), m_deferredBuffers->GetShaderResourceView(1), m_deferredBuffers->GetShaderResourceView(2), m_deferredBuffers->GetShaderResourceView(3), m_currentScene->GetLight(), m_currentScene->GetCamera()->GetPosition(), m_currentScene->GetFog());
 
+				//default render target
 				SetDefaultRenderTargetOn();
-
 				float color[4] = { 255, 255, 255, 255 };
 				m_d3dDeviceContext->ClearRenderTargetView(m_renderTargetView, color);
 				m_d3dDeviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-				m_d3dDeviceContext->RSSetState(m_solidRS);
-
 				//Faster post processing fullscreen triangle
-				m_d3dDeviceContext->IAGetVertexBuffers(0, 0, NULL, NULL, NULL);
+				m_d3dDeviceContext->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
 				m_d3dDeviceContext->IASetIndexBuffer(NULL, (DXGI_FORMAT)0, 0);
 				m_d3dDeviceContext->IASetInputLayout(NULL);
 				m_d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-				m_postProcessingShader->Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_deferredBuffers->GetPostpSRV());
+				//pass dt for some time-based transition effects
+				m_postProcessingShader->Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), dt);
 			}
 		}
 
@@ -230,7 +232,7 @@ namespace radix
 	{
 		m_frameCnt++;
 		Update(m_gameTimer.DeltaTime());
-		Draw();
+		Draw(m_gameTimer.DeltaTime());
 	}
 
 	bool BaseApp::InitWindow()
@@ -264,6 +266,9 @@ namespace radix
 		int totalWidth = GetSystemMetrics(SM_CXSCREEN);
 		int totalHeight = GetSystemMetrics(SM_CYSCREEN);
 
+		
+		
+
 		//default window style (windowed mode)
 		DWORD windowStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION;
 
@@ -289,7 +294,12 @@ namespace radix
 			posY = (totalHeight - m_height) / 2;
 		}
 
-		m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_appName, m_appName, windowStyle, posX, posY, m_width, m_height, NULL, NULL, m_instance, NULL);
+		RECT clientSize = {0, 0, m_width, m_height};
+		AdjustWindowRect(&clientSize, windowStyle, false);
+
+		RadixLog(std::to_string(clientSize.right));
+
+		m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_appName, m_appName, windowStyle, posX, posY, clientSize.right- clientSize.left, clientSize.bottom- clientSize.top, NULL, NULL, m_instance, NULL);
 		if (!m_hWnd)
 		{
 		
@@ -486,8 +496,8 @@ namespace radix
 		ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
 		swapChainDesc.BufferCount = 1;
-		swapChainDesc.BufferDesc.Width = realClientSize.right;
-		swapChainDesc.BufferDesc.Height = realClientSize.bottom;
+		swapChainDesc.BufferDesc.Width = m_width;
+		swapChainDesc.BufferDesc.Height = m_height;
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		if (VSYNC_ENABLED) 
@@ -583,8 +593,8 @@ namespace radix
 		//---------Depth Buffer
 		ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
 
-		depthBufferDesc.Width = realClientSize.right;
-		depthBufferDesc.Height = realClientSize.bottom;
+		depthBufferDesc.Width = m_width;
+		depthBufferDesc.Height = m_height;
 		depthBufferDesc.MipLevels = 1;
 		depthBufferDesc.ArraySize = 1;
 		depthBufferDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
@@ -895,7 +905,7 @@ namespace radix
 
 		//---------Projection
 		fieldOfView = 3.141592654f / 4.0f;
-		screenAspect = (float)realClientSize.right / (float)realClientSize.bottom;
+		screenAspect = (float)m_width / (float)m_height;
 
 		m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
 
@@ -903,7 +913,7 @@ namespace radix
 		m_worldMatrix = XMMatrixIdentity();
 
 		//---------Ortho
-		m_orthoMatrix = XMMatrixOrthographicLH((float)realClientSize.right, (float)realClientSize.bottom, SCREEN_NEAR, SCREEN_DEPTH);
+		m_orthoMatrix = XMMatrixOrthographicLH((float)m_width, (float)m_height, SCREEN_NEAR, SCREEN_DEPTH);
 
 		return true;
 	}
@@ -940,8 +950,9 @@ namespace radix
 		}
 
 		m_postProcessingShader = new PostProcessShader();
-		if (!m_postProcessingShader->Initialize(m_d3dDevice, m_hWnd))
+		if (!m_postProcessingShader->Initialize(m_d3dDevice, m_hWnd, m_width, m_height, SCREEN_DEPTH, SCREEN_NEAR, m_defaultViewport))
 		{
+			MessageBox(0, L"Can't initialize Post Process Shader", L"Error", MB_OK);
 			return false;
 		}
 
@@ -1017,6 +1028,7 @@ namespace radix
 
 	void BaseApp::displayFPS()
 	{
+		//Refresh FPS each second
 		if (m_gameTimer.TotalTime() - m_timeElapsed >= 1.0f)
 		{
 			float fps = (float)m_frameCnt;

@@ -220,8 +220,6 @@ bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContex
 	dataPtr1->dirLight = dirL;
 	dataPtr1->numPointLights = numPoint;
 	dataPtr1->numSpotLights = numSpot;
-	RadixLog("PointLights: " + std::to_string(lighting->GetPointLightCount()));
-	RadixLog("SpotLights: " + std::to_string(lighting->GetSpotLightCount()));
 	for (U32 i = 0; i < lighting->GetPointLightCount(); ++i)
 	{
 		dataPtr1->pointLight[i] = lighting->GetPointLight(i);
@@ -240,6 +238,7 @@ bool DeferredLightShader::setShaderParameters(ID3D11DeviceContext * deviceContex
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
 	SafeRelease(dataPtr1);
+
 	//cbPerObject Buffer-----------------------------------------------------------------------
 
 	result = deviceContext->Map(m_cbPerObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

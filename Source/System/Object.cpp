@@ -5,7 +5,7 @@ using namespace DirectX;
 Object::Object()
 	:m_rotation(XMFLOAT3(0.0f, 0.0f, 0.0f)),
 	m_position(XMFLOAT3(0.0f, 0.0f, 0.0f)),
-	m_scale(XMFLOAT3(0.0f, 0.0f, 0.0f)),
+	m_scale(XMFLOAT3(1.0f, 1.0f, 1.0f)),
 	m_texPos(XMFLOAT3(0.0f, 0.0f, 0.0f)),
 	m_texSca(XMFLOAT3(1.0f, 1.0f, 1.0f)),
 	m_texRot(XMFLOAT3(0.0f, 0.0f, 0.0f)),

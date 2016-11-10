@@ -13,8 +13,12 @@ public:
 	void SetLookAt(DirectX::FXMVECTOR pos, DirectX::FXMVECTOR target, DirectX::FXMVECTOR worldUp);
 	void SetLookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3 &target, const DirectX::XMFLOAT3 &up);
 	void SetPosition(float x, float y, float z);
+	void SetPosition(DirectX::XMFLOAT3 pos);
 	void SetRotation(float x, float y, float z);
 	void SetProjection(const DirectX::XMMATRIX& proj); //temporary
+	void SetUp(DirectX::XMFLOAT3 up);
+	void SetRight(DirectX::XMFLOAT3 right);
+	void SetLook(DirectX::XMFLOAT3 look);
 
 	//Getters
 
@@ -43,6 +47,9 @@ public:
 	void Update();
 
 	void calcOnce();
+
+
+
 private:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_right;

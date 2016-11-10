@@ -40,6 +40,11 @@ void Camera::SetPosition(float x, float y, float z)
 	m_position = XMFLOAT3(x, y, z);
 }
 
+void Camera::SetPosition(DirectX::XMFLOAT3 pos)
+{
+	m_position = pos;
+}
+
 void Camera::SetRotation(float x, float y, float z)
 {
 	m_rotation.x = x;
@@ -50,6 +55,21 @@ void Camera::SetRotation(float x, float y, float z)
 void Camera::SetProjection(const DirectX::XMMATRIX & proj)
 {
 	XMStoreFloat4x4(&m_projectionMatrix, proj);
+}
+
+void Camera::SetUp(DirectX::XMFLOAT3 up)
+{
+	m_up = up;
+}
+
+void Camera::SetRight(DirectX::XMFLOAT3 right)
+{
+	m_right = right;
+}
+
+void Camera::SetLook(DirectX::XMFLOAT3 look)
+{
+	m_look = look;
 }
 
 XMVECTOR Camera::GetPositionXM() const
@@ -136,7 +156,6 @@ void Camera::RotateY(float angle)
 
 void Camera::Update()
 {
-	
 	XMVECTOR R = XMLoadFloat3(&m_right);
 	XMVECTOR U = XMLoadFloat3(&m_up);
 	XMVECTOR L = XMLoadFloat3(&m_look);
@@ -146,7 +165,6 @@ void Camera::Update()
 	U = XMVector3Normalize(XMVector3Cross(L, R));
 
 	R = XMVector3Cross(U, L);
-
 
 	float x = -XMVectorGetX(XMVector3Dot(P, R));
 	float y = -XMVectorGetX(XMVector3Dot(P, U));

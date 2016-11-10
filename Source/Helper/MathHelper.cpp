@@ -38,3 +38,13 @@ XMMATRIX MathHelper::WorldToBillboard(const XMMATRIX &source, XMFLOAT3 eyePos)
 	return billboardMatrix;
 }
 
+float MathHelper::lerp(float a, float b, float x)
+{
+	return a + x * (b - a);
+}
+
+XMFLOAT3 MathHelper::lerp(XMFLOAT3 a, XMFLOAT3 b, float x)
+{
+	return XMFLOAT3(lerp(a.x, b.x, x), lerp(a.y, b.y, x), lerp(a.z, b.z, x));
+}
+

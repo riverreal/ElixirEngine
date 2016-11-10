@@ -6,6 +6,7 @@ public:
 	Timer();
 
 	float TotalTime() const;
+	//Return Delta Time in seconds
 	float DeltaTime() const;
 
 	void Reset();

@@ -1,7 +1,9 @@
 #include "Includes/LESystem.h"
 #include "Includes/LEGraphics.h"
 #include <stdlib.h>
-#include <time.h>  
+#include <time.h>
+//16:9 resolutions
+//480p - WVGA (854 x 480)
 //720p (1280 x 720)
 //900p (1600 x 900)
 //1080p (1920 x 1080)
@@ -27,17 +29,15 @@ private:
 	Model* m_shapes;
 	TextureManager m_texureManager;
 
+	Camera m_smoothCamera;
+
 	//Shader for sky
 	SkyDome m_rendererSky;
 
 	Scene* m_scene;
-
+	
 	//Objects
-	//Object* m_plane[3];
-	//Object* m_sky;
 	Object* m_radixBox;
-	//Object* m_pumba;
-	//Object* m_ship;
 	Object* m_statue;
 
 	DirectX::XMMATRIX m_baseViewMatrix;
@@ -189,7 +189,7 @@ bool SimpleApp::SceneInit()
 	centerTable->SetRotationY(37.0f);
 
 	//flower vase without flower
-	Object* vase = new Object;
+	Object* vase = new Object();
 	m_scene->AddObject(vase);
 	vase->SetOffset(m_shapes->AddModelFromFile("Resources/Models/vase.obj"));
 	vase->SetTexture(roughnessArray[6], TEXTURE_TYPE::ALBEDO);
@@ -213,6 +213,7 @@ bool SimpleApp::SceneInit()
 		spots[i]->SetPosition(offsetX, offsetY + walls[2]->GetScaleY() * 0.5f, offsetZ + walls[4]->GetScaleZ() * 0.48f);
 		spots[i]->SetScale(0.1f, 0.1f, 0.1f);
 		spots[i]->SetRotationY(-90);
+		spots[i]->SetName("spots" + std::to_string(i));
 	}
 
 	spots[1]->SetPositionX(offsetX - 3.0f);
@@ -232,11 +233,13 @@ bool SimpleApp::SceneInit()
 		int side = (i * 2) - 1;
 		points[i]->SetPosition(offsetX + 3.0f * side, offsetY + walls[2]->GetScaleY() * 0.5f, offsetZ);
 		points[i]->SetScale(1.5f, 1.5f, 1.5f);
+		points[i]->SetName("points" + std::to_string(i));
 	}
 
 	Object* frame;
 	frame = new Object();
 	m_scene->AddObject(frame);
+	frame->SetName("frame");
 	frame->SetOffset(m_shapes->AddModelFromFile("Resources/Models/frame.obj"));
 	frame->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/afrormosia.jpg"), TEXTURE_TYPE::ALBEDO);
 	frame->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
@@ -246,9 +249,9 @@ bool SimpleApp::SceneInit()
 	frame->SetRotationZ(90);
 	frame->SetRotationY(180);
 
-
 	Object* drawing = new Object();
 	m_scene->AddObject(drawing);
+	drawing->SetName("drawing");
 	drawing->SetOffset(m_shapes->AddGeometry(MODEL_TYPE_PLAIN));
 	drawing->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/drawing.jpg"), TEXTURE_TYPE::ALBEDO);
 	drawing->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
@@ -259,6 +262,7 @@ bool SimpleApp::SceneInit()
 
 	Object* carpet = new Object();
 	m_scene->AddObject(carpet);
+	carpet->SetName("carpet");
 	carpet->SetOffset(m_shapes->AddGeometry(MODEL_TYPE_PLAIN));
 	carpet->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/carpet.jpg"), TEXTURE_TYPE::ALBEDO);
 	carpet->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
@@ -276,7 +280,7 @@ bool SimpleApp::SceneInit()
 	m_scene->SetIrradiance(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"));
 	m_scene->SetEnvMap(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/desertcube1024.dds"));
 
-	m_radixBox->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/desert_ground.jpg"), 0);
+	m_radixBox->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/grass.dds"), 0);
 	m_radixBox->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/full-value.jpg"), 3);
 	m_radixBox->SetTexture(dielectric, 4);
 	m_radixBox->SetDisabled(true);
@@ -289,20 +293,17 @@ bool SimpleApp::SceneInit()
 	//-----------------------------------------------------------------------------------------------------
 	//        Light Init
 	//-----------------------------------------------------------------------------------------------------
-
-	//m_scene->GetLight()->CreatePointLight(1.0f, 3.0f, 5.0f, 1.0f, 0.3f, 0.3f, 1.0f);
-	auto dirLight = m_scene->GetLight()->GetDirectionalLight();
-	dirLight.LightIntensity[0] = 0.0f;
-	dirLight.LightIntensity[1] = 0.001f;
-	dirLight.LightColor[0] = 1.0;
-	dirLight.LightColor[1] = 0.976;
-	dirLight.LightColor[2] = 0.89;
-	m_scene->GetLight()->SetDirectionalLight(dirLight);
-
 	srand(time(NULL));
 	
 	auto lighting = m_scene->GetLight();
-	
+
+	auto dirL = lighting->GetModDirectionalLight();
+	dirL->LightIntensity[0] = 0.0f;
+	dirL->LightIntensity[1] = 0.001f;
+	dirL->LightColor[0] = 1.0f;
+	dirL->LightColor[1] = 0.976f;
+	dirL->LightColor[2] = 0.89f;
+
 	for (U32 i = 0; i < 0; ++i)
 	{
 		int x = rand() % 10;
@@ -321,7 +322,7 @@ bool SimpleApp::SceneInit()
 
 	PBRSpotLight spotLight;
 	spotLight.Position = XMFLOAT3(offsetX, offsetY + walls[2]->GetScaleY() * 0.5f, offsetZ + walls[4]->GetScaleZ() * 0.48f);
-	spotLight.LightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 2.0f);
+	spotLight.LightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 4.0f);
 	spotLight.Range = 40.0f;
 	spotLight.Spot = 15.0f;
 	spotLight.Direction = XMFLOAT3(0.0f, -1.0f, 0.2f);
@@ -363,11 +364,35 @@ bool SimpleApp::SceneInit()
 	//-----------------------------------------------------------------------------------------------------
 	//        Object World Init
 	//-----------------------------------------------------------------------------------------------------
+
 	m_radixBox->SetPosition(0.0f, 1.0f, 5.0f);
-	m_radixBox->SetScale(80.0f, 80.0f, 80.0f);
+	m_radixBox->SetScale(50.0f, 50.0f, 50.0f);
 	m_radixBox->SetTexTransformScale(10.0f, 10.0f, 3.0f);
 	m_statue->SetPosition(offsetX, offsetY - 4.0f, offsetZ + 3.0f);
 	m_statue->SetScale(1.0f, 1.0f, 1.0f);
+
+	//Foliage Testing
+	Object* plant = new Object();
+	m_scene->AddObject(plant);
+	plant->SetOffset(m_shapes->AddModelFromFile("Resources/Models/foliage/Patch1.obj"));
+	plant->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/foliage/map_d.png"), TEXTURE_TYPE::ALBEDO);
+	plant->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	plant->SetTexture(roughnessArray[10], TEXTURE_TYPE::ROUGHNESS);
+	plant->SetPosition(-1.0f, m_radixBox->GetPositionY(), 0.0f);
+	plant->SetScale(0.08f, 0.08f, 0.08f);
+	plant->SetName("fern");
+
+	Object* rock = new Object();
+	m_scene->AddObject(rock);
+	rock->SetOffset(m_shapes->AddModelFromFile("Resources/Models/statue.obj"));
+	rock->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/statue/statue_d.dds"), TEXTURE_TYPE::ALBEDO);
+	rock->SetTexture(roughnessArray[10], TEXTURE_TYPE::METALLIC);
+	rock->SetTexture(roughnessArray[6], TEXTURE_TYPE::ROUGHNESS);
+	rock->SetPositionY(m_radixBox->GetPositionY());
+	rock->SetPositionX(-3.0f);
+	rock->SetScale(1.0f, 1.0f, 1.0f);
+	rock->SetName("rock");
+
 	//-----------------------------------------------------------------------------------------------------
 	//        Renderer Init
 	//-----------------------------------------------------------------------------------------------------
@@ -414,33 +439,33 @@ void SimpleApp::Update(float dt)
 {
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
-		m_scene->GetCamera()->Walk(-10.0f*dt);
+		m_smoothCamera.Walk(-10.0f*dt);
 	}
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
-		m_scene->GetCamera()->Walk(10.0f*dt);
+		m_smoothCamera.Walk(10.0f*dt);
 	}
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
-		m_scene->GetCamera()->Strafe(-10.0f*dt);
+		m_smoothCamera.Strafe(-10.0f*dt);
 	}
 	if (GetAsyncKeyState('D') & 0x8000)
 	{
-		m_scene->GetCamera()->Strafe(10.0f*dt);
+		m_smoothCamera.Strafe(10.0f*dt);
 	}
 	if (GetAsyncKeyState('R') & 0x8000)
 	{
-		m_scene->GetCamera()->SetPosition(0.0f, 10.0f, 0.0f);
+		m_smoothCamera.SetPosition(0.0f, 10.0f, 0.0f);
 	}
 	if (GetAsyncKeyState('C') & 0x8000)
 	{
 		if (m_scene->GetLight()->GetPointLight(0).LightColor.w == 0.0f)
 		{
-			m_scene->GetLight()->GetModPointLight(0)->LightColor.w = 0.5f;
-			m_scene->GetLight()->GetModPointLight(1)->LightColor.w = 0.5f;
-			m_scene->GetLight()->GetModSpotLight(0)->LightColor.w = 2.0f;
-			m_scene->GetLight()->GetModSpotLight(1)->LightColor.w = 2.0f;
-			m_scene->GetLight()->GetModSpotLight(2)->LightColor.w = 2.0f;
+			m_scene->GetLight()->GetModPointLight(0)->LightColor.w = 1.8f;
+			m_scene->GetLight()->GetModPointLight(1)->LightColor.w = 1.8f;
+			m_scene->GetLight()->GetModSpotLight(0)->LightColor.w = 10.0f;
+			m_scene->GetLight()->GetModSpotLight(1)->LightColor.w = 10.0f;
+			m_scene->GetLight()->GetModSpotLight(2)->LightColor.w = 10.0f;
 		}
 		else
 		{
@@ -454,13 +479,7 @@ void SimpleApp::Update(float dt)
 	}
 	if (GetAsyncKeyState('K') & 0x8000)
 	{
-		for (int i = 1; i < 11; ++i)
-		{
-			m_scene->GetObjectByTag(1 + i)->SetDisabled(false);
-			m_scene->GetObjectByTag(20 + i)->SetDisabled(false);
-			m_radixBox->SetDisabled(false);
-		}
-
+		//-----------Disable Room
 		m_scene->GetObjectByName("wall0")->SetDisabled(true);
 		m_scene->GetObjectByName("wall1")->SetDisabled(true);
 		m_scene->GetObjectByName("wall2")->SetDisabled(true);
@@ -468,18 +487,34 @@ void SimpleApp::Update(float dt)
 		m_scene->GetObjectByName("wall4")->SetDisabled(true);
 		m_scene->GetObjectByName("vase")->SetDisabled(true);
 		m_scene->GetObjectByName("centerTable")->SetDisabled(true);
+		m_scene->GetObjectByName("carpet")->SetDisabled(true);
+		m_scene->GetObjectByName("drawing")->SetDisabled(true);
+		m_scene->GetObjectByName("frame")->SetDisabled(true);
+		m_scene->GetObjectByName("points0")->SetDisabled(true);
+		m_scene->GetObjectByName("points1")->SetDisabled(true);
+		m_scene->GetObjectByName("spots0")->SetDisabled(true);
+		m_scene->GetObjectByName("spots1")->SetDisabled(true);
+		m_scene->GetObjectByName("spots2")->SetDisabled(true);
 		m_statue->SetDisabled(true);
+
+
+		//--------Enable field 
+		m_scene->GetLight()->GetModDirectionalLight()->LightIntensity[0] = 1.0f;
+		m_scene->GetLight()->GetModDirectionalLight()->LightIntensity[1] = 0.25f;
+
+		for (int i = 1; i < 11; ++i)
+		{
+			m_scene->GetObjectByTag(1 + i)->SetDisabled(false);
+			m_scene->GetObjectByTag(20 + i)->SetDisabled(false);
+		}
+
+		m_radixBox->SetDisabled(false);
+		m_scene->GetObjectByName("fern")->SetDisabled(false);
 	}
 
 	if (GetAsyncKeyState('J') & 0x8000)
 	{
-		for (int i = 1; i < 11; ++i)
-		{
-			m_scene->GetObjectByTag(1 + i)->SetDisabled(true);
-			m_scene->GetObjectByTag(20 + i)->SetDisabled(true);
-			m_radixBox->SetDisabled(true);
-		}
-
+		//----------Enable room
 		m_scene->GetObjectByName("wall0")->SetDisabled(false);
 		m_scene->GetObjectByName("wall1")->SetDisabled(false);
 		m_scene->GetObjectByName("wall2")->SetDisabled(false);
@@ -487,7 +522,26 @@ void SimpleApp::Update(float dt)
 		m_scene->GetObjectByName("wall4")->SetDisabled(false);
 		m_scene->GetObjectByName("vase")->SetDisabled(false);
 		m_scene->GetObjectByName("centerTable")->SetDisabled(false);
+		m_scene->GetObjectByName("carpet")->SetDisabled(false);
+		m_scene->GetObjectByName("drawing")->SetDisabled(false);
+		m_scene->GetObjectByName("frame")->SetDisabled(false);
+		m_scene->GetObjectByName("points0")->SetDisabled(false);
+		m_scene->GetObjectByName("points1")->SetDisabled(false);
+		m_scene->GetObjectByName("spots0")->SetDisabled(false);
+		m_scene->GetObjectByName("spots1")->SetDisabled(false);
+		m_scene->GetObjectByName("spots2")->SetDisabled(false);
 		m_statue->SetDisabled(false);
+
+		//--------disable field
+		m_scene->GetLight()->GetModDirectionalLight()->LightIntensity[0] = 0.0f;
+		m_scene->GetLight()->GetModDirectionalLight()->LightIntensity[1] = 0.015f;
+		for (int i = 1; i < 11; ++i)
+		{
+			m_scene->GetObjectByTag(1 + i)->SetDisabled(true);
+			m_scene->GetObjectByTag(20 + i)->SetDisabled(true);
+		}
+		m_radixBox->SetDisabled(true);
+		m_scene->GetObjectByName("fern")->SetDisabled(true);
 	}
 	if (GetAsyncKeyState('1') & 0x8000)
 	{
@@ -497,10 +551,12 @@ void SimpleApp::Update(float dt)
 	{
 		//m_fog.Enabled = false;
 	}
-	
 
+	m_scene->GetCamera()->SetPosition(MathHelper::lerp(m_scene->GetCamera()->GetPosition(), m_smoothCamera.GetPosition(), 0.3f));
+	m_scene->GetCamera()->SetLook(MathHelper::lerp(m_scene->GetCamera()->GetLook(), m_smoothCamera.GetLook(), 0.3f));
+	m_scene->GetCamera()->SetRight(MathHelper::lerp(m_scene->GetCamera()->GetRight(), m_smoothCamera.GetRight(), 0.3f));
+	m_scene->GetCamera()->SetUp(MathHelper::lerp(m_scene->GetCamera()->GetUp(), m_smoothCamera.GetUp(), 0.3f));
 	m_scene->UpdateScene();
-	
 }
 
 void SimpleApp::OnMouseDown(WPARAM btnState, int x, int y)
@@ -523,8 +579,8 @@ void SimpleApp::OnMouseMove(WPARAM btnState, int x, int y)
 		float dx = XMConvertToRadians(0.15f*static_cast<float>(x - m_lastMousePos.x));
 		float dy = XMConvertToRadians(0.15f*static_cast<float>(y - m_lastMousePos.y));
 
-		m_scene->GetCamera()->Pitch(dy);
-		m_scene->GetCamera()->RotateY(dx);
+		m_smoothCamera.Pitch(dy);
+		m_smoothCamera.RotateY(dx);
 	}
 
 	m_lastMousePos.x = x;
