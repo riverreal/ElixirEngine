@@ -39,7 +39,8 @@ struct Vertex
 		float nx, float ny, float nz,
 		float tx, float ty, float tz,
 		float u, float v)
-		:Position(px, py, pz), Normal(nx, ny, nz), Tex(u, v) {}
+		:Position(px, py, pz), Normal(nx, ny, nz),
+		TangentU(tx, ty, tz), Tex(u, v) {}
 
 	DirectX::XMFLOAT3 Position;
 	DirectX::XMFLOAT3 Normal;
@@ -70,6 +71,22 @@ struct offsetData
 	UINT vertexOffset;
 };
 
+struct BoundingSphere
+{
+	BoundingSphere()
+		:Center(0.0f, 0.0f, 0.0f),
+		Radius(0.0f)
+	{}
+
+	BoundingSphere(float x, float y, float z, float r)
+		:Center(x, y, z),
+		Radius(r)
+	{}
+
+	DirectX::XMFLOAT3 Center;
+	float Radius;
+};
+
 enum RENDER_MODE
 {
 	DEFERRED_RENDERING,
@@ -82,5 +99,6 @@ enum TEXTURE_TYPE
 	IRRADIANCE,
 	ENV_MAP,
 	ROUGHNESS,
-	METALLIC
+	METALLIC,
+	NORMAL
 };

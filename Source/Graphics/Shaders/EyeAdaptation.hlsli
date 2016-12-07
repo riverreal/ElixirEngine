@@ -9,5 +9,5 @@ float GetAverageIlluminance(float3 illuminance)
 float GetExposure(float lum, float minLum, float maxLum, float exposureBias)
 {
 	//get exposure with Exposure Compensation (exposureBias) and constant 18% middle gray
-	return 0.18/clamp(lum, minLum, maxLum);
+	return 0.18/(clamp(lum, minLum, maxLum) + exposureBias);
 }

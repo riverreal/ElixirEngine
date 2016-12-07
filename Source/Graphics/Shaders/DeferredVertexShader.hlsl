@@ -11,6 +11,7 @@ struct VertexInputType
 	float3 position : POSITION;
 	float3 normal : NORMAL;
 	float2 tex : TEXCOORD0;
+	float3 tangent : TANGENT;
 };
 
 struct PixelInputType
@@ -19,6 +20,7 @@ struct PixelInputType
 	float3 positionW : POSITION;
 	float3 normalW : NORMAL;
 	float2 tex : TEXCOORD0;
+	float3 tangentW : TANGENT;
 };
 
 PixelInputType DeferredVertexShader(VertexInputType input)
@@ -38,7 +40,13 @@ PixelInputType DeferredVertexShader(VertexInputType input)
 	//normal
 	output.normalW = mul(input.normal, (float3x3)worldMatrix);
 	output.normalW = normalize(output.normalW);
-	output.normalW.rgb = 0.5f * (output.normalW + 1.0f);
+
+	//convert from [-1, 1] to [0, 1]
+	output.normalW.rgb = 0.5f * (output.normalW.rgb + 1.0f);
+
+	output.tangentW = mul(input.tangent, (float3x3)worldMatrix);
+	output.tangentW = normalize(output.tangentW);
+	//output.tangentW.rgb = 0.5f * (output.tangentW.rgb + 1.0f);
 
 	return output;
 }

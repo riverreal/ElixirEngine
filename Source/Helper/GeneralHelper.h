@@ -40,6 +40,15 @@ static std::string wstrtostr(const std::wstring &wstr)
 	return strTo;
 }
 
+static std::wstring strtowstr(const std::string &str)
+{
+	int slength = (int)str.length() + 1;
+	int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, 0, 0);
+	std::wstring r(len, L'\0');
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, &r[0], len);
+	return r;
+}
+
 static void RadixLog(std::string log)
 {
 	std::cout << log.c_str() << std::endl;

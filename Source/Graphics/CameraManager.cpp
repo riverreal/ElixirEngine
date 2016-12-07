@@ -193,39 +193,6 @@ void Camera::Update()
 	m_viewMatrix(1, 3) = 0.0f;
 	m_viewMatrix(2, 3) = 0.0f;
 	m_viewMatrix(3, 3) = 1.0f;
-	
-	/*
-	XMFLOAT3 up, pos, lookAt;
-	XMVECTOR upVec, posVec, lookAtVec;
-	float yaw, pitch, roll;
-	XMMATRIX rotationMatrix;
-
-	up.x = 0.0f;
-	up.y = 1.0f;
-	up.z = 0.0f;
-
-	upVec = XMLoadFloat3(&up);
-
-	posVec = XMLoadFloat3(&m_position);
-
-	lookAt.x = 0.0f;
-	lookAt.y = 0.0f;
-	lookAt.z = 1.0f;
-
-	lookAtVec = XMLoadFloat3(&lookAt);
-
-	pitch = m_rotation.x * 0.0174532925f;
-	yaw = m_rotation.y * 0.0174532925f;
-	roll = m_rotation.z * 0.0174532925f;
-
-	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
-
-	lookAtVec = XMVector3TransformCoord(lookAtVec, rotationMatrix);
-	upVec = XMVector3TransformCoord(upVec, rotationMatrix);
-
-	lookAtVec = XMVectorAdd(posVec, lookAtVec);
-	XMStoreFloat4x4(&m_viewMatrix, XMMatrixLookAtLH(posVec, lookAtVec, upVec));
-	*/
 }
 
 void Camera::calcOnce()

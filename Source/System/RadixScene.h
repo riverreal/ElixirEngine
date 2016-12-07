@@ -85,6 +85,8 @@ public:
 	bool IsSceneReady();
 
 	Object* GetSky();
+
+	
 	
 private:
 	//Removes every children from memory

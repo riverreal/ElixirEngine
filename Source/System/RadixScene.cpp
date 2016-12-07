@@ -11,14 +11,16 @@ Scene::Scene(Model* model, DirectX::XMMATRIX& projMatrix)
 
 	m_lighting = new Light();
 
-	m_fog.Enabled = false;
+	m_fog.Enabled = true;
 	m_fog.FogColor = DirectX::XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
-	m_fog.FogStart = 15.0f;
-	m_fog.FogRange = 175.0f;
+	m_fog.FogStart = 250.0f;
+	m_fog.FogRange = 1000.0f;
 
 	m_sky = new Object();
 	m_sky->SetOffset(m_model->AddGeometry(MODEL_TYPE_SPHERE));
 	m_sky->SetScale(30.0f, 30.0f, 30.0f);
+
+	
 }
 
 Scene::~Scene()
@@ -212,7 +214,6 @@ Object * Scene::GetSky()
 {
 	return m_sky;
 }
-
 
 void Scene::CleanMemory()
 {

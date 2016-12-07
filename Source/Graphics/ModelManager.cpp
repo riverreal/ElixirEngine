@@ -1,5 +1,6 @@
 #include "ModelManager.h"
 #include "../Helper/GeneralHelper.h"
+#include "../Helper/MathHelper.h"
 #include <fstream>
 #include <string>
 #include <iostream>
@@ -72,6 +73,7 @@ offsetData Model::AddGeometry(int modelType)
 		vertices[i].Position = position;
 		vertices[i].Normal = meshData.Vertices[i].Normal;
 		vertices[i].Tex = meshData.Vertices[i].Tex;
+		vertices[i].TangentU = meshData.Vertices[i].TangentU;
 		m_totalVertex.push_back(vertices[i]);
 	}
 
@@ -221,6 +223,10 @@ offsetData Model::AddModelFromFile(std::string fileName)
 				v.Normal.y = mesh->mNormals[j].y;
 				v.Normal.z = mesh->mNormals[j].z;
 
+				v.TangentU.x = mesh->mTangents[j].x;
+				v.TangentU.y = mesh->mTangents[j].y;
+				v.TangentU.z = mesh->mTangents[j].z;
+
 				if (mesh->HasTextureCoords(0))
 				{
 					v.Tex.x = mesh->mTextureCoords[0][j].x;
@@ -240,7 +246,73 @@ offsetData Model::AddModelFromFile(std::string fileName)
 					m_totalIndex.push_back(mesh->mFaces[c].mIndices[e]);
 				}
 			}
+			std::vector<XMFLOAT3> tangents;
+			for (UINT k = 0; k < mesh->mNumVertices; k += 3)
+			{
+				XMFLOAT3 v0;
+				v0.x = mesh->mVertices[k + 0].x;
+				v0.y = mesh->mVertices[k + 0].y;
+				v0.z = mesh->mVertices[k + 0].z;
+				
+				XMFLOAT3 v1;
+				v1.x = mesh->mVertices[k + 1].x;
+				v1.y = mesh->mVertices[k + 1].y;
+				v1.z = mesh->mVertices[k + 1].z;
+
+				XMFLOAT3 v2;
+				v2.x = mesh->mVertices[k + 2].x;
+				v2.y = mesh->mVertices[k + 2].y;
+				v2.z = mesh->mVertices[k + 2].z;
+
+				XMFLOAT2 uv0;
+				uv0.x = mesh->mTextureCoords[0][k + 0].x;
+				uv0.y = mesh->mTextureCoords[0][k + 0].y;
+
+				XMFLOAT2 uv1;
+				uv1.x = mesh->mTextureCoords[0][k + 1].x;
+				uv1.y = mesh->mTextureCoords[0][k + 1].y;
+
+				XMFLOAT2 uv2;
+				uv2.x = mesh->mTextureCoords[0][k + 2].x;
+				uv2.y = mesh->mTextureCoords[0][k + 2].y;
+
+				XMFLOAT3 deltaPos1;
+				deltaPos1.x = v1.x - v0.x;
+				deltaPos1.y = v1.y - v0.y;
+				deltaPos1.z = v1.z- v0.z;
+
+				XMFLOAT3 deltaPos2;
+				deltaPos2.x = v2.x - v0.x;
+				deltaPos2.y = v2.y - v0.y;
+				deltaPos2.z = v2.z - v0.z;
+
+				XMFLOAT2 deltaUV1;
+				deltaUV1.x = uv1.x - uv0.x;
+				deltaUV1.y = uv1.y - uv0.y;
+
+				XMFLOAT2 deltaUV2;
+				deltaUV2.x = uv2.x - uv0.x;
+				deltaUV2.y = uv2.y - uv0.y;
+
+				float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+				XMFLOAT3 a = MathHelper::F3DotScalar(deltaPos1, deltaUV2.y);
+				XMFLOAT3 b = MathHelper::F3DotScalar(deltaPos2, deltaUV1.y);
+				XMFLOAT3 tangent = MathHelper::F3DotScalar(MathHelper::F3MinusF3(a, b),r);
+
+				tangents.push_back(tangent);
+				tangents.push_back(tangent);
+				tangents.push_back(tangent);
+			}
+
+			int index = 0;
+			for (auto &v: vertices)
+			{	
+				v.TangentU = tangents[index];
+				index++;
+			}
 		}
+
+		
 	}
 
 	if (vertexCount == 0)

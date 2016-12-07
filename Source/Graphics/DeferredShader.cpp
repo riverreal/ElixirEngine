@@ -41,7 +41,8 @@ bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, Object* object,
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, object->GetTexTransform(), object->GetWorldMatrix(), camera->GetViewMatrix(), camera->GetProjectionMatrix(), object->GetTexture(0), object->GetTexture(3), object->GetTexture(4), object->GetTexture(5));
+	result = SetShaderParameters(deviceContext, object->GetTexTransform(), object->GetWorldMatrix(), camera->GetViewMatrix(), camera->GetProjectionMatrix(), object->GetTexture(TEXTURE_TYPE::ALBEDO),
+		object->GetTexture(TEXTURE_TYPE::ROUGHNESS), object->GetTexture(TEXTURE_TYPE::METALLIC), object->GetTexture(TEXTURE_TYPE::NORMAL));
 	if (!result)
 	{
 		return false;
@@ -55,7 +56,7 @@ bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, Object* object,
 bool DeferredShader::InitializeShader(ID3D11Device * device, HWND window)
 {
 	HRESULT result;
-	D3D11_INPUT_ELEMENT_DESC layout[3];
+	D3D11_INPUT_ELEMENT_DESC layout[4];
 	unsigned int numElements;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
@@ -78,6 +79,7 @@ bool DeferredShader::InitializeShader(ID3D11Device * device, HWND window)
 	layout[0] = {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}; //format float3
 	layout[1] = {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }; //format float3
 	layout[2] = {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }; //format float2
+	layout[3] = {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}; //format float3
 
 	numElements = sizeof(layout) / sizeof(layout[0]);
 
@@ -148,6 +150,7 @@ bool DeferredShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Di
 	viewCpy = XMMatrixTranspose(view);
 	projCpy = XMMatrixTranspose(projection);
 	texTransCpy = XMMatrixTranspose(texTransf);
+	
 
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -170,6 +173,7 @@ bool DeferredShader::SetShaderParameters(ID3D11DeviceContext * deviceContext, Di
 	deviceContext->PSSetShaderResources(0, 1, &albedoTexture);
 	deviceContext->PSSetShaderResources(1, 1, &roughnessTexture);
 	deviceContext->PSSetShaderResources(2, 1, &metallicTexture);
+	deviceContext->PSSetShaderResources(3, 1, &normalTexture);
 
 	return true;
 }

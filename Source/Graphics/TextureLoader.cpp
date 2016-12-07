@@ -23,6 +23,26 @@ ID3D11ShaderResourceView * TextureLoader::CreateTexture(ID3D11Device * device, L
 	return result;
 }
 
+ID3D11ShaderResourceView * TextureLoader::CreateTexture(ID3D11Device * device, std::string filePath)
+{
+	LPCWSTR path = strtowstr(filePath).c_str();
+	auto pathLen = filePath.length();
+	auto fileType = filePath.substr(pathLen - 4, 4);
+
+	ID3D11ShaderResourceView* result;
+
+	if (fileType == ".dds")
+	{
+		result = TextureLoader::CreateDDSTexture(device, path);
+	}
+	else
+	{
+		result = TextureLoader::CreateWICTexture(device, path);
+	}
+
+	return result;
+}
+
 ID3D11ShaderResourceView* TextureLoader::CreateDDSTexture(ID3D11Device* device, LPCWSTR filePath)
 {
 	ID3D11ShaderResourceView* textureView;

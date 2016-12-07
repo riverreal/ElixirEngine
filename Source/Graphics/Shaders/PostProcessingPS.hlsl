@@ -53,11 +53,11 @@ PixelOut PostProcessingPS(VertexOut input) : SV_TARGET
 #if HDR_BLOOM
 		output.color += float4(gBloom.Sample(samplerLinear, input.tex).rgb, 1.0f);
 #endif //HDR_BLOOM
-		float exposure = 0.5;
+		float exposure = 0.5f;
 #if EYE_ADAPTATION
 		float4 adaptedLum = gAdaptedLum.Sample(samplerLinear, input.tex);
 
-		exposure = GetExposure(adaptedLum.r, 0, 1, 0.1f);
+		exposure = GetExposure(adaptedLum.r, 0.05, 0.998, 0.001f);
 #endif
 		output.color *= exposure;
 		output.color = FilmicTonemap(output.color);

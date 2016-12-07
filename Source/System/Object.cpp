@@ -14,7 +14,9 @@ Object::Object()
 	m_textureID(0),
 	m_materialID(0),
 	m_disabled(false),
-	m_dynamic(true)
+	m_dynamic(true),
+	m_EnableBackFaceCulling(true),
+	m_castShadow(true)
 {
 	Update();
 }
@@ -138,6 +140,12 @@ void Object::SetScale(XMFLOAT3 scale)
 void Object::SetScale(float x, float y, float z)
 {
 	m_scale = XMFLOAT3(x, y, z);
+	Update();
+}
+
+void Object::SetScale(float s)
+{
+	m_scale = XMFLOAT3(s, s, s);
 	Update();
 }
 
@@ -317,6 +325,16 @@ bool Object::GetDynamic()
 	return m_dynamic;
 }
 
+void Object::SetBackFaceCulling(bool culling)
+{
+	m_EnableBackFaceCulling = culling;
+}
+
+bool Object::GetBackFaceCulling()
+{
+	return m_EnableBackFaceCulling;
+}
+
 void Object::SetTexture(ID3D11ShaderResourceView* texture, UINT slot)
 {
 	m_texture[slot] = texture;
@@ -325,6 +343,16 @@ void Object::SetTexture(ID3D11ShaderResourceView* texture, UINT slot)
 ID3D11ShaderResourceView* Object::GetTexture(UINT slot)
 {
 	return m_texture[slot];
+}
+
+bool Object::GetCastShadow()
+{
+	return m_castShadow;
+}
+
+void Object::SetCastShadow(bool cast)
+{
+	m_castShadow = cast;
 }
 
 void Object::Update()

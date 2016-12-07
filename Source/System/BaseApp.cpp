@@ -1,8 +1,6 @@
 #include "BaseApp.h"
 #include "../Helper/GeneralHelper.h"
 
-
-
 namespace radix
 {
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -41,6 +39,9 @@ namespace radix
 	BaseApp::~BaseApp()
 	{
 		//Draw related shutdown
+		m_shadowMapShader->Shutdown();
+		m_shadowMap->Shutdown();
+
 		m_postProcessingShader->Shutdown();
 
 		m_skyShader->Shutdown();
@@ -48,6 +49,9 @@ namespace radix
 		m_deferredBuffers->Shutdown();
 		m_deferredLightShader->Shutdown();
 		m_deferredShader->Shutdown();
+
+		SafeRelease(m_shadowMapShader);
+		SafeRelease(m_shadowMap);
 
 		SafeRelease(m_postProcessingShader);
 
@@ -168,24 +172,60 @@ namespace radix
 			m_currentScene->GetCamera()->Update();
 			if (m_currentScene->GetRenderMode() == RENDER_MODE::DEFERRED_RENDERING)
 			{
+				m_currentScene->GetModel()->Render(m_d3dDeviceContext);
+				m_shadowMap->Render(m_d3dDeviceContext);
+
+				for (auto &object : m_currentScene->GetChildren())
+				{
+					m_d3dDeviceContext->RSSetState(m_solidRS);
+					//render if not disabled
+					if (object->GetDisabled() == false)
+					{
+						if (object->GetCastShadow())
+						{
+							m_shadowMapShader->Render(m_d3dDeviceContext, object, m_currentScene->GetLight());
+						}
+					}
+				}
+
 				m_deferredBuffers->SetRenderTargets(m_d3dDeviceContext);
 				m_deferredBuffers->ClearRenderTargets(m_d3dDeviceContext);
 
-				m_currentScene->GetModel()->Render(m_d3dDeviceContext);
-
 				m_d3dDeviceContext->RSSetViewports(1, &m_deferredViewport);
 
+				bool backCulling = true;
+				m_d3dDeviceContext->RSSetState(m_solidRS);
 				//iterate through every object to render it
 				for (auto &object : m_currentScene->GetChildren())
 				{
 					//render if not disabled
 					if (object->GetDisabled() == false)
 					{
+						if (object->GetBackFaceCulling() == false)
+						{
+							//if last setting was the same skip raaster state setting
+							if (backCulling)
+							{
+								m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
+								backCulling = false;
+							}
+							
+						}
+						else
+						{
+							if (!backCulling)
+							{
+								m_d3dDeviceContext->RSSetState(m_solidRS);
+								backCulling = true;
+							}
+						}
+
 						m_deferredShader->Render(m_d3dDeviceContext, object, m_currentScene->GetCamera());
 					}
 				}
 
 				m_d3dDeviceContext->RSSetViewports(1, &m_deferredSkyViewport);
+
 				//To render inner sphere
 				m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
 				m_skyShader->Render(m_d3dDeviceContext, m_currentScene->GetSky(), m_currentScene->GetCamera());
@@ -198,7 +238,9 @@ namespace radix
 				//m_deferredBuffers->ClearPostpRenderTarget(m_d3dDeviceContext);
 				m_postProcessingShader->ClearPostPRenderTarget(m_d3dDeviceContext);
 				m_ortho.Render(m_d3dDeviceContext);
-				m_deferredLightShader->Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_currentScene->GetEnvMap(), m_currentScene->GetIrradiance(), m_deferredBuffers->GetShaderResourceView(0), m_deferredBuffers->GetShaderResourceView(1), m_deferredBuffers->GetShaderResourceView(2), m_deferredBuffers->GetShaderResourceView(3), m_currentScene->GetLight(), m_currentScene->GetCamera()->GetPosition(), m_currentScene->GetFog());
+				m_deferredLightShader->Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_currentScene->GetEnvMap(), m_currentScene->GetIrradiance(), m_deferredBuffers->GetShaderResourceView(0), 
+					m_deferredBuffers->GetShaderResourceView(1), m_deferredBuffers->GetShaderResourceView(2), m_deferredBuffers->GetShaderResourceView(3), m_shadowMap->GetShadowMap(),
+					m_currentScene->GetLight(), m_currentScene->GetCamera(), m_currentScene->GetFog());
 
 				//default render target
 				SetDefaultRenderTargetOn();
@@ -296,8 +338,6 @@ namespace radix
 
 		RECT clientSize = {0, 0, m_width, m_height};
 		AdjustWindowRect(&clientSize, windowStyle, false);
-
-		RadixLog(std::to_string(clientSize.right));
 
 		m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_appName, m_appName, windowStyle, posX, posY, clientSize.right- clientSize.left, clientSize.bottom- clientSize.top, NULL, NULL, m_instance, NULL);
 		if (!m_hWnd)
@@ -959,6 +999,20 @@ namespace radix
 		if(!m_ortho.Initialize(m_d3dDevice, m_width, m_height))
 		{
 			MessageBox(0, L"Cant initalize ortho manager", L"Error", MB_OK);
+			return false;
+		}
+
+		m_shadowMap = new ShadowMap();
+		if (!m_shadowMap->Initialize(m_d3dDevice, 2048, 2048))
+		{
+			MessageBox(0, L"Can't initialize ShadowMap", L"Error", MB_OK);
+			return false;
+		}
+
+		m_shadowMapShader = new ShadowMapShader();
+		if (!m_shadowMapShader->Initialize(m_d3dDevice))
+		{
+			MessageBox(0, L"Can't initialize ShadowMapShader", L"Error", MB_OK);
 			return false;
 		}
 

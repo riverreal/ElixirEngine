@@ -1,6 +1,9 @@
+#include "GeneralHelper.hlsli"
+
 Texture2D gAlbedo : register(t0);
 Texture2D gRoughness : register(t1);
 Texture2D gMetallic : register(t2);
+Texture2D gNormalMap : register(t3);
 
 SamplerState samAnisotropic : register(s0);
 
@@ -10,6 +13,7 @@ struct PixelInputType
 	float3 positionW : POSITION;
 	float3 normalW : NORMAL;
 	float2 tex : TEXCOORD0;
+	float3 tangentW : TANGENT;
 };
 
 struct PixelOutputType
@@ -23,10 +27,9 @@ struct PixelOutputType
 PixelOutputType DeferredPixelShader(PixelInputType input) : SV_TARGET
 {
 	PixelOutputType output;
-	
 
 	float4 albedoValues = gAlbedo.Sample(samAnisotropic, input.tex);
-	if (albedoValues.a == 0.0f)
+	if (albedoValues.a < 0.15f)
 	{
 		discard;
 	}
@@ -35,10 +38,16 @@ PixelOutputType DeferredPixelShader(PixelInputType input) : SV_TARGET
 		float4 roughnessValues = gRoughness.Sample(samAnisotropic, input.tex);
 		float4 metallicValues = gMetallic.Sample(samAnisotropic, input.tex);
 
-
 		output.albedo = float4(albedoValues.rgb, 1.0f);
 		float depth = input.position.z / input.position.w;
-		output.normal = float4(input.normalW, input.tex.r);
+
+		//calculate normal
+		float3 normalMap = gNormalMap.Sample(samAnisotropic, input.tex).rgb;
+		float3 normal = CalcNormal(normalMap, input.normalW, input.tangentW);
+		//pack tex U as alpha channel of normal
+		output.normal = float4(normal, input.tex.r);
+		
+		//pack tex V as alpha channel of materialProp
 		output.materialProp = float4(roughnessValues.r, metallicValues.r, depth, input.tex.g);
 		output.position = float4(input.positionW, 1.0f);
 	}

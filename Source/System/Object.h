@@ -61,6 +61,7 @@ public:
 
 	void SetScale(DirectX::XMFLOAT3 scale);
 	void SetScale(float x, float y, float z);
+	void SetScale(float s);
 	void SetScaleX(float x);
 	void SetScaleY(float y);
 	void SetScaleZ(float z);
@@ -108,8 +109,19 @@ public:
 	void SetDynamic(bool dynamic);
 	bool GetDynamic();
 
+	void SetBackFaceCulling(bool culling);
+	bool GetBackFaceCulling();
+
 	void SetTexture(ID3D11ShaderResourceView* texture, UINT slot);
 	ID3D11ShaderResourceView* GetTexture(UINT slot);
+
+	//return cast shadow.
+	bool GetCastShadow();
+
+	//Sets if the object casts a shadow or not.
+	//true if the object casts a shadow.
+	//false if the object doesn't cast a shadow.
+	void SetCastShadow(bool cast);
 
 	void Update();
 	void Render();
@@ -120,7 +132,8 @@ public:
 		TEXTURE_IRRADIANCE,
 		TEXTURE_ENVMAP,
 		TEXTURE_ROUGHNESS,
-		TEXTURE_METALLIC
+		TEXTURE_METALLIC,
+		TEXTURE_NORMAL
 	};
 
 private:
@@ -163,8 +176,14 @@ private:
 	//object not processed if disabled
 	bool m_disabled;
 
+	//Cull back face of the object
+	bool m_EnableBackFaceCulling;
+
 	//object not updated if not dynamic
 	bool m_dynamic;
 
-	ID3D11ShaderResourceView* m_texture[6]; //0 albedo, 1 irradiance, 2 env map, 3 roughness, 4 metallic 5 normal
+	//If the object casts a shadow.
+	bool m_castShadow;
+
+	ID3D11ShaderResourceView* m_texture[7]; //0 albedo, 1 irradiance, 2 env map, 3 roughness, 4 metallic 5 normal
 };

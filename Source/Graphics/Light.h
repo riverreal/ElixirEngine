@@ -52,6 +52,18 @@ public:
 	//This enables modification on the light directly
 	PBRSpotLight* GetModSpotLight(int index);
 
+	//Returns bounding sphere for shadow map calculation
+	BoundingSphere GetSceneBoundary();
+	//Returns light's projection matrix for shadow map calculation
+	DirectX::XMMATRIX GetLightProjMatrix();
+	//Returns light's view matrix for shadow map calculation
+	DirectX::XMMATRIX GetLightViewMatrix();
+	//Returns light's position for shadow map calculation
+	DirectX::XMFLOAT3 GetLightPosition();
+
+	DirectX::XMMATRIX GetLightTransform();
+
+	void BuildShadowTransform();
 
 	U32 GetPointLightCount();
 	U32 GetSpotLightCount();
@@ -64,5 +76,9 @@ private:
 	PBRDirectionalLight m_directionalLight;
 	U32 m_pointLightCount;
 	U32 m_spotLightCount;
+	BoundingSphere m_sceneBoundary;
 
+	XMMATRIX m_lightView;
+	XMMATRIX m_lightProj;
+	XMMATRIX m_lightTransform;
 };

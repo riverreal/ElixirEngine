@@ -28,4 +28,8 @@ public:
 
 	static float lerp(float a, float b, float x);
 	static XMFLOAT3 lerp(XMFLOAT3 a, XMFLOAT3 b, float x);
+
+	static XMFLOAT3 F3DotScalar(XMFLOAT3 x, float s);
+	static XMFLOAT3 F3MinusF3(XMFLOAT3 a, XMFLOAT3 b);
+
 };

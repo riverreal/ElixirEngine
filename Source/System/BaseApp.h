@@ -18,6 +18,8 @@
 #include "../Graphics/OrthoManager.h"
 #include "../Graphics/Post-processingShader.h"
 #include "../Graphics/SkyDome.h"
+#include "../Graphics/ShadowMap.h"
+#include "../Graphics/ShadowMapShader.h"
 
 using namespace DirectX;
 
@@ -134,6 +136,8 @@ namespace radix
 		DeferredShader* m_deferredShader;
 		PostProcessShader* m_postProcessingShader;
 		SkyDome* m_skyShader;
+		ShadowMap* m_shadowMap;
+		ShadowMapShader* m_shadowMapShader;
 	};
 
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

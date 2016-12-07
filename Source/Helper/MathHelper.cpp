@@ -48,3 +48,13 @@ XMFLOAT3 MathHelper::lerp(XMFLOAT3 a, XMFLOAT3 b, float x)
 	return XMFLOAT3(lerp(a.x, b.x, x), lerp(a.y, b.y, x), lerp(a.z, b.z, x));
 }
 
+XMFLOAT3 MathHelper::F3DotScalar(XMFLOAT3 x, float s)
+{
+	return XMFLOAT3(x.x*s, x.y*s, x.z*s);
+}
+
+XMFLOAT3 MathHelper::F3MinusF3(XMFLOAT3 a, XMFLOAT3 b)
+{
+	return XMFLOAT3(a.x-b.x, a.y-b.y, a.z-b.z);
+}
+
