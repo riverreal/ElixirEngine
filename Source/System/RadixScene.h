@@ -49,6 +49,7 @@ public:
 
 	//Returns an object by name
 	Object* GetObjectByName(std::string name);
+	
 
 	//Returns an object by tag
 	Object* GetObjectByTag(unsigned int tag);
@@ -89,6 +90,9 @@ public:
 	
 	
 private:
+	//Used recursively to loop through parent object's children too
+	Object* GetObjectByName(std::string name, Object* parent);
+
 	//Removes every children from memory
 	void CleanMemory();
 	//Removes a single child from memory

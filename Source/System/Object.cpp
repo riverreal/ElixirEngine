@@ -372,7 +372,12 @@ void Object::Update()
 	m_texTrans = XMMatrixMultiply(XMMatrixMultiply(scaling, rotation), translation);
 }
 
-void Object::Render()
+void Object::AddChild(Object * child)
 {
+	m_children.push_back(child);
+}
 
+std::vector<Object*> Object::GetChildren()
+{
+	return m_children;
 }

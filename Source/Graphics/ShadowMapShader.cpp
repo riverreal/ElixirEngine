@@ -33,6 +33,14 @@ bool ShadowMapShader::Initialize(ID3D11Device * device)
 void ShadowMapShader::Render(ID3D11DeviceContext * deviceContext, Object * object, Light * light)
 {
 	RenderShader(deviceContext, object, light);
+
+	for (auto &child : object->GetChildren())
+	{
+		if (child->GetDisabled() == false && child->GetCastShadow() == true)
+		{
+			Render(deviceContext, child, light);
+		}
+	}
 }
 
 void ShadowMapShader::Shutdown()

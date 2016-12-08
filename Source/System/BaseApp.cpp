@@ -1,5 +1,6 @@
 #include "BaseApp.h"
 #include "../Helper/GeneralHelper.h"
+#include <functional>
 
 namespace radix
 {
@@ -175,15 +176,20 @@ namespace radix
 				m_currentScene->GetModel()->Render(m_d3dDeviceContext);
 				m_shadowMap->Render(m_d3dDeviceContext);
 
+				m_d3dDeviceContext->RSSetState(m_solidRS);
+
 				for (auto &object : m_currentScene->GetChildren())
 				{
-					m_d3dDeviceContext->RSSetState(m_solidRS);
 					//render if not disabled
 					if (object->GetDisabled() == false)
 					{
 						if (object->GetCastShadow())
 						{
+							std::function<void(ID3D11DeviceContext*, ShadowMapShader*, Object*, Scene*)> recursiveFunc = [](ID3D11DeviceContext* dc, ShadowMapShader* ssShader, Object* object, Scene* scene) {
+								ssShader->Render(dc, object, scene->GetLight());
+							};
 							m_shadowMapShader->Render(m_d3dDeviceContext, object, m_currentScene->GetLight());
+							
 						}
 					}
 				}
@@ -203,7 +209,7 @@ namespace radix
 					{
 						if (object->GetBackFaceCulling() == false)
 						{
-							//if last setting was the same skip raaster state setting
+							//if last setting was the same skip raster state setting
 							if (backCulling)
 							{
 								m_d3dDeviceContext->RSSetState(m_solidNoCullRS);

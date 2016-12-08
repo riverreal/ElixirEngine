@@ -8,6 +8,10 @@
 #include "../Helper/LightHelper.h"
 #include "../Helper/TypeHelper.h"
 #include "Light.h"
+#include "../Interface/Interfaces.h"
+
+using namespace radix;
+using namespace graphics;
 
 class ShadowMapShader
 {

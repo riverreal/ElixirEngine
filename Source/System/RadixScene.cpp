@@ -110,21 +110,54 @@ std::vector<Object*> Scene::GetChildren()
 
 Object * Scene::GetObjectByName(std::string name)
 {
-	//bool found = false;
 	for (auto &object : m_objChildren)
 	{
-		auto objName = object->GetName();
-		if (name == objName)
+		auto result = GetObjectByName(name, object);
+		if (result != nullptr)
 		{
-			//found = true;
-			return object;
+			return result;
 		}
 	}
 
-	//if (!found)
+	RadixLog("Could not find object.");
+
+	return nullptr;
+}
+
+//loop through children
+Object * Scene::GetObjectByName(std::string name, Object * parent)
+{
+	if (parent->GetName() == name)
 	{
-		//Could not find the object
-		RadixLog("Could not find object.");
+		return parent;
+	}
+
+	for (auto &object : parent->GetChildren())
+	{
+		auto result = GetObjectByName(name, object);
+
+		if (result != nullptr)
+		{
+			return result;
+		}
+
+		/*
+		auto objName = object->GetName();
+		if (name == objName)
+		{
+			return object;
+		}
+
+		for (auto &child : object->GetChildren())
+		{
+			auto result = GetObjectByName(name, child);
+
+			if (result != nullptr)
+			{
+				return result;
+			}
+		}
+		*/
 	}
 
 	return nullptr;

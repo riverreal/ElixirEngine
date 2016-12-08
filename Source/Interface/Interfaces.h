@@ -18,5 +18,15 @@ namespace radix
 			virtual ~IRenderer() {};
 
 		};
+
+		class IShader
+		{
+		public:
+			virtual bool Initialize() = 0;
+			virtual void Render() = 0;
+			virtual void Shutdown() = 0;
+
+			virtual ~IShader() {};
+		};
 	}
 }

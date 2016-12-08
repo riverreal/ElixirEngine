@@ -7,8 +7,8 @@
 //720p (1280 x 720)
 //900p (1600 x 900)
 //1080p (1920 x 1080)
-const int SCREEN_WIDTH = 1280;
-const int SCRENN_HEIGHT = 720;
+const int SCREEN_WIDTH = 1920;
+const int SCRENN_HEIGHT = 1080;
 
 using namespace radix;
  
@@ -102,7 +102,7 @@ bool SimpleApp::SceneInit()
 	roughnessArray[10] = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/balls/255.png");
 	m_treeRoughness = roughnessArray[8];
 	m_noMetal = roughnessArray[0];
-	m_treeAlbedo = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/autumn.png");
+	m_treeAlbedo = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/summer.png");
 	m_cleanNormal = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/cleanNormal.jpg");
 	m_scene->SetIrradiance(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"));
 	m_scene->SetEnvMap(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/dayCube.dds"));
@@ -483,7 +483,7 @@ bool SimpleApp::SceneInit()
 	dirL->LightColor[1] = 0.76f;
 	dirL->LightColor[2] = 0.21f;
 
-	dirL->LightIntensity[0] = 2.8f;
+	dirL->LightIntensity[0] = 3.2f;
 	dirL->LightIntensity[1] = 0.1f;
 
 	dirL->Direction[0] = 0.1f;
@@ -492,21 +492,6 @@ bool SimpleApp::SceneInit()
 
 	m_scene->GetCamera()->SetPosition(0.0f, 7.0f, -6.0f);
 	m_smoothCamera.SetPosition(0.0f, 7.0f, -6.0f);
-
-	auto terrain = new Object();
-	m_scene->AddObject(terrain);
-	terrain->SetOffset(m_shapes->AddGeometry(MODEL_TYPE_PLAIN));
-	/*
-	terrain->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/mud/pjDto2_2K_Albedo.jpg"), TEXTURE_TYPE::ALBEDO);
-	terrain->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/mud/mudNormal.png"), TEXTURE_TYPE::NORMAL);
-	terrain->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/mud/pjDto2_2K_Roughness.jpg"), TEXTURE_TYPE::ROUGHNESS);
-	*/
-	terrain->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/forestGround/albedo.png"), TEXTURE_TYPE::ALBEDO);
-	terrain->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/forestGround/normal.jpg"), TEXTURE_TYPE::NORMAL);
-	terrain->SetTexture(roughnessArray[9], TEXTURE_TYPE::ROUGHNESS);
-	terrain->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
-	terrain->SetTexTransformScale(2.0f, 2.0f, 2.0f);
-	terrain->SetScale(10.0f, 10.0f, 10.0f);
 
 	/*
 	auto metalBall = new Object();
@@ -561,35 +546,17 @@ bool SimpleApp::SceneInit()
 	mountain01->SetPosition(0.0f, -30.0f, 0.0f);
 	*/
 
-	auto grassText = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/grass/T_FieldGrass_01_D.png");
-	srand(time(NULL));
-	
-	/*
-	for (UINT i = 0; i < 10; ++i)
-	{
-		for (UINT j = 0; j < 10; ++j)
-		{
-			auto grass = new Object();
-			m_scene->AddObject(grass);
-			grass->SetBackFaceCulling(false);
-			grass->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/grass/grass.obj"));
-			grass->SetTexture(grassText, TEXTURE_TYPE::ALBEDO);
-			grass->SetTexture(m_cleanNormal, TEXTURE_TYPE::NORMAL);
-			grass->SetTexture(roughnessArray[9], TEXTURE_TYPE::ROUGHNESS);
-			grass->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
-			grass->SetPositionX((i * 3) - 15.0f);
-			grass->SetPositionZ((j * 3) - 15.0f);
-			float rotation = rand() % 360;
-			grass->SetRotationY(rotation);
-		}
-	}
+	auto forestGround = new Object();
+	m_scene->AddObject(forestGround);
+	forestGround->SetOffset(m_shapes->AddGeometry(MODEL_TYPE_PLAIN));
+	forestGround->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/forestGround/albedo.png"), TEXTURE_TYPE::ALBEDO);
+	forestGround->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/forestGround/normal.jpg"), TEXTURE_TYPE::NORMAL);
+	forestGround->SetTexture(roughnessArray[9], TEXTURE_TYPE::ROUGHNESS);
+	forestGround->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	forestGround->SetTexTransformScale(2.0f, 2.0f, 2.0f);
+	forestGround->SetScale(10.0f, 10.0f, 10.0f);
+	forestGround->SetName("forestGround");
 
-	for (UINT i = 0; i < 10; ++i)
-	{
-		CreateTree();
-	}
-	*/
-	
 	auto cloverAlbedo = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/clover/albedo.png");
 
 	auto cloverOffsetX = -4.5f;
@@ -610,7 +577,7 @@ bool SimpleApp::SceneInit()
 				if (percent < 90)
 				{
 					auto clover = new Object();
-					m_scene->AddObject(clover);
+					forestGround->AddChild(clover);
 					clover->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/clover/cloverGroup.obj"));
 					clover->SetTexture(cloverAlbedo, TEXTURE_TYPE::ALBEDO);
 					clover->SetTexture(m_cleanNormal, TEXTURE_TYPE::NORMAL);
@@ -621,74 +588,69 @@ bool SimpleApp::SceneInit()
 					clover->SetScale(0.5f);
 					float rotation = rand() % 360;
 					clover->SetRotationY(rotation);
+					//clover->SetName("clover" + itoa(i))
 				}
 			}
 		}
 	}
-	
+
+	auto fernAlbedo = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_D.png");
+	auto fernNormal = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_N.jpg");
 
 	auto fern = new Object();
 	m_scene->AddObject(fern);
 	fern->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/fern/fern.obj"));
-	fern->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_D.png"), TEXTURE_TYPE::ALBEDO);
-	fern->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_N.jpg"), TEXTURE_TYPE::NORMAL);
+	fern->SetTexture(fernAlbedo, TEXTURE_TYPE::ALBEDO);
+	fern->SetTexture(fernNormal, TEXTURE_TYPE::NORMAL);
 	fern->SetTexture(roughnessArray[4], TEXTURE_TYPE::ROUGHNESS);
 	fern->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
 	fern->SetPosition(3.2f, 0.0f, -3.3f);
 	fern->SetRotationY(180);
 	fern->SetScale(0.3f);
 	fern->SetBackFaceCulling(false);
+	fern->SetName("fern1");
 
 	auto fern2 = new Object();
-	m_scene->AddObject(fern2);
+	fern->AddChild(fern2);
 	fern2->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/fern/fern.obj"));
-	fern2->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_D.png"), TEXTURE_TYPE::ALBEDO);
-	fern2->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_N.jpg"), TEXTURE_TYPE::NORMAL);
+	fern2->SetTexture(fernAlbedo, TEXTURE_TYPE::ALBEDO);
+	fern2->SetTexture(fernNormal, TEXTURE_TYPE::NORMAL);
 	fern2->SetTexture(roughnessArray[4], TEXTURE_TYPE::ROUGHNESS);
 	fern2->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
 	fern2->SetPosition(-2.7f, 0.0f, 0.4f);
 	fern2->SetRotationY(120);
 	fern2->SetScale(0.5f);
 	fern2->SetBackFaceCulling(false);
+	fern2->SetName("fern2");
 
 	auto fern3 = new Object();
-	m_scene->AddObject(fern3);
+	fern->AddChild(fern3);
 	fern3->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/fern/fern.obj"));
-	fern3->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_D.png"), TEXTURE_TYPE::ALBEDO);
-	fern3->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_N.jpg"), TEXTURE_TYPE::NORMAL);
+	fern3->SetTexture(fernAlbedo, TEXTURE_TYPE::ALBEDO);
+	fern3->SetTexture(fernNormal, TEXTURE_TYPE::NORMAL);
 	fern3->SetTexture(roughnessArray[4], TEXTURE_TYPE::ROUGHNESS);
 	fern3->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
 	fern3->SetPosition(-2.9f, 0.0f, -3.0f);
 	fern3->SetRotationY(40);
 	fern3->SetScale(0.45f);
 	fern3->SetBackFaceCulling(false);
+	fern3->SetName("fern3");
 
 	auto fern4 = new Object();
-	m_scene->AddObject(fern4);
+	fern->AddChild(fern4);
 	fern4->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/fern/fern.obj"));
-	fern4->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_D.png"), TEXTURE_TYPE::ALBEDO);
-	fern4->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/fern/T_Fern_01_N.jpg"), TEXTURE_TYPE::NORMAL);
+	fern4->SetTexture(fernAlbedo, TEXTURE_TYPE::ALBEDO);
+	fern4->SetTexture(fernNormal, TEXTURE_TYPE::NORMAL);
 	fern4->SetTexture(roughnessArray[4], TEXTURE_TYPE::ROUGHNESS);
 	fern4->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
 	fern4->SetPosition(1.9f, 0.0f, 2.4f);
 	fern4->SetRotationY(-80);
 	fern4->SetScale(0.7f);
 	fern4->SetBackFaceCulling(false);
+	fern4->SetName("fern4");
 
-	/*
-	auto revealRock = new Object();
-	m_scene->AddObject(revealRock);
-	revealRock->SetOffset(m_shapes->AddModelFromFile("Resources/rocks/SM_GroundRevealRock002.OBJ"));
-	revealRock->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/rocks/T_GroundRevealRock002_D_CC_R.png"), TEXTURE_TYPE::ALBEDO);
-	revealRock->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/rocks/T_GroundRevealRock002_N.jpg"), TEXTURE_TYPE::NORMAL);
-	revealRock->SetTexture(roughnessArray[9], TEXTURE_TYPE::ROUGHNESS);
-	revealRock->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
-	revealRock->SetPositionX(10.0f);
-	revealRock->SetPositionZ(10.0f);
-	revealRock->SetScale(0.05f);
-	*/
 	auto boulder = new Object();
-	m_scene->AddObject(boulder);
+	forestGround->AddChild(boulder);
 	boulder->SetOffset(m_shapes->AddModelFromFile("Resources/rocks/SM_Boulder05a.OBJ"));
 	boulder->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/rocks/T_Boulder05_D_CC_R.png"), TEXTURE_TYPE::ALBEDO);
 	boulder->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/rocks/T_Boulder05_N.jpg"), TEXTURE_TYPE::NORMAL);
@@ -697,9 +659,10 @@ bool SimpleApp::SceneInit()
 	boulder->SetPosition(-3.0f, -0.3f, 3.0f);
 	boulder->SetScale(0.05f);
 	boulder->SetRotationY(-200);
+	boulder->SetName("boulder");
 
 	auto woodLog = new Object();
-	m_scene->AddObject(woodLog);
+	forestGround->AddChild(woodLog);
 	woodLog->SetOffset(m_shapes->AddModelFromFile("Resources/woodLog/Aset_wood_log_M_qdtdP_LOD1.obj"));
 	woodLog->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/woodLog/Aset_wood_log_M_qdtdP_2K_Albedo.jpg"), TEXTURE_TYPE::ALBEDO);
 	woodLog->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/woodLog/woodNormal.jpg"), TEXTURE_TYPE::NORMAL);
@@ -708,9 +671,10 @@ bool SimpleApp::SceneInit()
 	woodLog->SetPosition(3.0f, 0.0f, -2.6f);
 	woodLog->SetScale(0.05f);
 	woodLog->SetRotationY(-20.0f);
-	
+	woodLog->SetName("woodLog");
+
 	auto riverRock = new Object();
-	m_scene->AddObject(riverRock);
+	forestGround->AddChild(riverRock);
 	riverRock->SetOffset(m_shapes->AddModelFromFile("Resources/rocks/SM_River_Rock_01.OBJ"));
 	riverRock->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/rocks/T_River_Rock_01_D_CC_R.png"), TEXTURE_TYPE::ALBEDO);
 	riverRock->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/rocks/T_River_Rock_01_N.jpg"), TEXTURE_TYPE::NORMAL);
@@ -718,6 +682,108 @@ bool SimpleApp::SceneInit()
 	riverRock->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
 	riverRock->SetPosition(1.5f, -1.3f, 0.0f);
 	riverRock->SetScale(0.05f);
+	riverRock->SetName("riverRock");
+
+	//------Desert--------------------------
+
+	auto desertGround = new Object();
+	m_scene->AddObject(desertGround);
+	desertGround->SetOffset(m_shapes->AddGeometry(MODEL_TYPE_PLAIN));
+	desertGround->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/desertGround/sandDunes/T_SandDunes_D.jpg"), TEXTURE_TYPE::ALBEDO);
+	desertGround->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/desertGround/sandDunes/T_SandDunes_N.jpg"), TEXTURE_TYPE::NORMAL);
+	desertGround->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/desertGround/sandDunes/T_SandDunes_R.jpg"), TEXTURE_TYPE::ROUGHNESS);
+	desertGround->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	desertGround->SetScale(10.0f, 10.0f, 10.0f);
+	desertGround->SetTexTransformScale(2.0f, 2.0f, 2.0f);
+	desertGround->SetDisabled(true);
+	desertGround->SetName("desertGround");
+
+	auto revealRock = new Object();
+	desertGround->AddChild(revealRock);
+	revealRock->SetOffset(m_shapes->AddModelFromFile("Resources/rocks/SM_GroundRevealRock002.OBJ"));
+	revealRock->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/rocks/desertSkin.png"), TEXTURE_TYPE::ALBEDO);
+	revealRock->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/rocks/T_GroundRevealRock002_N.jpg"), TEXTURE_TYPE::NORMAL);
+	revealRock->SetTexture(roughnessArray[9], TEXTURE_TYPE::ROUGHNESS);
+	revealRock->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	revealRock->SetPositionX(2.0f);
+	revealRock->SetPositionZ(1.5f);
+	revealRock->SetRotationY(-45);
+	revealRock->SetScale(0.02f);
+
+	auto cactusAlbedo = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/cactus/T_Cactus_D.png");
+	auto cactusNormal = TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/cactus/T_Cactus_N.jpg");
+
+	auto cactus = new Object();
+	desertGround->AddChild(cactus);
+	cactus->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/cactus/SM_Cactus_C.OBJ"));
+	cactus->SetTexture(cactusAlbedo, TEXTURE_TYPE::ALBEDO);
+	cactus->SetTexture(cactusNormal, TEXTURE_TYPE::NORMAL);
+	cactus->SetTexture(roughnessArray[9], TEXTURE_TYPE::ROUGHNESS);
+	cactus->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	cactus->SetPosition(-1.0f, 0.0f, -0.3f);
+	cactus->SetRotationY(10.0f);
+	cactus->SetScale(0.005f);
+
+	auto cactusPlant = new Object();
+	desertGround->AddChild(cactusPlant);
+	cactusPlant->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/cactus/plant.OBJ"));
+	cactusPlant->SetTexture(cactusAlbedo, TEXTURE_TYPE::ALBEDO);
+	cactusPlant->SetTexture(cactusNormal, TEXTURE_TYPE::NORMAL);
+	cactusPlant->SetTexture(roughnessArray[9], TEXTURE_TYPE::ROUGHNESS);
+	cactusPlant->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	cactusPlant->SetPosition(2.0f, -0.1f, -2.3f);
+	cactusPlant->SetRotationY(10.0f);
+	cactusPlant->SetScale(0.003f);
+
+	auto cactusPlant2 = new Object();
+	desertGround->AddChild(cactusPlant2);
+	cactusPlant2->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/cactus/plant.OBJ"));
+	cactusPlant2->SetTexture(cactusAlbedo, TEXTURE_TYPE::ALBEDO);
+	cactusPlant2->SetTexture(cactusNormal, TEXTURE_TYPE::NORMAL);
+	cactusPlant2->SetTexture(roughnessArray[9], TEXTURE_TYPE::ROUGHNESS);
+	cactusPlant2->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	cactusPlant2->SetPosition(-2.0f, -0.1f, -3.3f);
+	cactusPlant2->SetRotationY(40.0f);
+	cactusPlant2->SetScale(0.0035f);
+
+	auto palm = new Object();
+	m_scene->AddObject(palm);
+	palm->SetOffset(m_shapes->AddModelFromFile("Resources/foliage/palm/SM_PalmTree_01.OBJ"));
+	palm->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/palm/T_PalmTree_D.png"), TEXTURE_TYPE::ALBEDO);
+	palm->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/palm/T_PalmTree_N.jpg"), TEXTURE_TYPE::NORMAL);
+	palm->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/foliage/palm/T_PalmTree_R.jpg"), TEXTURE_TYPE::ROUGHNESS);
+	palm->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	palm->SetPositionX(-0.4f);
+	palm->SetPositionZ(-2.0f);
+	palm->SetRotationY(-45);
+	palm->SetScale(0.004f);
+	palm->SetBackFaceCulling(false);
+	palm->SetName("palm");
+	palm->SetDisabled(true);
+
+	//------Car--------------------------------
+	
+	auto garageFloor = new Object();
+	m_scene->AddObject(garageFloor);
+	garageFloor->SetOffset(m_shapes->AddGeometry(MODEL_TYPE_PLAIN));
+	garageFloor->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/garageFloor/Marble13_COL_1K.jpg"), TEXTURE_TYPE::ALBEDO);
+	garageFloor->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/garageFloor/Marble13_NOR_1K.jpg"), TEXTURE_TYPE::NORMAL);
+	garageFloor->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/Textures/garageFloor/Marble13_ROUGHNESS_1K.jpg"), TEXTURE_TYPE::ROUGHNESS);
+	garageFloor->SetTexture(roughnessArray[0], TEXTURE_TYPE::METALLIC);
+	garageFloor->SetScale(10.0f, 10.0f, 10.0f);
+	garageFloor->SetTexTransformScale(2.0f, 2.0f, 2.0f);
+	garageFloor->SetDisabled(true);
+	garageFloor->SetName("garageFloor");
+
+	auto lambo = new Object();
+	garageFloor->AddChild(lambo);
+	lambo->SetOffset(m_shapes->AddModelFromFile("Resources/lambo/bodyMerged.obj"));
+	lambo->SetTexture(TextureLoader::CreateTexture(m_d3dDevice, L"Resources/lambo/albedo.jpg"), TEXTURE_TYPE::ALBEDO);
+	lambo->SetTexture(m_cleanNormal, TEXTURE_TYPE::NORMAL);
+	lambo->SetTexture(roughnessArray[2], TEXTURE_TYPE::ROUGHNESS);
+	lambo->SetTexture(roughnessArray[5], TEXTURE_TYPE::METALLIC);
+	lambo->SetScale(1.0f);
+	lambo->SetName("lambo");
 
 	//-----------------------------------------------------------------------------------------------------
 	//        Renderer Init
@@ -785,95 +851,13 @@ void SimpleApp::Update(float dt)
 	}
 	if (GetAsyncKeyState('C') & 0x8000)
 	{
-		/*
-		if (m_scene->GetLight()->GetPointLight(0).LightColor.w == 0.0f)
-		{
-			m_scene->GetLight()->GetModPointLight(0)->LightColor.w = 1.8f;
-			m_scene->GetLight()->GetModPointLight(1)->LightColor.w = 1.8f;
-			m_scene->GetLight()->GetModSpotLight(0)->LightColor.w = 10.0f;
-			m_scene->GetLight()->GetModSpotLight(1)->LightColor.w = 10.0f;
-			m_scene->GetLight()->GetModSpotLight(2)->LightColor.w = 10.0f;
-		}
-		else
-		{
-			m_scene->GetLight()->GetModPointLight(0)->LightColor.w = 0.0f;
-			m_scene->GetLight()->GetModPointLight(1)->LightColor.w = 0.0f;
-			m_scene->GetLight()->GetModSpotLight(0)->LightColor.w = 0.0f;
-			m_scene->GetLight()->GetModSpotLight(1)->LightColor.w = 0.0f;
-			m_scene->GetLight()->GetModSpotLight(2)->LightColor.w = 0.0f;
-		}
-		*/
-		
 	}
 	if (GetAsyncKeyState('K') & 0x8000)
 	{
-		/*
-		//-----------Disable Room
-		m_scene->GetObjectByName("wall0")->SetDisabled(true);
-		m_scene->GetObjectByName("wall1")->SetDisabled(true);
-		m_scene->GetObjectByName("wall2")->SetDisabled(true);
-		m_scene->GetObjectByName("wall3")->SetDisabled(true);
-		m_scene->GetObjectByName("wall4")->SetDisabled(true);
-		m_scene->GetObjectByName("vase")->SetDisabled(true);
-		m_scene->GetObjectByName("centerTable")->SetDisabled(true);
-		m_scene->GetObjectByName("carpet")->SetDisabled(true);
-		m_scene->GetObjectByName("drawing")->SetDisabled(true);
-		m_scene->GetObjectByName("frame")->SetDisabled(true);
-		m_scene->GetObjectByName("points0")->SetDisabled(true);
-		m_scene->GetObjectByName("points1")->SetDisabled(true);
-		m_scene->GetObjectByName("spots0")->SetDisabled(true);
-		m_scene->GetObjectByName("spots1")->SetDisabled(true);
-		m_scene->GetObjectByName("spots2")->SetDisabled(true);
-		m_statue->SetDisabled(true);
-
-		//--------Enable field 
-		m_scene->GetLight()->GetModDirectionalLight()->LightIntensity[0] = 1.0f;
-		m_scene->GetLight()->GetModDirectionalLight()->LightIntensity[1] = 0.25f;
-
-		for (int i = 1; i < 11; ++i)
-		{
-			m_scene->GetObjectByTag(1 + i)->SetDisabled(false);
-			m_scene->GetObjectByTag(20 + i)->SetDisabled(false);
-		}
-
-		m_radixBox->SetDisabled(false);
-		m_scene->GetObjectByName("fern")->SetDisabled(false);
-		*/
 	}
 
 	if (GetAsyncKeyState('J') & 0x8000)
 	{
-		/*
-		//----------Enable room
-		m_scene->GetObjectByName("wall0")->SetDisabled(false);
-		m_scene->GetObjectByName("wall1")->SetDisabled(false);
-		m_scene->GetObjectByName("wall2")->SetDisabled(false);
-		m_scene->GetObjectByName("wall3")->SetDisabled(false);
-		m_scene->GetObjectByName("wall4")->SetDisabled(false);
-		m_scene->GetObjectByName("vase")->SetDisabled(false);
-		m_scene->GetObjectByName("centerTable")->SetDisabled(false);
-		m_scene->GetObjectByName("carpet")->SetDisabled(false);
-		m_scene->GetObjectByName("drawing")->SetDisabled(false);
-		m_scene->GetObjectByName("frame")->SetDisabled(false);
-		m_scene->GetObjectByName("points0")->SetDisabled(false);
-		m_scene->GetObjectByName("points1")->SetDisabled(false);
-		m_scene->GetObjectByName("spots0")->SetDisabled(false);
-		m_scene->GetObjectByName("spots1")->SetDisabled(false);
-		m_scene->GetObjectByName("spots2")->SetDisabled(false);
-		m_statue->SetDisabled(false);
-
-		//--------disable field
-		m_scene->GetLight()->GetModDirectionalLight()->LightIntensity[0] = 0.0f;
-		m_scene->GetLight()->GetModDirectionalLight()->LightIntensity[1] = 0.015f;
-		for (int i = 1; i < 11; ++i)
-		{
-			m_scene->GetObjectByTag(1 + i)->SetDisabled(true);
-			m_scene->GetObjectByTag(20 + i)->SetDisabled(true);
-		}
-		m_radixBox->SetDisabled(true);
-		m_scene->GetObjectByName("fern")->SetDisabled(true);
-		*/
-
 		CreateTree();
 		m_shapes->Shutdown();
 		m_shapes->Initialize(m_d3dDevice);
@@ -881,11 +865,52 @@ void SimpleApp::Update(float dt)
 	}
 	if (GetAsyncKeyState('1') & 0x8000)
 	{
-		//m_scene->GetFog().Enabled = true;
+		//1
+		m_scene->GetObjectByName("fern1")->SetDisabled(false);
+		m_scene->GetObjectByName("forestGround")->SetDisabled(false);
+		//2
+		m_scene->GetObjectByName("desertGround")->SetDisabled(true);
+		m_scene->GetObjectByName("palm")->SetDisabled(true);
+		//3
+		m_scene->GetObjectByName("garageFloor")->SetDisabled(true);
+		//4
 	}
 	if (GetAsyncKeyState('2') & 0x8000)
 	{
-		//m_fog.Enabled = false;
+		//1
+		m_scene->GetObjectByName("fern1")->SetDisabled(true);
+		m_scene->GetObjectByName("forestGround")->SetDisabled(true);
+		//2
+		m_scene->GetObjectByName("desertGround")->SetDisabled(false);
+		m_scene->GetObjectByName("palm")->SetDisabled(false);
+
+		//3
+		m_scene->GetObjectByName("garageFloor")->SetDisabled(true);
+		//4
+	}
+	if (GetAsyncKeyState('3') & 0x8000)
+	{
+		//1
+		m_scene->GetObjectByName("fern1")->SetDisabled(true);
+		m_scene->GetObjectByName("forestGround")->SetDisabled(true);
+		//2
+		m_scene->GetObjectByName("desertGround")->SetDisabled(true);
+		m_scene->GetObjectByName("palm")->SetDisabled(true);
+		//3
+		m_scene->GetObjectByName("garageFloor")->SetDisabled(false);
+		//4
+	}
+	if (GetAsyncKeyState('4') & 0x8000)
+	{
+		//1
+		m_scene->GetObjectByName("fern1")->SetDisabled(true);
+		m_scene->GetObjectByName("forestGround")->SetDisabled(true);
+		//2
+		m_scene->GetObjectByName("desertGround")->SetDisabled(true);
+		m_scene->GetObjectByName("palm")->SetDisabled(true);
+		//3
+		m_scene->GetObjectByName("garageFloor")->SetDisabled(true);
+		//4
 	}
 
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
@@ -895,6 +920,12 @@ void SimpleApp::Update(float dt)
 	else
 	{
 		m_speedMult = 1.0f;
+	}
+
+	if (m_scene->GetObjectByName("garageFloor")->GetDisabled() == false)
+	{
+		auto lambo = m_scene->GetObjectByName("lambo");
+		lambo->SetRotationY(lambo->GetRotationY() + (10.0f * dt));
 	}
 
 	m_scene->GetCamera()->SetPosition(MathHelper::lerp(m_scene->GetCamera()->GetPosition(), m_smoothCamera.GetPosition(), 0.3f));
@@ -919,7 +950,7 @@ void SimpleApp::OnMouseUp(WPARAM btnState, int x, int y)
 
 void SimpleApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	if ((btnState & MK_LBUTTON) != 0)
+	if ((btnState & MK_RBUTTON) != 0)
 	{
 		float dx = XMConvertToRadians(0.15f*static_cast<float>(x - m_lastMousePos.x));
 		float dy = XMConvertToRadians(0.15f*static_cast<float>(y - m_lastMousePos.y));
@@ -946,10 +977,10 @@ void SimpleApp::CreateTree()
 	float scaleXZ = rand() % 6 + 2;
 	float scaleY = rand() % 6 + 2;
 	tree->SetScale(scaleXZ, scaleY, scaleXZ);
-	float posX = rand() % 50;
-	posX -= 25.0f;
-	float posZ = rand() % 50;
-	posZ -= 25.0f;
+	float posX = rand() % 10;
+	posX -= 5.0f;
+	float posZ = rand() % 10;
+	posZ -= 5.0f;
 	tree->SetPosition(posX, 0.0f, posZ);
 	float rotation = rand() % 360;
 	tree->SetRotationY(rotation);

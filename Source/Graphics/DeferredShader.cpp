@@ -50,6 +50,14 @@ bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, Object* object,
 
 	RenderShader(deviceContext, object->GetOffset());
 
+	for(auto &child : object->GetChildren())
+	{
+		if (child->GetDisabled() == false)
+		{
+			Render(deviceContext, child, camera);
+		}
+	}
+
 	return true;
 }
 

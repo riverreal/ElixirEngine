@@ -124,7 +124,8 @@ public:
 	void SetCastShadow(bool cast);
 
 	void Update();
-	void Render();
+	void AddChild(Object* child);
+	std::vector<Object*> GetChildren();
 
 	enum TextureSlot //not available
 	{
@@ -169,6 +170,9 @@ private:
 
 	//A name that identifies the object
 	std::string m_name;
+
+	//A vector of children
+	std::vector<Object*> m_children;
 
 	//A tag that identifies the object
 	unsigned int m_tag;
