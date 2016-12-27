@@ -32,8 +32,6 @@ bool PostProcessShader::Initialize(ID3D11Device * device, HWND hWnd, int texture
 {
 	bool result;
 
-	
-
 	result = InitializePostPro(device, textureWidth, textureHeight, screenDepth, screenNear);
 	if (!result)
 	{

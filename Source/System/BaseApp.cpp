@@ -1,8 +1,7 @@
 #include "BaseApp.h"
 #include "../Helper/GeneralHelper.h"
-#include <functional>
 
-namespace radix
+namespace Elixir
 {
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
@@ -17,7 +16,7 @@ namespace radix
 		m_width(width),
 		m_height(height),
 		m_appPaused(false),
-		m_appName(L"Testing"),
+		m_appName(L"Elixir Engine"),
 		m_4xMsaaQuality(0),
 		m_swapChain(0),
 		m_d3dDevice(0),
@@ -29,7 +28,7 @@ namespace radix
 		//m_depthSRV(0),
 		m_solidRS(0),
 		m_wireFrameRS(0),
-		m_currentScene(0)
+		m_sceneManager(0)
 	{
 		AllocConsole();
 		freopen("conin$", "r", stdin);
@@ -39,6 +38,14 @@ namespace radix
 
 	BaseApp::~BaseApp()
 	{
+
+#if ELIXIR_EDITOR == true
+		m_elixirEditor->Shutdown();
+		SafeRelease(m_elixirEditor);
+#endif
+
+		SafeRelease(m_sceneManager);
+
 		//Draw related shutdown
 		m_shadowMapShader->Shutdown();
 		m_shadowMap->Shutdown();
@@ -51,6 +58,8 @@ namespace radix
 		m_deferredLightShader->Shutdown();
 		m_deferredShader->Shutdown();
 
+		m_textureManager->Shutdown();
+
 		SafeRelease(m_shadowMapShader);
 		SafeRelease(m_shadowMap);
 
@@ -60,6 +69,8 @@ namespace radix
 		SafeRelease(m_deferredBuffers);
 		SafeRelease(m_deferredLightShader);
 		SafeRelease(m_deferredShader);
+
+		SafeRelease(m_textureManager);
 
 		m_ortho.Shutdown();
 
@@ -112,6 +123,13 @@ namespace radix
 			MessageBox(0, L"Failed Preparing Draw", L"ERROR!", MB_OK);
 			return false;
 		}
+
+		m_sceneManager = new SceneManager();
+
+#if ELIXIR_EDITOR == true
+		m_elixirEditor = new Editor();
+		m_elixirEditor->Initialize(m_hWnd, m_d3dDevice, m_d3dDeviceContext, m_width, m_height, m_sceneManager);
+#endif
 
 		return true;
 	}
@@ -168,28 +186,29 @@ namespace radix
 		assert(m_d3dDeviceContext);
 		assert(m_swapChain);
 
-		if (m_currentScene != 0 && m_currentScene->IsSceneReady())
+		auto currentScene = m_sceneManager->GetCurrentScene();
+
+		if (currentScene != nullptr && currentScene->IsSceneReady())
 		{
-			m_currentScene->GetCamera()->Update();
-			if (m_currentScene->GetRenderMode() == RENDER_MODE::DEFERRED_RENDERING)
+			currentScene->GetCamera()->Update();
+			if (currentScene->GetRenderMode() == RENDER_MODE::DEFERRED_RENDERING)
 			{
-				m_currentScene->GetModel()->Render(m_d3dDeviceContext);
+				currentScene->GetModel()->Render(m_d3dDeviceContext);
 				m_shadowMap->Render(m_d3dDeviceContext);
 
 				m_d3dDeviceContext->RSSetState(m_solidRS);
 
-				for (auto &object : m_currentScene->GetChildren())
+				for (auto &object : currentScene->GetChildren())
 				{
-					//render if not disabled
-					if (object->GetDisabled() == false)
+					if (object->GetComponent<Renderer3D>() != nullptr)
 					{
-						if (object->GetCastShadow())
+						//render if not disabled
+						if (object->GetRenderer()->Enabled)
 						{
-							std::function<void(ID3D11DeviceContext*, ShadowMapShader*, Object*, Scene*)> recursiveFunc = [](ID3D11DeviceContext* dc, ShadowMapShader* ssShader, Object* object, Scene* scene) {
-								ssShader->Render(dc, object, scene->GetLight());
-							};
-							m_shadowMapShader->Render(m_d3dDeviceContext, object, m_currentScene->GetLight());
-							
+							if (object->GetRenderer()->CastShadow)
+							{
+								m_shadowMapShader->Render(m_d3dDeviceContext, object, currentScene->GetLight());
+							}
 						}
 					}
 				}
@@ -202,39 +221,42 @@ namespace radix
 				bool backCulling = true;
 				m_d3dDeviceContext->RSSetState(m_solidRS);
 				//iterate through every object to render it
-				for (auto &object : m_currentScene->GetChildren())
+				for (auto &object : currentScene->GetChildren())
 				{
-					//render if not disabled
-					if (object->GetDisabled() == false)
+					if (object->GetComponent<Renderer3D>() != nullptr)
 					{
-						if (object->GetBackFaceCulling() == false)
+						//render if not disabled
+						if (object->GetRenderer()->Enabled)
 						{
-							//if last setting was the same skip raster state setting
-							if (backCulling)
+							if (object->GetRenderer()->EnableBackFaceCulling == false)
 							{
-								m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
-								backCulling = false;
+								//if last setting was the same skip raster state setting
+								if (backCulling)
+								{
+									m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
+									backCulling = false;
+								}
 							}
-							
-						}
-						else
-						{
-							if (!backCulling)
+							else
 							{
-								m_d3dDeviceContext->RSSetState(m_solidRS);
-								backCulling = true;
+								if (!backCulling)
+								{
+									m_d3dDeviceContext->RSSetState(m_solidRS);
+									backCulling = true;
+								}
 							}
-						}
 
-						m_deferredShader->Render(m_d3dDeviceContext, object, m_currentScene->GetCamera());
+							m_deferredShader->Render(m_d3dDeviceContext, object, currentScene->GetCamera(), m_textureManager);
+						}
 					}
+					
 				}
 
 				m_d3dDeviceContext->RSSetViewports(1, &m_deferredSkyViewport);
 
 				//To render inner sphere
 				m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
-				m_skyShader->Render(m_d3dDeviceContext, m_currentScene->GetSky(), m_currentScene->GetCamera());
+				m_skyShader->Render(m_d3dDeviceContext, currentScene->GetSky(), currentScene->GetCamera(), m_textureManager);
 				m_d3dDeviceContext->RSSetState(m_solidRS);
 				m_d3dDeviceContext->RSSetViewports(1, &m_deferredViewport);
 
@@ -244,9 +266,11 @@ namespace radix
 				//m_deferredBuffers->ClearPostpRenderTarget(m_d3dDeviceContext);
 				m_postProcessingShader->ClearPostPRenderTarget(m_d3dDeviceContext);
 				m_ortho.Render(m_d3dDeviceContext);
-				m_deferredLightShader->Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), m_currentScene->GetEnvMap(), m_currentScene->GetIrradiance(), m_deferredBuffers->GetShaderResourceView(0), 
+				auto envMap = m_textureManager->GetTexture(currentScene->GetEnvMap());
+				auto irradiance = m_textureManager->GetTexture(currentScene->GetIrradiance());
+				m_deferredLightShader->Render(m_d3dDeviceContext, offsetData(m_ortho.GetIndexCount(), 0, 0), envMap, irradiance, m_deferredBuffers->GetShaderResourceView(0), 
 					m_deferredBuffers->GetShaderResourceView(1), m_deferredBuffers->GetShaderResourceView(2), m_deferredBuffers->GetShaderResourceView(3), m_shadowMap->GetShadowMap(),
-					m_currentScene->GetLight(), m_currentScene->GetCamera(), m_currentScene->GetFog());
+					currentScene->GetLight(), currentScene->GetCamera(), currentScene->GetFog());
 
 				//default render target
 				SetDefaultRenderTargetOn();
@@ -265,6 +289,11 @@ namespace radix
 			}
 		}
 
+#if ELIXIR_EDITOR == true
+		//Update/Draw the editor
+		m_elixirEditor->Update();
+#endif
+
 		//-------render end
 		if (VSYNC_ENABLED)
 		{
@@ -278,6 +307,9 @@ namespace radix
 
 	void BaseApp::Frame()
 	{
+#if ELIXIR_EDITOR == true
+		m_elixirEditor->Frame();
+#endif
 		m_frameCnt++;
 		Update(m_gameTimer.DeltaTime());
 		Draw(m_gameTimer.DeltaTime());
@@ -313,9 +345,6 @@ namespace radix
 
 		int totalWidth = GetSystemMetrics(SM_CXSCREEN);
 		int totalHeight = GetSystemMetrics(SM_CYSCREEN);
-
-		
-		
 
 		//default window style (windowed mode)
 		DWORD windowStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION;
@@ -966,6 +995,8 @@ namespace radix
 
 	bool BaseApp::InitDraw()
 	{
+		m_textureManager = new TextureManager();
+
 		m_deferredBuffers = new DeferredRendering();
 		XMFLOAT2 specResolution = GetSpecResolution(m_width, m_height);
 		if (!m_deferredBuffers->Initialize(m_d3dDevice, m_width, m_height, SCREEN_DEPTH, SCREEN_NEAR, SPEC_INDEX))
@@ -1027,6 +1058,101 @@ namespace radix
 
 	LRESULT BaseApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+#if ELIXIR_EDITOR == true
+		ImGuiIO& io = ImGui::GetIO();
+
+		switch (msg)
+		{
+		case WM_ACTIVATE:
+		{
+			if (LOWORD(wParam) == WA_INACTIVE)
+			{
+				m_appPaused = true;
+				m_gameTimer.Stop();
+			}
+			else
+			{
+				m_appPaused = false;
+				m_gameTimer.Start();
+			}
+			return 0;
+		}
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
+		case WM_CLOSE:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
+		case WM_GETMINMAXINFO:
+		{
+			((MINMAXINFO*)lParam)->ptMinTrackSize.x = 300;
+			((MINMAXINFO*)lParam)->ptMinTrackSize.y = 300;
+			return 0;
+		}
+		case WM_KEYDOWN:
+		{
+			if (wParam == VK_ESCAPE)
+			{
+				PostQuitMessage(0);
+				return 0;
+			}
+
+			if (wParam < 256)
+				io.KeysDown[wParam] = 1;
+
+			return 0;
+		}
+		case WM_KEYUP:
+		{
+			if (wParam < 256)
+				io.KeysDown[wParam] = 0;
+			return true;
+		}
+		case WM_LBUTTONDOWN:
+			io.MouseDown[0] = true;
+			OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return true;
+		case WM_MBUTTONDOWN:
+			io.MouseDown[2] = true;
+			OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return true;
+		case WM_RBUTTONDOWN:
+			io.MouseDown[1] = true;
+			OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return 0;
+		case WM_LBUTTONUP:
+			io.MouseDown[0] = false;
+			OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return true;
+		case WM_MBUTTONUP:
+			io.MouseDown[2] = false;
+			OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return true;
+		case WM_RBUTTONUP:
+			io.MouseDown[1] = false;
+			OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return 0;
+		case WM_MOUSEWHEEL:
+			io.MouseWheel += GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? +1.0f : -1.0f;
+			return true;
+		case WM_MOUSEMOVE:
+			io.MousePos.x = (signed short)(lParam);
+			io.MousePos.y = (signed short)(lParam >> 16);
+			OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			return 0;
+
+		case WM_CHAR:
+			// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
+			if (wParam > 0 && wParam < 0x10000)
+				io.AddInputCharacter((unsigned short)wParam);
+			return true;
+		}
+#endif
+
 		switch (msg)
 		{
 			case WM_ACTIVATE:
@@ -1068,6 +1194,7 @@ namespace radix
 				}
 				return 0;
 			}
+			
 			case WM_LBUTTONDOWN:
 			case WM_MBUTTONDOWN:
 			case WM_RBUTTONDOWN:
@@ -1186,10 +1313,4 @@ namespace radix
 		}
 		return DirectX::XMFLOAT2(width, height);
 	}
-
-	void BaseApp::SetScene(Scene * scene)
-	{
-		m_currentScene = scene;
-	}
-
 }

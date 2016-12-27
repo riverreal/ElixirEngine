@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
+#include <locale>
+#include <codecvt>
 #include <iostream>
 #include <Windows.h>
 
@@ -49,7 +51,28 @@ static std::wstring strtowstr(const std::string &str)
 	return r;
 }
 
+static std::wstring s2ws(const std::string& str)
+{
+	using convert_typeX = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.from_bytes(str);
+}
+
+static std::string ws2s(const std::wstring& wstr)
+{
+	using convert_typeX = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.to_bytes(wstr);
+}
+
 static void RadixLog(std::string log)
+{
+	std::cout << log.c_str() << std::endl;
+}
+
+static void ElixirLog(std::string log)
 {
 	std::cout << log.c_str() << std::endl;
 }

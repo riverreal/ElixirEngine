@@ -5,6 +5,9 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 #define WIN32_LEAN_AND_MEAN
+#define ELIXIR_EDITOR true;
+
+
 
 #include <Windows.h>
 #include <windowsx.h>
@@ -12,20 +15,29 @@
 #include <DirectXMath.h>
 #include <sstream>
 #include <vector>
+#include "../Graphics/TextureManager.h"
 #include "Timer.h"
-#include "RadixScene.h"
+#include "Scene.h"
 #include "../Includes/RDeferred.h"
 #include "../Graphics/OrthoManager.h"
 #include "../Graphics/Post-processingShader.h"
 #include "../Graphics/SkyDome.h"
 #include "../Graphics/ShadowMap.h"
 #include "../Graphics/ShadowMapShader.h"
+#include "../System/SceneManager.h"
+
+#if ELIXIR_EDITOR == true
+#include "../System/Editor/ElixirEditor.h"
+#endif
+
+#include <dinput.h>
+#include <tchar.h>
 
 using namespace DirectX;
 
-namespace radix
+namespace Elixir
 {
-	const bool FULL_SCREEN = true;
+	const bool FULL_SCREEN = false;
 	//const bool RESIZEABLE = false; ------------- Feature Not Added
 	const float SCREEN_DEPTH = 1000.0f;
 	const float SCREEN_NEAR = 0.1f;
@@ -63,7 +75,6 @@ namespace radix
 		void SetZBufferOff();
 		void SetDefaultRenderTargetOn();
 		DirectX::XMFLOAT2 GetSpecResolution(int screenWidth, int screenHeight);
-		void SetScene(Scene* scene);
 
 	protected:
 		HINSTANCE m_instance;
@@ -125,7 +136,8 @@ namespace radix
 		DirectX::XMMATRIX m_worldMatrix;
 		DirectX::XMMATRIX m_orthoMatrix;
 
-		Scene* m_currentScene;
+		SceneManager* m_sceneManager;
+		TextureManager* m_textureManager;
 
 		//Draw related----
 
@@ -138,6 +150,11 @@ namespace radix
 		SkyDome* m_skyShader;
 		ShadowMap* m_shadowMap;
 		ShadowMapShader* m_shadowMapShader;
+
+#if ELIXIR_EDITOR == true
+		Editor* m_elixirEditor;
+#endif
+
 	};
 
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

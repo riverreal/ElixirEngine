@@ -4,6 +4,7 @@
 #include "../Helper/GeneralHelper.h"
 
 using namespace DirectX;
+using namespace Elixir;
 
 DeferredShader::DeferredShader()
 	:m_vertexShader(0),
@@ -37,24 +38,33 @@ void DeferredShader::Shutdown()
 	ShutdownShader();
 }
 
-bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, Object* object, Camera* camera)
+bool DeferredShader::Render(ID3D11DeviceContext * deviceContext, GameObject* object, Camera* camera, TextureManager* texManager)
 {
 	bool result;
 
-	result = SetShaderParameters(deviceContext, object->GetTexTransform(), object->GetWorldMatrix(), camera->GetViewMatrix(), camera->GetProjectionMatrix(), object->GetTexture(TEXTURE_TYPE::ALBEDO),
-		object->GetTexture(TEXTURE_TYPE::ROUGHNESS), object->GetTexture(TEXTURE_TYPE::METALLIC), object->GetTexture(TEXTURE_TYPE::NORMAL));
+	auto albedo = texManager->GetTexture(object->GetRenderer()->Material.albedo);
+	auto normal = texManager->GetTexture(object->GetRenderer()->Material.normal);
+	auto roughness = texManager->GetTexture(object->GetRenderer()->Material.roughness);
+	auto metallic = texManager->GetTexture(object->GetRenderer()->Material.metallic);
+
+	auto transMatrix = XMLoadFloat4x4(&object->GetTransform()->TextureTransform4x4);
+	auto worldMatrix = XMLoadFloat4x4(&object->GetTransform()->World4x4);
+
+	result = SetShaderParameters(deviceContext, transMatrix, worldMatrix, 
+		camera->GetViewMatrix(), camera->GetProjectionMatrix(), albedo, roughness, metallic, normal);
+
 	if (!result)
 	{
 		return false;
 	}
 
-	RenderShader(deviceContext, object->GetOffset());
+	RenderShader(deviceContext, object->GetRenderer()->Model);
 
 	for(auto &child : object->GetChildren())
 	{
-		if (child->GetDisabled() == false)
+		if (child->GetRenderer()->Enabled)
 		{
-			Render(deviceContext, child, camera);
+			Render(deviceContext, child, camera, texManager);
 		}
 	}
 

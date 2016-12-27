@@ -30,13 +30,13 @@ bool ShadowMapShader::Initialize(ID3D11Device * device)
 	return true;
 }
 
-void ShadowMapShader::Render(ID3D11DeviceContext * deviceContext, Object * object, Light * light)
+void ShadowMapShader::Render(ID3D11DeviceContext * deviceContext, GameObject * object, Light * light)
 {
 	RenderShader(deviceContext, object, light);
 
 	for (auto &child : object->GetChildren())
 	{
-		if (child->GetDisabled() == false && child->GetCastShadow() == true)
+		if (child->GetRenderer()->Enabled == false && child->GetRenderer()->CastShadow == true)
 		{
 			Render(deviceContext, child, light);
 		}
@@ -94,7 +94,7 @@ bool ShadowMapShader::InitializeShader(ID3D11Device * device)
 	return true;
 }
 
-void ShadowMapShader::RenderShader(ID3D11DeviceContext * deviceContext, Object * object, Light * light)
+void ShadowMapShader::RenderShader(ID3D11DeviceContext * deviceContext, GameObject * object, Light * light)
 {
 	HRESULT result;
 	XMMATRIX projMatrix;
@@ -111,17 +111,16 @@ void ShadowMapShader::RenderShader(ID3D11DeviceContext * deviceContext, Object *
 	//Proj----------------------------
 	projMatrix = light->GetLightProjMatrix();
 
-
 	//Set Constant buffers-------------------------------------------------
-	worldCpy = XMMatrixTranspose(object->GetWorldMatrix());
+	worldCpy = XMMatrixTranspose(XMLoadFloat4x4(&object->GetTransform()->World4x4));
 	viewCpy = XMMatrixTranspose(viewMatrix);
 	projCpy = XMMatrixTranspose(projMatrix);
-	texTransCpy = XMMatrixTranspose(object->GetTexTransform());
+	texTransCpy = XMMatrixTranspose(XMLoadFloat4x4(&object->GetTransform()->TextureTransform4x4));
 
 	result = deviceContext->Map(m_depthMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
-		RadixLog("Error mapping the depth matrix buffer");
+		ElixirLog("Error mapping the depth matrix buffer");
 	}
 
 	dataPtr = (DepthMatrixBuffer*)mappedResource.pData;
@@ -138,5 +137,5 @@ void ShadowMapShader::RenderShader(ID3D11DeviceContext * deviceContext, Object *
 	deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
 	deviceContext->PSSetShader(nullptr, nullptr, 0);
 
-	deviceContext->DrawIndexed(object->GetOffset().indexCount, object->GetOffset().indexOffset, object->GetOffset().vertexOffset);
+	deviceContext->DrawIndexed(object->GetRenderer()->Model.indexCount, object->GetRenderer()->Model.indexOffset, object->GetRenderer()->Model.vertexOffset);
 }

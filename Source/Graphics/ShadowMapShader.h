@@ -3,15 +3,14 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
-#include "../System/Object.h"
+#include "../System/GameObject.h"
 #include "CameraManager.h"
 #include "../Helper/LightHelper.h"
 #include "../Helper/TypeHelper.h"
 #include "Light.h"
 #include "../Interface/Interfaces.h"
 
-using namespace radix;
-using namespace graphics;
+using namespace Elixir;
 
 class ShadowMapShader
 {
@@ -20,12 +19,12 @@ public:
 	~ShadowMapShader();
 
 	bool Initialize(ID3D11Device* device);
-	void Render(ID3D11DeviceContext* deviceContext, Object* object, Light* light);
+	void Render(ID3D11DeviceContext* deviceContext, GameObject* object, Light* light);
 	void Shutdown();
 
 private:
 	bool InitializeShader(ID3D11Device* device);
-	void RenderShader(ID3D11DeviceContext* deviceContext, Object* object, Light* light);
+	void RenderShader(ID3D11DeviceContext* deviceContext, GameObject* object, Light* light);
 
 	struct DepthMatrixBuffer
 	{

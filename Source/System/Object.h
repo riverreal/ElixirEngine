@@ -94,8 +94,8 @@ public:
 	void SetMaterialProperties(DirectX::XMFLOAT4 values);
 	void SetMaterialProperties(float reflectiveness, float metallic, float roughness, float a);
 
-	void SetMaterial(Material material);
-	Material GetMaterial();
+	void SetMaterial(Elixir::Material material);
+	Elixir::Material GetMaterial();
 
 	void SetTag(unsigned int tag);
 	unsigned int GetTag();
@@ -142,34 +142,34 @@ private:
 	///Stores World Matrix Rotation data in a separate variable. Note: 
 	///Rotation is stored in Degrees
 	///</summary>
-	DirectX::XMFLOAT3 m_rotation;
+	DirectX::XMFLOAT3 m_rotation; //--------------------------
 	//Stores World Matrix position data in a separate variable
-	DirectX::XMFLOAT3 m_position;
+	DirectX::XMFLOAT3 m_position; //--------------------------
 	//Stores World Matrix scale data in a separate variable
-	DirectX::XMFLOAT3 m_scale;
+	DirectX::XMFLOAT3 m_scale; //--------------------------
 
 	///<summary>
 	///Stores Texture Transformation Matrix rotation data in a separate variable.
 	///Note: Rotation is stored in Degrees.
 	///</summary>
-	DirectX::XMFLOAT3 m_texRot;
+	DirectX::XMFLOAT3 m_texRot; //--------------------------
 	//Stores Texture Transformation Matrix position data in a separete variable.
-	DirectX::XMFLOAT3 m_texPos;
+	DirectX::XMFLOAT3 m_texPos; //--------------------------
 	//Stores Texture Transformation Matrix scale data in a separate variable.
-	DirectX::XMFLOAT3 m_texSca;
+	DirectX::XMFLOAT3 m_texSca;//--------------------------
 
 	//Stores index count, index offset, and vertex offset of the object for rendering.
-	offsetData m_offset;
-	DirectX::XMMATRIX m_world;
-	DirectX::XMMATRIX m_texTrans;
+	offsetData m_offset; //--------------------------
+	DirectX::XMMATRIX m_world; //--------------------------
+	DirectX::XMMATRIX m_texTrans; //--------------------------
 	UINT m_textureID;
 	//Not implemented material manager
 	UINT m_materialID;
 	//Temporal material storage will be removed once material manager is completed
-	Material m_material;
+	Elixir::Material m_material;
 
 	//A name that identifies the object
-	std::string m_name;
+	std::string m_name; //--------------------------
 
 	//A vector of children
 	std::vector<Object*> m_children;
@@ -178,16 +178,16 @@ private:
 	unsigned int m_tag;
 
 	//object not processed if disabled
-	bool m_disabled;
+	bool m_disabled; //--------------------------
 
 	//Cull back face of the object
-	bool m_EnableBackFaceCulling;
+	bool m_EnableBackFaceCulling; //-------------------------------
 
 	//object not updated if not dynamic
-	bool m_dynamic;
+	bool m_dynamic; //-----------------------------
 
 	//If the object casts a shadow.
-	bool m_castShadow;
+	bool m_castShadow; //-----------------------------
 
 	ID3D11ShaderResourceView* m_texture[7]; //0 albedo, 1 irradiance, 2 env map, 3 roughness, 4 metallic 5 normal
 };

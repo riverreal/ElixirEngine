@@ -6,8 +6,91 @@
 typedef unsigned int UINT;
 typedef unsigned long DWORD;
 typedef unsigned int U32;
+typedef int I32;
+//32-bit float
 typedef float F32;
 
+namespace Elixir
+{
+	enum OBJECT_PRESET
+	{
+		//Empty object. With no components added.
+		OBJECT_EMPTY,
+		//Object with Transform component added.
+		OBJECT_TRANSFORM,
+		//Object with Transform/Renderer3D components added.
+		OBJECT_RENDER
+	};
+	//A Vector storing 3 floats
+	struct Vec3f
+	{
+		Vec3f()
+			:x(0.0f), y(0.0f), z(0.0f)
+		{};
+
+		Vec3f(F32 x, F32 y, F32 z)
+			:x(x), y(y), z(z)
+		{};
+
+		Vec3f(F32 xyz)
+			:x(xyz), y(xyz), z(xyz)
+		{};
+
+		Vec3f(DirectX::XMFLOAT3 xmf3)
+			:x(xmf3.x), y(xmf3.y), z(xmf3.z)
+		{};
+
+		F32 x;
+		F32 y;
+		F32 z;
+	};
+
+	//A Vector storing 4 floats
+	struct Vec4f
+	{
+		Vec4f()
+			:x(0.0f), y(0.0f), z(0.0f), w(0.0f)
+		{};
+
+		Vec4f(F32 x, F32 y, F32 z, F32 w)
+			:x(x), y(y), z(z), w(w)
+		{};
+
+		Vec4f(F32 xyzw)
+			:x(xyzw), y(xyzw) ,z(xyzw), w(xyzw)
+		{};
+
+		F32 x;
+		F32 y;
+		F32 z;
+		F32 w;
+	};
+
+	struct Material
+	{
+		Material()
+			:albedo(0), normal(0), roughness(0), metallic(0), name("NewMaterial")
+		{};
+
+		//Set material
+		Material(U32 alb, U32 norm, U32 rough, U32 metal)
+			:albedo(alb), normal(norm), roughness(rough), metallic(metal), name("NewMaterial")
+		{};
+
+		//Copy material
+		Material(const Material &cpy)
+			:albedo(cpy.albedo), normal(cpy.normal), roughness(cpy.roughness), metallic(cpy.metallic), name("NewMaterial")
+		{};
+
+		// 0 means unset
+		U32 albedo;
+		U32 normal;
+		U32 roughness;
+		U32 metallic;
+
+		std::string name;
+	};
+}
 
 struct Vertex2
 {
@@ -63,7 +146,9 @@ struct MeshData
 
 struct offsetData
 {
-	offsetData() {}
+	offsetData() 
+		:vertexOffset(0), indexCount(0), indexOffset(0)
+	{}
 	offsetData(UINT iCount, UINT iOffset, UINT vOffset)
 		:indexCount(iCount), indexOffset(iOffset), vertexOffset(vOffset) {}
 	UINT indexCount;

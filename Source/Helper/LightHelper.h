@@ -115,16 +115,6 @@ struct PBRSpotLight
 	float pad;
 };
 
-struct Material
-{
-	Material() { ZeroMemory(this, sizeof(this)); }
-	
-	XMFLOAT4 Ambient;
-	XMFLOAT4 Diffuse;
-	XMFLOAT4 Specular;
-	XMFLOAT4 Properties; //X = Reflectiveness, Y = Metallic, Z = Roughness, W = unused
-};
-
 struct Fog
 {
 	Fog() { ZeroMemory(this, sizeof(this)); }

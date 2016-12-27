@@ -4,81 +4,115 @@
 using namespace std;
 
 TextureManager::TextureManager()
-	:m_totalInstantCacheID(0),
-	m_totalOpenCacheID(0)
+	:m_idCounter(0)
 {
-
+	//Reserve ID 0
+	m_textureVector.push_back(nullptr);
+	m_idCounter++;
 }
 
 TextureManager::~TextureManager()
 {
-	for (UINT i = 0; i < m_instantCache.size(); ++i)
-	{
-		ReleaseCOM(m_instantCache[i]);
-	}
-	for (UINT i = 0; i < m_openCache.size(); ++i)
-	{
-		ReleaseCOM(m_openCache[i]);
-	}
+	
 }
 
-int TextureManager::StoreTextureInstantCache(ID3D11Device* device, wstring filename)
+U32 TextureManager::AddTexture(ID3D11Device * device, std::wstring filepath)
 {
-	int instantID = m_totalInstantCacheID;
-	
-	m_instantCache.push_back(TextureLoader::CreateDDSTexture(device, filename.c_str()));
-	if (m_instantCache[m_totalInstantCacheID] == nullptr)
+	auto id = m_idCounter;
+	auto textureItem = new TextureItem();
+	textureItem->srv = TextureLoader::CreateTexture(device, filepath.c_str());
+	textureItem->name = filepath;
+	m_textureVector.push_back(textureItem);
+	m_idCounter++;
+
+	return id;
+}
+
+U32 TextureManager::AddTexture(ID3D11Device * device, std::wstring filepath, std::wstring name)
+{
+	auto id = m_idCounter;
+	auto textureItem = new TextureItem();
+	textureItem->srv = TextureLoader::CreateTexture(device, filepath.c_str());
+	textureItem->name = name;
+	m_textureVector.push_back(textureItem);
+	m_idCounter++;
+
+	return id;
+}
+
+ID3D11ShaderResourceView * TextureManager::GetTexture(std::wstring name)
+{
+	for (auto &textureItem : m_textureVector)
 	{
-		m_instantCache.push_back(TextureLoader::CreateWICTexture(device, filename.c_str()));
-		if (m_instantCache[m_totalInstantCacheID] == nullptr)
+		if (textureItem->name == name)
 		{
-			instantID = 0;
-			MessageBox(0, L"Cant Store Texture in Instant Cache!", 0, 0);
-			return instantID;
+			return textureItem->srv;
 		}
 	}
 
-	m_totalInstantCacheID++;
-
-	return instantID;
+	ElixirLog("TextureManager: Couldn't find texture at GetTexture(" + ws2s(name) + ")");
+	return nullptr;
 }
 
-int TextureManager::StoreTextureOpenCache(ID3D11Device* device, wstring filename)
+ID3D11ShaderResourceView * TextureManager::GetTexture(U32 id)
 {
-	int openID;
-
-	return openID;
-}
-
-ID3D11ShaderResourceView* TextureManager::GetTextureFromInstant(UINT textureID)
-{
-	ID3D11ShaderResourceView* texture;
-	if (m_instantCache[textureID] == nullptr)
+	if (id <= m_idCounter)
 	{
-		MessageBox(0, L"Can't get texture by id", 0, 0);
-		texture = nullptr;
-	}
-	else
-	{
-		texture = m_instantCache[textureID];
+		return m_textureVector[id]->srv;
 	}
 
-	return texture;
+	ElixirLog("TextureManager: ID provided index outof range.");
+
+	return nullptr;
 }
 
-ID3D11ShaderResourceView* TextureManager::GetTextureFromOpen(UINT textureID)
-{
-	ID3D11ShaderResourceView* texture;
 
-	return texture;
+U32 TextureManager::GetID(std::wstring name)
+{
+	U32 indexCounter = 0;
+	for (auto &textureItem : m_textureVector)
+	{
+		if (textureItem->name == name)
+		{
+			return indexCounter;
+		}
+		indexCounter++;
+	}
+	auto f = __FILE__;
+	std::string file = f;
+	auto line = __LINE__;
+	ElixirLog("TextureManager: Couldn't find texture id at - " + file + "," + std::to_string(__LINE__));
+	
+	return 0;
 }
 
-void TextureManager::ReleaseTextureFromInstant(UINT textureID)
+void TextureManager::RemoveTexture(U32 id)
 {
-
+	auto texture = GetTexture(id);
+	if (texture == nullptr)
+	{
+		ElixirLog("TextureManager: Couldn't RemoveTexture");
+		return;
+	}
+	m_textureVector.erase(m_textureVector.begin() + id);
+	ReleaseCOM(texture);
 }
 
-void TextureManager::ReleaseTextureFromOpen(UINT textureID)
+void TextureManager::Shutdown()
 {
+	bool reservedPassed = false;
+	for (auto &textureItem : m_textureVector)
+	{
+		if (reservedPassed == true)
+		{
+			auto texture = textureItem->srv;
+			ReleaseCOM(texture);
+		}
+		else
+		{
+			reservedPassed = true;
+		}
+	}
 
+	m_textureVector.clear();
 }

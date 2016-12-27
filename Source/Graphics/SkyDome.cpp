@@ -6,6 +6,8 @@
 
 using namespace DirectX;
 
+using namespace Elixir;
+
 SkyDome::SkyDome()
 	:m_vertexShader(0),
 	m_pixelShader(0),
@@ -38,16 +40,16 @@ void SkyDome::Shutdown()
 	ShutdownShader();
 }
 
-bool SkyDome::Render(ID3D11DeviceContext* deviceContext, Object* object, Camera* camera)
+bool SkyDome::Render(ID3D11DeviceContext* deviceContext, GameObject* object, Camera* camera, TextureManager* texManager)
 {
 	bool result;
 
-	XMMATRIX world = object->GetWorldMatrix();
+	XMMATRIX world = XMLoadFloat4x4(&object->GetTransform()->World4x4);
 	XMMATRIX view = camera->GetViewMatrix();
 	XMFLOAT3 eyePos = camera->GetPosition();
 	XMMATRIX proj = camera->GetProjectionMatrix();
-	ID3D11ShaderResourceView* texture = object->GetTexture(0);
-	offsetData offset = object->GetOffset();
+	ID3D11ShaderResourceView* texture = texManager->GetTexture(object->GetRenderer()->Material.albedo);
+	offsetData offset = object->GetRenderer()->Model;
 
 	result = SetShaderParameters(deviceContext, world, view, proj, eyePos, texture);
 	if (!result)
