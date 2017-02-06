@@ -29,8 +29,7 @@ public:
 
 private:
 	Model* m_shapes;
-	TextureManager m_texureManager;
-
+	
 	Camera m_smoothCamera;
 
 	//Shader for sky
@@ -79,8 +78,8 @@ bool SimpleApp::SceneInit()
 	m_scene = m_sceneManager->CreateScene("TestScene", m_shapes, m_projectionMatrix);
 	m_speedMult = 1.0f;
 
-	m_scene->SetIrradiance(m_textureManager->AddTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"));
-	m_scene->SetEnvMap(m_textureManager->AddTexture(m_d3dDevice, L"Resources/Textures/Cubemaps/dayCube.dds"));
+	m_scene->SetIrradiance(m_textureManager->AddTexture(L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"));
+	m_scene->SetEnvMap(m_textureManager->AddTexture(L"Resources/Textures/Cubemaps/dayCube.dds"));
 
 	auto dirL = m_scene->GetLight()->GetModDirectionalLight();
 
@@ -98,28 +97,7 @@ bool SimpleApp::SceneInit()
 	m_scene->GetCamera()->SetPosition(0.0f, 0.0f, 0.0f);
 	m_smoothCamera.SetPosition(0.0f, 0.0f, 0.0f);
 
-	//Load textures
-	auto albedo = m_textureManager->AddTexture(m_d3dDevice, L"Resources/Textures/material/blocks/albedo.png", L"ForestAlbedo");
-	auto normal = m_textureManager->AddTexture(m_d3dDevice, L"Resources/Textures/material/blocks/normal512.jpg", L"ForestNormal");
-	auto roughness = m_textureManager->AddTexture(m_d3dDevice, L"Resources/Textures/balls/175.png", L"NoValue");
-	auto metallic = m_textureManager->AddTexture(m_d3dDevice, L"Resources/Textures/balls/0.png", L"SemiValue");
-
-	//Create material for the forest ground
-	Material forestGroundMat(albedo, normal, roughness, metallic);
-
-	//Create GameObject of the forest ground
-	auto forestGround = m_scene->CreateObject(OBJECT_RENDER);
-	forestGround->SetName("forestG");
-	forestGround->GetRenderer()->Material = forestGroundMat;
-	forestGround->GetRenderer()->Model = m_shapes->AddGeometry(MODEL_TYPE_SPHERE);
-	forestGround->GetTransform()->Position.y = 1.0f;
-	
-	
-	auto forestBox = m_scene->CreateObject(OBJECT_RENDER);
-	forestBox->SetName("forestBox");
-	forestBox->GetRenderer()->Material = forestGroundMat;
-	forestBox->GetRenderer()->Model = m_shapes->AddGeometry(MODEL_TYPE_CUBE);
-
+	m_sceneManager->GetFileManager()->LoadMaterials();
 
 	//-----------------------------------------------------------------------------------------------------
 	//        Renderer Init
@@ -186,7 +164,7 @@ void SimpleApp::Update(float dt)
 
 		if (GetAsyncKeyState('R') & 0x8000)
 		{
-			m_smoothCamera.SetPosition(0.0f, 0.0f, 0.0f);
+			//m_smoothCamera.SetPosition(0.0f, 0.0f, 0.0f);
 		}
 
 		if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
@@ -204,26 +182,34 @@ void SimpleApp::Update(float dt)
 	m_scene->GetCamera()->SetLook(MathHelper::lerp(m_scene->GetCamera()->GetLook(), m_smoothCamera.GetLook(), 0.3f));
 	m_scene->GetCamera()->SetRight(MathHelper::lerp(m_scene->GetCamera()->GetRight(), m_smoothCamera.GetRight(), 0.3f));
 	m_scene->GetCamera()->SetUp(MathHelper::lerp(m_scene->GetCamera()->GetUp(), m_smoothCamera.GetUp(), 0.3f));
+
+
 	m_scene->UpdateScene(dt);
 }
 
 void SimpleApp::OnMouseDown(WPARAM btnState, int x, int y)
 {
+#if ELIXIR_EDITOR == true
 	m_lastMousePos.x = x;
 	m_lastMousePos.y = y;
 
 	SetCapture(m_hWnd);
+
+#endif
 }
 
 void SimpleApp::OnMouseUp(WPARAM btnState, int x, int y)
 {
+#if ELIXIR_EDITOR == true
 	ReleaseCapture();
 	//if ((btnState & MK_RBUTTON) != 0)
 		m_isRightClick = false;
+#endif
 }
 
 void SimpleApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
+#if ELIXIR_EDITOR == true
 	if ((btnState & MK_RBUTTON) != 0)
 	{
 		m_isRightClick = true;
@@ -236,4 +222,6 @@ void SimpleApp::OnMouseMove(WPARAM btnState, int x, int y)
 
 	m_lastMousePos.x = x;
 	m_lastMousePos.y = y;
+
+#endif
 }

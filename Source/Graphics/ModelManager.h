@@ -8,16 +8,6 @@
 #include "../../External Soruce/Assimp/include/assimp/scene.h"
 #include "../../External Soruce/Assimp/include/assimp/postprocess.h"
 
-enum BasicModel
-{
-	MODEL_TYPE_CUBE,
-	MODEL_TYPE_SPHERE,
-	MODEL_TYPE_GEOSPHERE,
-	MODEL_TYPE_CYLINDER,
-	MODEL_TYPE_PLAIN,
-	MODEL_TYPE_SCREEN_LAYER
-};
-
 class Model
 {
 public:

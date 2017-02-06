@@ -29,6 +29,7 @@ Scene::Scene(Model* model, DirectX::XMMATRIX& projMatrix)
 
 	//Add default systems
 	AddSystem<TransformSystem>();
+	//AddSystem<IScriptSystem>();
 }
 
 Scene::~Scene()

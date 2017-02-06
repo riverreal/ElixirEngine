@@ -6,7 +6,8 @@ using namespace Elixir;
 GameObject::GameObject()
 	:m_renderer(nullptr),
 	m_transform(nullptr),
-	m_children(0)
+	m_children(0),
+	m_name("NewGameObject")
 {
 }
 

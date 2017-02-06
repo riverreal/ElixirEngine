@@ -30,10 +30,12 @@ namespace Elixir
 		m_wireFrameRS(0),
 		m_sceneManager(0)
 	{
+		/*
 		AllocConsole();
 		freopen("conin$", "r", stdin);
 		freopen("conout$", "w", stdout);
 		freopen("conout$", "w", stderr);
+		*/
 	}
 
 	BaseApp::~BaseApp()
@@ -124,13 +126,13 @@ namespace Elixir
 			return false;
 		}
 
-		m_sceneManager = new SceneManager();
+		m_sceneManager = new SceneManager(m_textureManager);
 
 #if ELIXIR_EDITOR == true
 		m_elixirEditor = new Editor();
 		m_elixirEditor->Initialize(m_hWnd, m_d3dDevice, m_d3dDeviceContext, m_width, m_height, m_sceneManager);
 #endif
-
+		m_sceneManager->AddProjectTextures();
 		return true;
 	}
 
@@ -347,7 +349,7 @@ namespace Elixir
 		int totalHeight = GetSystemMetrics(SM_CYSCREEN);
 
 		//default window style (windowed mode)
-		DWORD windowStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_CAPTION;
+		DWORD windowStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU;
 
 		//FULL SCREEN compatibility
 		if (FULL_SCREEN)
@@ -995,7 +997,7 @@ namespace Elixir
 
 	bool BaseApp::InitDraw()
 	{
-		m_textureManager = new TextureManager();
+		m_textureManager = new TextureManager(m_d3dDevice);
 
 		m_deferredBuffers = new DeferredRendering();
 		XMFLOAT2 specResolution = GetSpecResolution(m_width, m_height);

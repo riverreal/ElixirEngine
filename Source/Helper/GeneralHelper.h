@@ -7,6 +7,8 @@
 #include <codecvt>
 #include <iostream>
 #include <Windows.h>
+#include <sstream>
+#include <fstream>
 
 //Releases COM Pointers
 template<typename T>
@@ -67,12 +69,59 @@ static std::string ws2s(const std::wstring& wstr)
 	return converterX.to_bytes(wstr);
 }
 
-static void RadixLog(std::string log)
+
+const std::string LOG_DEFAULT = "log";
+const std::string LOG_GRAPHICS = "graphicsLog";
+const std::string LOG_SCRIPT = "scriptLog";
+const std::string LOG_WARNING = "warningLog";
+
+class Log
 {
-	std::cout << log.c_str() << std::endl;
-}
+public:
+	Log()
+		:m_filename(LOG_DEFAULT + ".log")
+	{}
+
+	//Log name without .log termination
+	Log(const std::string & p_filename)
+		: m_filename(p_filename + ".log")
+	{}
+
+	virtual ~Log()
+	{
+		// implement  your writeToFile() with std::ofstream 
+		writeToFile(m_filename, true);
+	}
+
+	template< typename T >
+	Log & operator<<(const T & p_value)
+	{
+		m_stream << p_value;
+		return *this;
+	}
+
+	void writeToFile(std::string filename, bool idk)
+	{
+		std::ofstream file(m_filename, std::ios::app);
+		if (file.is_open())
+		{
+			file << m_stream.str();
+			file.close();
+		}
+	}
+
+private:
+	std::string         m_filename;
+	std::ostringstream  m_stream;
+};
 
 static void ElixirLog(std::string log)
 {
-	std::cout << log.c_str() << std::endl;
+	Log() << log << "\n";
+}
+
+//Obsolete
+static void RadixLog(std::string log)
+{
+	Log(LOG_WARNING) << "OBSOLETE LOG! " << log << "\n";
 }

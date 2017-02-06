@@ -6,6 +6,12 @@ ID3D11ShaderResourceView * TextureLoader::CreateTexture(ID3D11Device * device, L
 {
 	std::string path;
 	path = wstrtostr(filePath);
+
+	if (path == "")
+	{
+		return nullptr;
+	}
+
 	auto pathLen = path.length();
 	auto fileType = path.substr(pathLen - 4, 4);
 
@@ -25,7 +31,7 @@ ID3D11ShaderResourceView * TextureLoader::CreateTexture(ID3D11Device * device, L
 
 ID3D11ShaderResourceView * TextureLoader::CreateTexture(ID3D11Device * device, std::string filePath)
 {
-	LPCWSTR path = strtowstr(filePath).c_str();
+	LPCWSTR path = s2ws(filePath).c_str();
 	auto pathLen = filePath.length();
 	auto fileType = filePath.substr(pathLen - 4, 4);
 

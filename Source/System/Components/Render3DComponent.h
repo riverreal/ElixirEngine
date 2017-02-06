@@ -22,6 +22,10 @@ namespace Elixir
 
 		//Stores the offset of the model in the respective vertex buffer
 		offsetData Model;
+
+		std::string ModelPath;
+		bool ModelTypePrimitive = false;
+		U32 PrimitiveType;
 	};
 
 	

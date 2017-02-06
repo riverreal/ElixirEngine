@@ -1,13 +1,15 @@
 #pragma once
 
 #include "Scene.h"
+#include "FileIO.h"
+#include "../Graphics/TextureManager.h"
 
 namespace Elixir
 {
 	class SceneManager
 	{
 	public:
-		SceneManager();
+		SceneManager(TextureManager* tManager);
 		~SceneManager();
 
 		//Create a new scene and add it to the SceneManager.
@@ -18,6 +20,22 @@ namespace Elixir
 		void ChangeScene(std::string name);
 		Scene* GetCurrentScene();
 
+		void AddProjectTextures();
+		void AddNewTextures();
+		void SaveProjectFile();
+
+		void SaveCurrentScene();
+		void RetrieveSceneData(GameObject* obj, SceneData& sData);
+		void LoadScene(std::string filename);
+
+		Model* GetModel();
+		TextureManager* GetTextureManager();
+		FileIO* GetFileManager();
+
+		void ResetModel();
+
+		void ResetFileIO();
+
 	private:
 
 
@@ -25,5 +43,8 @@ namespace Elixir
 		std::vector<Scene*> m_scenes;
 		std::string m_currentSceneName;
 
+		Model* m_model;
+		TextureManager* m_textureManager;
+		FileIO* m_fileManager;
 	};
 }

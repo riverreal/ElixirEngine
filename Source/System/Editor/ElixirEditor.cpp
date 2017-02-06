@@ -1,13 +1,20 @@
 #include "ElixirEditor.h"
+#include "../../Helper/GeneralHelper.h"
 #pragma execution_character_set("utf-8")
 
 Elixir::Editor::Editor()
 	:m_language(ENGLISH),
 	m_ScenePropOpen(false),
 	m_objectListOpen(false),
-	m_leftUIWidth(350)
-{
-}
+	m_leftUIWidth(350),
+	m_movingWindow(false),
+	m_fpsOverlay(false),
+	m_logOpen(false),
+	m_objectAddOpen(false),
+	m_resourceWindow(false),
+	m_textureSelectionEnabled(false),
+	m_selectedTexture(0)
+{}
 
 Elixir::Editor::~Editor()
 {
@@ -15,11 +22,23 @@ Elixir::Editor::~Editor()
 
 void Elixir::Editor::Initialize(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* deviceContext, float width, float height, SceneManager* scenemanager)
 {
+	m_hwnd = hwnd;
 	InitIMGUI(hwnd, device, deviceContext);
 
 	m_screenWidth = width;
 	m_screenHeight = height;
 	m_sceneManager = scenemanager;
+
+	m_uiImages.MainMenuIcon = m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/elixirIconSmall.png");
+	m_uiImages.CloseButton = m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/xButtonA.png");
+	m_uiImages.MinimizeButton = m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/-ButtonA.png");
+	m_uiImages.TrashCanIcon = m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/trashCanIcon.png");
+	m_uiImages.PlusIcon= m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/plusIcon.png");
+	m_uiImages.EmptyIcon = m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/newIcon.png");
+	m_uiImages.CubeIcon= m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/cubeIcon.png");
+	m_uiImages.SphereIcon = m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/sphereIcon.png");
+	m_uiImages.CylinderIcon = m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/cylinderIcon.png");
+	m_uiImages.PlaneIcon = m_sceneManager->GetTextureManager()->AddEditorTexture(L"Elixir/Editor/planeIcon.png");
 }
 
 void Elixir::Editor::Frame()
@@ -66,6 +85,9 @@ void Elixir::Editor::UpdateIMGUI()
 	ScenePropertyWindow();
 	ObjectListWindow();
 	ObjectComponentWindow();
+	FPSOverlay();
+	ResourceWindow();
+	m_elixirLogger.Draw("Log", &m_logOpen, 60);
 
 	ImGui::Render();
 }
@@ -79,24 +101,48 @@ void Elixir::Editor::MainMenuBar()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
+		ImGui::Text("   | ");
+
+		ImGui::SameLine();
+
 		if (ImGui::BeginMenu(m_langTerm[FILE].GetTerm(m_language).c_str()))
 		{
 			if (ImGui::MenuItem(m_langTerm[NEW_SCENE].GetTerm(m_language).c_str()))
 			{
+				Log() << "New Scene" << "\n";
 			}
 
 			if (ImGui::MenuItem(m_langTerm[OPEN_SCENE].GetTerm(m_language).c_str()))
 			{
+				m_sceneManager->GetFileManager()->CurrentSceneChanged();
+				TCHAR* extension = L"Scene File(*.escene) \0*.escene\0";
+				std::wstring filename = L"";
+				filename = m_sceneManager->GetFileManager()->OpenFileW(extension);
+				auto rootPath = m_sceneManager->GetFileManager()->GetExePathW();
+				//erasing full exe path -13 (13 is /bin/Debug/.exe)
+				auto numOfChar = rootPath.length() - 13;
+				filename.erase(0, numOfChar);
+
+				if (filename != L"")
+				{
+					m_sceneManager->LoadScene(ws2s(filename));
+					m_selectedObject = nullptr;
+					m_objComponentOpen = false;
+				}
+				
 			}
 
-			if (ImGui::MenuItem(m_langTerm[SAVE_SCENE].GetTerm(m_language).c_str(), "Ctrl+S"))
+			if (ImGui::MenuItem(m_langTerm[SAVE_SCENE].GetTerm(m_language).c_str(), "Ctr+S"))
 			{
+				m_sceneManager->SaveCurrentScene();
+				Log() << "Save Scene" << "\n";
 			}
 
 			ImGui::Separator();
 
 			if (ImGui::MenuItem(m_langTerm[QUIT].GetTerm(m_language).c_str(), "Alt+F4"))
 			{
+				PostQuitMessage(0);
 			}
 
 			ImGui::EndMenu();
@@ -116,9 +162,29 @@ void Elixir::Editor::MainMenuBar()
 			}
 			SetToolTip(m_langTerm[OBJ_LIST_TOOLTIP].GetTerm(m_language).c_str());
 
+			if (ImGui::MenuItem(m_langTerm[RESOURCE_WINDOW].GetTerm(m_language).c_str(), NULL, m_resourceWindow))
+			{
+				m_resourceWindow ^= 1;
+			}
+
 			if (ImGui::MenuItem(m_langTerm[MORE].GetTerm(m_language).c_str()))
 			{
 				m_testWindowEnabled ^= 1;
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu(m_langTerm[TOOL].GetTerm(m_language).c_str()))
+		{
+			if (ImGui::MenuItem(m_langTerm[SHOW_FPS].GetTerm(m_language).c_str()))
+			{
+				m_fpsOverlay ^= 1;
+			}
+
+			if (ImGui::MenuItem("Log"))
+			{
+				m_logOpen ^= 1;
 			}
 
 			ImGui::EndMenu();
@@ -161,14 +227,118 @@ void Elixir::Editor::MainMenuBar()
 
 			if (ImGui::MenuItem("Dear ImGui"))
 			{
+				
 			}
-
 			ImGui::EndMenu();
 		}
 
+		// Move window by drag -----------------------------------------------------------------
+		static RECT currentRect;
+		static POINT cursorBegin;
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+		ImGui::Button("##Dragable", ImVec2(m_screenWidth - (71 * 5), 0));
+		ImGui::PopStyleColor(3);
+
+		if (ImGui::IsMouseDown(0) && ImGui::IsItemActive())
+		{
+			if (m_movingWindow == false)
+			{
+				m_movingWindow = true;
+				GetWindowRect((HWND)m_hwnd, &currentRect);
+				GetCursorPos(&cursorBegin);
+			}
+		}
+		else if(ImGui::IsMouseReleased(0))
+		{
+			m_movingWindow = false;
+		}
+
+		if (m_movingWindow)
+		{
+			POINT endCursor;
+			GetCursorPos(&endCursor);
+			
+			SetWindowPos((HWND)m_hwnd, nullptr, currentRect.left - (cursorBegin.x - endCursor.x), currentRect.top - (cursorBegin.y - endCursor.y), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		}
+		//--------------------------------------------------------------
 
 		ImGui::EndMainMenuBar();
 	}
+
+	auto flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings;
+	ImGui::SetNextWindowSize(ImVec2(25, 25));
+	ImGui::SetNextWindowPos(ImVec2(5, 0));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+	if (ImGui::Begin("HomeButton", NULL, flags))
+	{
+		ImGui::Image(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.MainMenuIcon), ImVec2(28, 28));
+		
+		ImGui::End();
+	}
+	ImGui::SetNextWindowSize(ImVec2(65, 25));
+	ImGui::SetNextWindowPos(ImVec2(m_screenWidth - 65, 4));
+
+	static bool exitModal = false;
+	if (ImGui::Begin("ExitButton", NULL, flags))
+	{
+		ImGui::Image(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.MinimizeButton), ImVec2(20, 20));
+		if (ImGui::IsItemClicked())
+		{
+			ShowWindow((HWND)m_hwnd, SW_MINIMIZE);
+		}
+
+		ImGui::SameLine();
+
+		ImGui::Image(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.CloseButton), ImVec2(20, 20));
+		if (ImGui::IsItemClicked())
+		{
+			exitModal = true;
+			
+			
+		}
+
+		ImGui::End();
+	}
+	if (exitModal)
+	{
+		ImGui::OpenPopup("Exit?");
+	}
+
+	if (ImGui::BeginPopupModal("Exit?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text(m_langTerm[EXIT_TEXT].GetTerm(m_language).c_str());
+
+		if (ImGui::Button(m_langTerm[OK_BUTTON].GetTerm(m_language).c_str()))
+		{
+			m_sceneManager->SaveProjectFile();
+			ImGui::CloseCurrentPopup();
+			PostQuitMessage(0);
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button(m_langTerm[NO_BUTTON].GetTerm(m_language).c_str()))
+		{
+			ImGui::CloseCurrentPopup();
+			PostQuitMessage(0);
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button(m_langTerm[CANCEL_BUTTON].GetTerm(m_language).c_str()))
+		{
+			ImGui::CloseCurrentPopup();
+			exitModal = false;
+		}
+
+		ImGui::EndPopup();
+	}
+
+	ImGui::PopStyleVar();
+	ImGui::PopStyleColor();
 }
 
 void Elixir::Editor::ScenePropertyWindow()
@@ -200,24 +370,137 @@ void Elixir::Editor::ObjectListWindow()
 		//window_flags |= ImGuiWindowFlags_NoResize;
 		window_flags |= ImGuiWindowFlags_NoMove;
 		window_flags |= ImGuiWindowFlags_NoCollapse;
-		ImGui::SetNextWindowSizeConstraints(ImVec2(m_leftUIWidth, 200), ImVec2(m_leftUIWidth, FLT_MAX));
+		window_flags |= ImGuiWindowFlags_MenuBar;
+		ImGui::SetNextWindowSizeConstraints(ImVec2(m_leftUIWidth, 200), ImVec2(m_leftUIWidth, m_screenHeight * 0.85f));
 		ImGui::SetNextWindowPos(ImVec2(0, 26));
 		std::string windowName = m_langTerm[OBJECT_LIST].GetTerm(m_language) + "##Window";
+
 		ImGui::Begin(windowName.c_str(), &m_objectListOpen, window_flags);
+
 		m_objListWindowHeight = ImGui::GetWindowHeight();
 		//Window content here------------------------
-		ImGui::BeginChild("objList", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.98f, ImGui::GetWindowHeight() - 45), false, ImGuiWindowFlags_HorizontalScrollbar);
+		
+		static POINT cursorXY;
+
+		if (ImGui::BeginMenuBar())
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,0);
+			if (ImGui::ImageButton(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.PlusIcon), ImVec2(16, 16)))
+			{
+				m_objectAddOpen = true;
+				GetCursorPos(&cursorXY);
+			}
+			SetToolTip(m_langTerm[ADD_NEW_OBJECT].GetTerm(m_language).c_str());
+
+			ImGui::SameLine();
+
+			if (ImGui::ImageButton(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.TrashCanIcon), ImVec2(16, 16)))
+			{
+				if (m_selectedObject != nullptr)
+				{
+					m_sceneManager->GetCurrentScene()->RemoveObject(m_selectedObject);
+					m_objComponentOpen = false;
+					m_selectedObject = nullptr;
+				}
+			}
+			SetToolTip(m_langTerm[REMOVE_SEL_OBJECT].GetTerm(m_language).c_str());
+
+			ImGui::PopStyleVar();
+			ImGui::EndMenuBar();
+		}
+
+		
+		if (m_objectAddOpen)
+		{
+			ImGui::SetNextWindowPos(ImVec2(52, 52));
+			if (ImGui::Begin("ADD", &m_objectAddOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+			{
+				float size = 20;
+
+				if (ImGui::ImageButton(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.EmptyIcon), ImVec2(size, size)))
+				{
+					m_sceneManager->GetCurrentScene()->CreateObject();
+					m_objectAddOpen = false;
+				}
+				ImGui::SameLine();
+				if (ImGui::ImageButton(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.CubeIcon), ImVec2(size, size)))
+				{
+					auto obj = m_sceneManager->GetCurrentScene()->CreateObject(OBJECT_PRESET::OBJECT_RENDER);
+					obj->GetRenderer()->Model = m_sceneManager->GetModel()->AddGeometry(MODEL_TYPE_CUBE);
+					obj->GetRenderer()->ModelTypePrimitive = true;
+					obj->GetRenderer()->PrimitiveType = MODEL_TYPE_CUBE;
+					obj->SetName("Cube");
+					m_sceneManager->ResetModel();
+
+					m_objectAddOpen = false;
+				}
+				ImGui::SameLine();
+				if (ImGui::ImageButton(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.SphereIcon), ImVec2(size, size)))
+				{
+					auto obj = m_sceneManager->GetCurrentScene()->CreateObject(OBJECT_PRESET::OBJECT_RENDER);
+					obj->GetRenderer()->Model = m_sceneManager->GetModel()->AddGeometry(MODEL_TYPE_SPHERE);
+					obj->GetRenderer()->ModelTypePrimitive = true;
+					obj->GetRenderer()->PrimitiveType = MODEL_TYPE_SPHERE;
+					obj->SetName("Sphere");
+					m_sceneManager->ResetModel();
+
+					m_objectAddOpen = false;
+				}
+				ImGui::SameLine();
+				if (ImGui::ImageButton(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.CylinderIcon), ImVec2(size, size)))
+				{
+					auto obj = m_sceneManager->GetCurrentScene()->CreateObject(OBJECT_PRESET::OBJECT_RENDER);
+					obj->GetRenderer()->Model = m_sceneManager->GetModel()->AddGeometry(MODEL_TYPE_CYLINDER);
+					obj->GetRenderer()->ModelTypePrimitive = true;
+					obj->GetRenderer()->PrimitiveType = MODEL_TYPE_CYLINDER;
+					obj->SetName("Cylinder");
+					m_sceneManager->ResetModel();
+
+					m_objectAddOpen = false;
+				}
+				ImGui::SameLine();
+				if (ImGui::ImageButton(m_sceneManager->GetTextureManager()->GetTexture(m_uiImages.PlaneIcon), ImVec2(size, size)))
+				{
+					auto obj = m_sceneManager->GetCurrentScene()->CreateObject(OBJECT_PRESET::OBJECT_RENDER);
+					obj->GetRenderer()->Model = m_sceneManager->GetModel()->AddGeometry(MODEL_TYPE_PLAIN);
+					obj->GetRenderer()->ModelTypePrimitive = true;
+					obj->GetRenderer()->PrimitiveType = MODEL_TYPE_PLAIN;
+					obj->SetName("Plane");
+					m_sceneManager->ResetModel();
+					m_objectAddOpen = false;
+				}
+
+				if (!ImGui::IsMouseHoveringWindow() && ImGui::IsMouseDown(0))
+				{
+					m_objectAddOpen = false;
+				}
+
+				ImGui::End();
+			}
+		}
+
+		
+
+		ImGui::Separator();
+
+		//ImGui::BeginChild("objList", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.98f, ImGui::GetWindowHeight() - 45), false, ImGuiWindowFlags_HorizontalScrollbar);
 		for (auto &obj : m_sceneManager->GetCurrentScene()->GetChildren())
 		{
 			ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			if (m_selectedObject == obj)
+			{
+				nodeFlags |= ImGuiTreeNodeFlags_Selected;
+			}
+
 			ImGui::TreeNodeEx(obj->GetName().c_str(), nodeFlags);
 			if (ImGui::IsItemClicked())
 			{
 				m_selectedObject = obj;
 				m_objComponentOpen = true;
+
 			}
 		}
-		ImGui::EndChild();
+		//ImGui::EndChild();
 
 		ImGui::End();
 	}
@@ -276,8 +559,6 @@ void Elixir::Editor::ObjectComponentWindow()
 			ImGui::EndPopup();
 		}
 
-
-
 		TransformEditor();
 
 		RenderEditor();
@@ -285,6 +566,49 @@ void Elixir::Editor::ObjectComponentWindow()
 		ImGui::End();
 	}
 
+}
+
+void Elixir::Editor::ResourceWindow()
+{
+	if (m_resourceWindow)
+	{
+		
+		if (ImGui::Begin("Resource", &m_resourceWindow, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings))
+		{
+			int itemCounter = 0;
+			auto tManager = m_sceneManager->GetTextureManager();
+			Log() << "Max ID: " << tManager->GetMaxID() << "\n";
+			for (U32 i = tManager->GetFirstID(); i < tManager->GetMaxID(); ++i)
+			{
+				if (ImGui::ImageButton(tManager->GetTexture(i), ImVec2(50, 50)))
+				{
+					if (m_textureSelectionEnabled)
+					{
+						m_selectedTexture = i;
+					}
+				}
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+					ImGui::Text(tManager->GetTextureName(i).c_str());
+					ImGui::EndTooltip();
+				}
+
+				itemCounter++;
+
+				if(itemCounter <= 4)
+				{
+					ImGui::SameLine();
+				}
+				else
+				{
+					itemCounter = 0;
+				}
+			}
+
+			ImGui::End();
+		}
+	}
 }
 
 void Elixir::Editor::TransformEditor()
@@ -359,8 +683,6 @@ void Elixir::Editor::RenderEditor()
 
 		if (ImGui::CollapsingHeader("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			
-			//ElixirLog(std::to_string(m_selectedObject->GetRenderer()->Model.vertexOffset));
 			if (m_selectedObject->GetRenderer()->Model.vertexOffset != 0)
 			{
 				ImGui::Checkbox("Enabled", &m_selectedObject->GetRenderer()->Enabled);
@@ -369,21 +691,129 @@ void Elixir::Editor::RenderEditor()
 			ImGui::Checkbox("BackFaceCulling", &m_selectedObject->GetRenderer()->EnableBackFaceCulling);
 			ImGui::Checkbox("Cast Shadow", &m_selectedObject->GetRenderer()->CastShadow);
 
+			if(ImGui::TreeNode("Model"))
+			{
+				std::string filename = "";
+				if (ImGui::Button("Add Model from file"))
+				{
+					filename = m_sceneManager->GetFileManager()->OpenFile(L"OBJ\0*.obj\0");
+					
+					if (filename != "")
+					{
+						m_selectedObject->GetRenderer()->ModelTypePrimitive = false;
+						m_selectedObject->GetRenderer()->ModelPath = filename;
+						m_selectedObject->GetRenderer()->Model = m_sceneManager->GetModel()->AddModelFromFile(filename);
+						m_sceneManager->ResetModel();
+						m_selectedObject->GetRenderer()->Enabled = true;
+					}
+
+					
+				}
+
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("Textures"))
+			{
+				std::wstring filename = L"";
+				TCHAR* extension = L"Image Files(*.jpg, *.png, *.dds, *.bmp) \0*.jpg;*.png;*.dds;*.bmp\0";
+				if (ImGui::Button("Add Albedo"))
+				{
+					filename = L"";
+					
+					filename = m_sceneManager->GetFileManager()->OpenFileW(extension);
+					auto rootPath = m_sceneManager->GetFileManager()->GetExePathW();
+					//erasing full exe path -13 (13 is /bin/Debug/.exe)
+					auto numOfChar = rootPath.length() - 13;
+					filename.erase(0, numOfChar);
+
+					if (filename != L"")
+					{
+						m_selectedObject->GetRenderer()->Material.albedo = m_sceneManager->GetTextureManager()->AddTexture(filename);
+					}
+				}
+
+				if (ImGui::Button("Add Normal"))
+				{
+					filename = L"";
+					filename = m_sceneManager->GetFileManager()->OpenFileW(extension);
+					auto rootPath = m_sceneManager->GetFileManager()->GetExePathW();
+					//erasing full exe path -13 (13 is /bin/Debug/.exe)
+					auto numOfChar = rootPath.length() - 13;
+					filename.erase(0, numOfChar);
+
+
+					if (filename != L"")
+					{
+						m_selectedObject->GetRenderer()->Material.normal = m_sceneManager->GetTextureManager()->AddTexture(filename);
+					}
+				}
+
+				if (ImGui::Button("Add Roughness"))
+				{
+					filename = L"";
+					filename = m_sceneManager->GetFileManager()->OpenFileW(extension);
+					auto rootPath = m_sceneManager->GetFileManager()->GetExePathW();
+					//erasing full exe path -13 (13 is /bin/Debug/.exe)
+					auto numOfChar = rootPath.length() - 13;
+					filename.erase(0, numOfChar);
+
+
+					if (filename != L"")
+					{
+						m_selectedObject->GetRenderer()->Material.roughness = m_sceneManager->GetTextureManager()->AddTexture(filename);
+					}
+				}
+
+				if (ImGui::Button("Add Metallic"))
+				{
+					filename = L"";
+					filename = m_sceneManager->GetFileManager()->OpenFileW(extension);
+					auto rootPath = m_sceneManager->GetFileManager()->GetExePathW();
+					//erasing full exe path -13 (13 is /bin/Debug/.exe)
+					auto numOfChar = rootPath.length() - 13;
+					filename.erase(0, numOfChar);
+
+
+					if (filename != L"")
+					{
+						m_selectedObject->GetRenderer()->Material.metallic = m_sceneManager->GetTextureManager()->AddTexture(filename);
+					}
+				}
+
+				ImGui::TreePop();
+			}
+
 			auto name = m_langTerm[REMOVE_COMPONENT].GetTerm(m_language) + "##Render";
 			if (ImGui::Button(name.c_str()))
 			{
 				m_selectedObject->RemoveComponent<Renderer3D>();
 			}
 		}
+	}
+}
 
-		
+void Elixir::Editor::FPSOverlay()
+{
+	if (m_fpsOverlay)
+	{
+		float width = 180.0f;
+		ImGui::SetNextWindowPos(ImVec2((m_screenWidth) - width - 2, 28));
+		ImGui::SetNextWindowSize(ImVec2(width, 70));
+		if (ImGui::Begin("FPS", &m_fpsOverlay, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+		{
+			ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+			ImGui::Text("ms/frame: %.3f", 1000.0f / ImGui::GetIO().Framerate);
+
+			ImGui::End();
+		}
 	}
 }
 
 void Elixir::Editor::ChangeIMGUIStyle()
 {
 	auto io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("Resources/Fonts/03SmartFont-P.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+	io.Fonts->AddFontFromFileTTF("Elixir/Editor/Fonts/03SmartFont-P.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
 	auto style = &ImGui::GetStyle();
 	style->WindowPadding = ImVec2(15, 15);
@@ -423,7 +853,7 @@ void Elixir::Editor::ChangeIMGUIStyle()
 	style->Colors[ImGuiCol_Button] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
 	style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.44f, 0.43f, 0.49f, 1.00f);
 	style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.16f, 0.16f, 0.18f, 1.00f);
-	style->Colors[ImGuiCol_Header] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_Header] = ImVec4(0.2f, 0.2f, 0.2f, 1.00f);
 	style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
 	style->Colors[ImGuiCol_HeaderActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
 	style->Colors[ImGuiCol_Column] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);

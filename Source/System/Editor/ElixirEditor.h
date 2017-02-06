@@ -6,7 +6,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <string>
 #include "../SceneManager.h"
-
+#include "ElixirLog.h"
 
 namespace Elixir
 {
@@ -29,6 +29,21 @@ namespace Elixir
 			ENGLISH,
 			JAPANESE,
 			SPANISH
+		};
+
+		struct UIImages
+		{
+			U32 MainMenuIcon;
+			U32 CloseButton;
+			U32 MinimizeButton;
+			U32 TrashCanIcon;
+			U32 PlusIcon;
+			U32 EmptyIcon;
+			U32 CubeIcon;
+			U32 SphereIcon;
+			U32 CylinderIcon;
+			U32 PlaneIcon;
+
 		};
 
 		struct UITerm
@@ -86,10 +101,19 @@ namespace Elixir
 			SCALE,
 			DYNAMIC_TOOLTIP,
 			ADD_COMPONENT,
-			REMOVE_COMPONENT
+			REMOVE_COMPONENT,
+			ADD_NEW_OBJECT,
+			REMOVE_SEL_OBJECT,
+			TOOL,
+			SHOW_FPS,
+			RESOURCE_WINDOW,
+			EXIT_TEXT,
+			OK_BUTTON,
+			NO_BUTTON,
+			CANCEL_BUTTON
 		};
 
-		UITerm m_langTerm[24] = 
+		UITerm m_langTerm[33] = 
 		{
 			UITerm("File", "ファイル", "Archivo"),
 			UITerm("New Scene", "新しいシーン", "Nueva Escena"),
@@ -114,7 +138,16 @@ namespace Elixir
 			UITerm("Scale", "スケール", "Escala"),
 			UITerm("A non-dynamic Object can not be moved once put.", "配置後ダイナミックではないオブジェクトは動けません", "Un Objeto no dinamico no puede moverse una vez puesto."),
 			UITerm("Add Component", "コンポーネント追加", "Agregar Componente"),
-			UITerm("Remove Component", "コンポーネント削除", "Eliminar Componente")
+			UITerm("Remove Component", "コンポーネント削除", "Eliminar Componente"),
+			UITerm("Add new Object", "新しいオブジェクト追加", "Agregar nuevo Objeto"),
+			UITerm("Remove selected Object", "選択されているオブジェクト削除", "Borrar Objeto seleccionado"),
+			UITerm("Tools", "ツール", "Herramientas"),
+			UITerm("Show FPS", "FPS表示", "Mostrar FPS"),
+			UITerm("Resource Browser", "リソースブラウザー", "Navegador de Recursos"),
+			UITerm("Do you wish to Save the project?", "プロジェクトをセーブしますか。", "Deseas Guardar el projecto?"),
+			UITerm("Ok", "はい", "Ok"),
+			UITerm("No", "いいえ", "No"),
+			UITerm("Cancel", "キャンセル","Cancelar")
 		};
 
 		void InitIMGUI(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
@@ -126,28 +159,46 @@ namespace Elixir
 		void ScenePropertyWindow();
 		void ObjectListWindow();
 		void ObjectComponentWindow();
+		void ResourceWindow();
 
 		void TransformEditor();
 		void RenderEditor();
+
+		
+		void FPSOverlay();
 
 		void ChangeIMGUIStyle();
 		void SetToolTip(const char* text);
 
 	private:
 		LANGUAGES m_language;
+		UIImages m_uiImages;
+
+		void* m_hwnd;
 
 		float m_screenWidth, m_screenHeight;
 
 		float m_objListWindowHeight;
 		float m_leftUIWidth;
 
+		bool m_movingWindow;
+
+
+		//window open booleans--------
 		bool m_ScenePropOpen;
 		bool m_objectListOpen;
 		bool m_objComponentOpen;
 		bool m_testWindowEnabled;
+		bool m_fpsOverlay;
+		bool m_logOpen;
+		bool m_objectAddOpen;
+		bool m_resourceWindow;
 
+		bool m_textureSelectionEnabled;
+
+		U32 m_selectedTexture;
 		GameObject* m_selectedObject;
-
+		ElixirLogger m_elixirLogger;
 		SceneManager* m_sceneManager;
 	};
 }

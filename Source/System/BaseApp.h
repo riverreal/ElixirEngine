@@ -7,8 +7,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define ELIXIR_EDITOR true;
 
-
-
 #include <Windows.h>
 #include <windowsx.h>
 #include <d3d11.h>

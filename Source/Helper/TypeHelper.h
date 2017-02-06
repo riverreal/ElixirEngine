@@ -10,17 +10,18 @@ typedef int I32;
 //32-bit float
 typedef float F32;
 
+enum BasicModel
+{
+	MODEL_TYPE_CUBE,
+	MODEL_TYPE_SPHERE,
+	MODEL_TYPE_GEOSPHERE,
+	MODEL_TYPE_CYLINDER,
+	MODEL_TYPE_PLAIN,
+	MODEL_TYPE_SCREEN_LAYER
+};
+
 namespace Elixir
 {
-	enum OBJECT_PRESET
-	{
-		//Empty object. With no components added.
-		OBJECT_EMPTY,
-		//Object with Transform component added.
-		OBJECT_TRANSFORM,
-		//Object with Transform/Renderer3D components added.
-		OBJECT_RENDER
-	};
 	//A Vector storing 3 floats
 	struct Vec3f
 	{
@@ -57,7 +58,7 @@ namespace Elixir
 		{};
 
 		Vec4f(F32 xyzw)
-			:x(xyzw), y(xyzw) ,z(xyzw), w(xyzw)
+			:x(xyzw), y(xyzw), z(xyzw), w(xyzw)
 		{};
 
 		F32 x;
@@ -66,10 +67,95 @@ namespace Elixir
 		F32 w;
 	};
 
+	//An element with a string and an ID
+	struct StringID
+	{
+		StringID() {};
+
+		StringID(std::string n, U32 i)
+			:
+			name(n), ID(i)
+		{}
+
+		std::string name;
+		U32 ID;
+	};
+
+	struct TransformData
+	{
+		TransformData()
+			:exists(false)
+		{};
+
+		bool exists;
+
+		bool dynamic;
+		Vec3f pos;
+		Vec3f rot;
+		Vec3f sca;
+		Vec3f tpos;
+		Vec3f trot;
+		Vec3f tsca;
+	};
+
+	struct RendererData
+	{
+		RendererData()
+			:exists(false)
+		{};
+
+		bool exists;
+
+		bool enabled;
+		bool backface;
+		bool castShadow;
+
+		//IDs
+		U32 alb;
+		U32 norm;
+		U32 rou;
+		U32 met;
+
+		std::string modelPath;
+		bool modelTypePrimitive;
+		U32 primitiveType;
+	};
+
+	struct ObjectID
+	{
+		U32 ID;
+		TransformData transform;
+		RendererData renderer;
+	};
+
+	struct ProjectData
+	{
+		std::vector<StringID> TextureData;
+		std::vector<StringID> MaterialData;
+		std::vector<StringID> SceneData;
+	};
+
+	struct SceneData
+	{
+		std::string name;
+		std::vector<ObjectID> GameObjects;
+	};
+
+	enum OBJECT_PRESET
+	{
+		//Empty object. With no components added.
+		OBJECT_EMPTY,
+		//Object with Transform component added.
+		OBJECT_TRANSFORM,
+		//Object with Transform/Renderer3D components added.
+		OBJECT_RENDER
+	};
+	
+
 	struct Material
 	{
 		Material()
-			:albedo(0), normal(0), roughness(0), metallic(0), name("NewMaterial")
+			:albedo(1), normal(2), roughness(3), metallic(4), name("NewMaterial")
 		{};
 
 		//Set material
@@ -79,7 +165,7 @@ namespace Elixir
 
 		//Copy material
 		Material(const Material &cpy)
-			:albedo(cpy.albedo), normal(cpy.normal), roughness(cpy.roughness), metallic(cpy.metallic), name("NewMaterial")
+			:albedo(cpy.albedo), normal(cpy.normal), roughness(cpy.roughness), metallic(cpy.metallic), name(cpy.name)
 		{};
 
 		// 0 means unset
@@ -87,6 +173,8 @@ namespace Elixir
 		U32 normal;
 		U32 roughness;
 		U32 metallic;
+
+		U32 materialID;
 
 		std::string name;
 	};
