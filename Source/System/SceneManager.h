@@ -14,7 +14,7 @@ namespace Elixir
 
 		//Create a new scene and add it to the SceneManager.
 		//New created scene will be owned by SceneManager.
-		Scene* CreateScene(std::string name, Model* model, DirectX::XMMATRIX& projMatrix);
+		Scene* CreateScene(std::string name);
 		void AddScene(Scene* scene);
 		Scene* GetScene(std::string name);
 		void ChangeScene(std::string name);
@@ -26,6 +26,7 @@ namespace Elixir
 
 		void SaveCurrentScene();
 		void RetrieveSceneData(GameObject* obj, SceneData& sData);
+		//Loads a scene from a file (.escene)
 		void LoadScene(std::string filename);
 
 		Model* GetModel();
@@ -33,13 +34,16 @@ namespace Elixir
 		FileIO* GetFileManager();
 
 		void ResetModel();
-
 		void ResetFileIO();
 
+		void UpdateCurrentScene(float dt);
+
 	private:
 
 
 	private:
+		bool m_sceneChanged;
+
 		std::vector<Scene*> m_scenes;
 		std::string m_currentSceneName;
 

@@ -3,10 +3,13 @@
 #include <algorithm>
 
 Elixir::SceneManager::SceneManager(TextureManager* tManager)
-	:m_currentSceneName("")
+	:m_currentSceneName(""),
+	m_sceneChanged(true)
 {
 	m_fileManager = new FileIO();
 	m_textureManager = tManager;
+
+	m_model = new Model();
 }
 
 Elixir::SceneManager::~SceneManager()
@@ -18,13 +21,15 @@ Elixir::SceneManager::~SceneManager()
 
 	m_scenes.clear();
 
+	m_model->Shutdown();
+	SafeRelease(m_model);
+
 	SafeRelease(m_fileManager);
 }
 
-Elixir::Scene* Elixir::SceneManager::CreateScene(std::string name, Model * model, DirectX::XMMATRIX & projMatrix)
+Elixir::Scene* Elixir::SceneManager::CreateScene(std::string name)
 {
-	m_model = model;
-	auto scene = new Scene(model, projMatrix);
+	auto scene = new Scene(m_model);
 	scene->SetName(name);
 	AddScene(scene);
 
@@ -266,8 +271,6 @@ void Elixir::SceneManager::LoadScene(std::string filename)
 			ResetModel();
 		}
 	}
-
-
 }
 
 Model * Elixir::SceneManager::GetModel()
@@ -297,4 +300,22 @@ void Elixir::SceneManager::ResetFileIO()
 
 	m_fileManager = new FileIO();
 
+}
+
+void Elixir::SceneManager::UpdateCurrentScene(float dt)
+{
+	//first init if scene was changed 1 frame before
+	if (m_sceneChanged)
+	{
+		GetCurrentScene()->Init();
+
+		if (!m_model->Initialize(m_textureManager->GetDevice()))
+		{
+			ElixirLog("Could not initialize model");
+		}
+
+		m_sceneChanged = false;
+	}
+
+	GetCurrentScene()->Update(dt);
 }

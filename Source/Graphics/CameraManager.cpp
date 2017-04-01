@@ -1,4 +1,5 @@
 #include "CameraManager.h"
+#include "../System/GameManager.h"
 
 using namespace DirectX;
 
@@ -6,8 +7,12 @@ Camera::Camera()
 	:m_position(0.0f, 0.0f, 0.0f),
 	m_right(1.0f, 0.0f, 0.0f),
 	m_up(0.0f, 1.0f, 0.0f),
-	m_look(0.0f, 0.0f, 1.0f)
+	m_look(0.0f, 0.0f, 1.0f),
+	m_FoV(0.8f)
 {
+	//Initialize default screen aspect
+	m_screenAspect = (float)Elixir::GameManager::GetInstance().GetScreenWidth() / (float)Elixir::GameManager::GetInstance().GetScreenHeight();
+	BuildProjection();
 }
 
 Camera::~Camera()
@@ -52,10 +57,12 @@ void Camera::SetRotation(float x, float y, float z)
 	m_rotation.z = z;
 }
 
+/*
 void Camera::SetProjection(const DirectX::XMMATRIX & proj)
 {
 	XMStoreFloat4x4(&m_projectionMatrix, proj);
 }
+*/
 
 void Camera::SetUp(DirectX::XMFLOAT3 up)
 {
@@ -228,5 +235,26 @@ void Camera::calcOnce()
 	lookAtVec = XMVectorAdd(posVec, lookAtVec);
 	XMMATRIX result = XMMatrixLookAtLH(posVec, lookAtVec, upVec);
 	 XMStoreFloat4x4(&m_viewMatrix, result);
+}
+
+void Camera::BuildProjection()
+{
+	auto projection = XMMatrixPerspectiveFovLH(m_FoV, m_screenAspect, 0.1f, 1000.0f);
+	XMStoreFloat4x4(&m_projectionMatrix, projection);
+}
+
+void Camera::SetScreenAspect(float screenAspect)
+{
+	m_screenAspect = screenAspect;
+}
+
+void Camera::SetFOV(float fov)
+{
+	m_FoV = fov;
+}
+
+float Camera::GetFOV()
+{
+	return m_FoV;
 }
 

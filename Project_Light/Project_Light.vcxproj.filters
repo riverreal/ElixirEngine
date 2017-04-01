@@ -1,0 +1,443 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{9876b84c-f1c9-4a3c-bcf2-b6dac3836b0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Helper">
+      <UniqueIdentifier>{36dfd665-6f98-46f8-95bd-d3ef7e5a894d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{5db45680-63d2-48f8-b1c6-fafcf393fe14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Source">
+      <UniqueIdentifier>{407c973a-a61a-495b-93ef-8d9cc97da275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Includes">
+      <UniqueIdentifier>{e1cc7961-be6a-414f-bcc5-75c17a8cd132}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Interface">
+      <UniqueIdentifier>{1634b03f-9411-401d-bef9-677887ff3bd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\D3D">
+      <UniqueIdentifier>{71c97cb4-34da-43e3-b428-33458bcf7db7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\D3D\Shaders">
+      <UniqueIdentifier>{bd8b7de4-8af4-447a-9f53-5ad328039ab6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\D3D\Shaders\HLSL">
+      <UniqueIdentifier>{4733575b-4da0-490b-b82d-c6bbaf107c7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System\Components">
+      <UniqueIdentifier>{5f911f25-cf09-40cc-842f-52fbb1169f8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System\Systems">
+      <UniqueIdentifier>{193aef3e-3893-4345-a102-1ac17d3a1725}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System\Editor">
+      <UniqueIdentifier>{643ee8e1-60d7-49c0-91f5-b7b66f6ea7c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Source\ImGUI">
+      <UniqueIdentifier>{10fcbc89-63f0-45bd-8e41-f5b5b842d1a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System\Audio">
+      <UniqueIdentifier>{65f3a756-2b8c-4601-beee-0f9e34947766}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{08ea7a43-4a11-4b50-808a-0625f0aae1f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Scenes">
+      <UniqueIdentifier>{bc8971f6-ba4c-46e6-8fdf-35b427896124}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\BaseApp.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Timer.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Helper\MathHelper.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\External Soruce\DDSTextureLoader\DDSTextureLoader.cpp">
+      <Filter>External Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\External Soruce\WICTextureLoader\WICTextureLoader.cpp">
+      <Filter>External Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\SkyDome.cpp">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\DeferredLightShader.cpp">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\DeferredShader.cpp">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Post-processingShader.cpp">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\BasicShapes.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\BlendState.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\CameraManager.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\DeferredRendering.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Light.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\ModelManager.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\OrthoManager.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Terrain.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\TextureLoader.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\TextureManager.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\ShadowMap.cpp">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\ShadowMapShader.cpp">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\GameObject.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Scene.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Systems\TransformSystem.cpp">
+      <Filter>Source Files\System\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Components\TransformComponent.cpp">
+      <Filter>Source Files\System\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Components\Render3DComponent.cpp">
+      <Filter>Source Files\System\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\FileIO.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Editor\ElixirEditor.cpp">
+      <Filter>Source Files\System\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\External Soruce\imgui\imgui.cpp">
+      <Filter>External Source\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\External Soruce\imgui\imgui_demo.cpp">
+      <Filter>External Source\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\External Soruce\imgui\imgui_draw.cpp">
+      <Filter>External Source\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\External Soruce\imgui\examples\directx11_example\imgui_impl_dx11.cpp">
+      <Filter>External Source\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\SceneManager.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Systems\IScriptSystem.cpp">
+      <Filter>Source Files\System\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Systems\TestScript.cpp">
+      <Filter>Source Files\System\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\Audio\AudioManager.cpp">
+      <Filter>Source Files\System\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\GameManager.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameSource\PulseGame.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\System\IElixirGame.cpp">
+      <Filter>Source Files\System\Systems</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Source\System\BaseApp.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Helper\GeneralHelper.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Timer.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Helper\TypeHelper.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Helper\MathHelper.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Helper\LightHelper.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\DDSTextureLoader\DDSTextureLoader.h">
+      <Filter>External Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\WICTextureLoader\WICTextureLoader.h">
+      <Filter>External Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Includes\LEGraphics.h">
+      <Filter>Source Files\Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Includes\LESystem.h">
+      <Filter>Source Files\Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\SkyDome.h">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\DeferredLightShader.h">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\DeferredShader.h">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Includes\RDeferred.h">
+      <Filter>Source Files\Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Post-processingShader.h">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Interface\Interfaces.h">
+      <Filter>Source Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\BasicShapes.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\BlendState.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\CameraManager.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\DeferredRendering.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Light.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\ModelManager.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\OrthoManager.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Terrain.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\TextureLoader.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\TextureManager.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\ShadowMap.h">
+      <Filter>Source Files\Graphics\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\ShadowMapShader.h">
+      <Filter>Source Files\Graphics\D3D\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\GameObject.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Interface\IComponent.h">
+      <Filter>Source Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Components\TransformComponent.h">
+      <Filter>Source Files\System\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Components\Render3DComponent.h">
+      <Filter>Source Files\System\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Components\ComponentIncludes.h">
+      <Filter>Source Files\System\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Scene.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Interface\IComponentSystem.h">
+      <Filter>Source Files\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Systems\TransformSystem.h">
+      <Filter>Source Files\System\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Systems\SystemIncludes.h">
+      <Filter>Source Files\System\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\FileIO.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Editor\ElixirEditor.h">
+      <Filter>Source Files\System\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\imgui\imconfig.h">
+      <Filter>External Source\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\imgui\imgui.h">
+      <Filter>External Source\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\imgui\imgui_internal.h">
+      <Filter>External Source\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\imgui\stb_rect_pack.h">
+      <Filter>External Source\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\imgui\stb_textedit.h">
+      <Filter>External Source\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\imgui\stb_truetype.h">
+      <Filter>External Source\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\imgui\examples\directx11_example\imgui_impl_dx11.h">
+      <Filter>External Source\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Editor\StringData.h">
+      <Filter>Source Files\System\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\SceneManager.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Editor\ElixirLog.h">
+      <Filter>Source Files\System\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Systems\IScriptSystem.h">
+      <Filter>Source Files\System\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Systems\TestScript.h">
+      <Filter>Source Files\System\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\Audio\AudioManager.h">
+      <Filter>Source Files\System\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\GameManager.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameSource\PulseGame.h">
+      <Filter>Source Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\System\IElixirGame.h">
+      <Filter>Source Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External Soruce\json.hpp">
+      <Filter>External Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Source\Graphics\Shaders\LightPixelShader.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\LightVertexShader.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\SkyVertexShader.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\SkyPixelShader.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\DeferredLightPS.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\DeferredLightVS.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\DeferredPixelShader.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\DeferredVertexShader.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\PostProcessingPS.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\PostProcessingVS.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\EyeAdaptation.hlsli">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\AdaptedLum.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\BrightPassFilter.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\TwoPassBlur.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\ShadowMapShader.hlsl">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\Graphics\Shaders\LightHelper.hlsli">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\BRDF.hlsli">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\FXAA311.hlsli">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\PostProcessing.hlsli">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\ToneMapping.hlsli">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\GeneralHelper.hlsli">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\ShadowMap.hlsli">
+      <Filter>Source Files\Graphics\D3D\Shaders\HLSL</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="elixirIcon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Project_Light.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -1,6 +1,8 @@
 #include "BaseApp.h"
 #include "../Helper/GeneralHelper.h"
 
+#include "GameManager.h"
+
 namespace Elixir
 {
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -128,6 +130,8 @@ namespace Elixir
 
 		m_sceneManager = new SceneManager(m_textureManager);
 
+		GameManager::GetInstance().PrepareGame(m_sceneManager, m_width, m_height);
+
 #if ELIXIR_EDITOR == true
 		m_elixirEditor = new Editor();
 		m_elixirEditor->Initialize(m_hWnd, m_d3dDevice, m_d3dDeviceContext, m_width, m_height, m_sceneManager);
@@ -254,12 +258,15 @@ namespace Elixir
 					
 				}
 
-				m_d3dDeviceContext->RSSetViewports(1, &m_deferredSkyViewport);
-
 				//To render inner sphere
-				m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
-				m_skyShader->Render(m_d3dDeviceContext, currentScene->GetSky(), currentScene->GetCamera(), m_textureManager);
-				m_d3dDeviceContext->RSSetState(m_solidRS);
+				if (!m_sceneManager->GetCurrentScene()->GetNoSky())
+				{
+					m_d3dDeviceContext->RSSetViewports(1, &m_deferredSkyViewport);
+					m_d3dDeviceContext->RSSetState(m_solidNoCullRS);
+					m_skyShader->Render(m_d3dDeviceContext, currentScene->GetSky(), currentScene->GetCamera(), m_textureManager);
+					m_d3dDeviceContext->RSSetState(m_solidRS);
+				}
+
 				m_d3dDeviceContext->RSSetViewports(1, &m_deferredViewport);
 
 				//m_deferredBuffers->SetPostpRenderTarget(m_d3dDeviceContext);
@@ -962,14 +969,14 @@ namespace Elixir
 		m_d3dDeviceContext->RSSetViewports(1, &m_defaultViewport);
 
 		XMFLOAT2 specResolution = GetSpecResolution(m_width, m_height);
-		m_deferredViewport.Width = (float)specResolution.x;
+		m_deferredViewport.Width = (float)specResolution.x; //here
 		m_deferredViewport.Height = (float)specResolution.y;
 		m_deferredViewport.MinDepth = 0.0f;
 		m_deferredViewport.MaxDepth = 0.9f;
 		m_deferredViewport.TopLeftX = 0.0f;
 		m_deferredViewport.TopLeftY = 0.0f;
 
-		m_deferredSkyViewport.Width = (float)specResolution.x;
+		m_deferredSkyViewport.Width = (float)specResolution.x; //here
 		m_deferredSkyViewport.Height = (float)specResolution.y;
 		m_deferredSkyViewport.MinDepth = 0.9f;
 		m_deferredSkyViewport.MaxDepth = 1.0f;
@@ -979,15 +986,6 @@ namespace Elixir
 		//-------------------------------------------------------------------
 		//Matrix
 		//-------------------------------------------------------------------
-
-		//---------Projection
-		fieldOfView = 3.141592654f / 4.0f;
-		screenAspect = (float)m_width / (float)m_height;
-
-		m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
-
-		//---------World
-		m_worldMatrix = XMMatrixIdentity();
 
 		//---------Ortho
 		m_orthoMatrix = XMMatrixOrthographicLH((float)m_width, (float)m_height, SCREEN_NEAR, SCREEN_DEPTH);

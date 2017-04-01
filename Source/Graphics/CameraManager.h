@@ -15,7 +15,7 @@ public:
 	void SetPosition(float x, float y, float z);
 	void SetPosition(DirectX::XMFLOAT3 pos);
 	void SetRotation(float x, float y, float z);
-	void SetProjection(const DirectX::XMMATRIX& proj); //temporary
+	//void SetProjection(const DirectX::XMMATRIX& proj); //temporary
 	void SetUp(DirectX::XMFLOAT3 up);
 	void SetRight(DirectX::XMFLOAT3 right);
 	void SetLook(DirectX::XMFLOAT3 look);
@@ -48,7 +48,11 @@ public:
 
 	void calcOnce();
 
-
+	void BuildProjection();
+	void SetScreenAspect(float screenAspect);
+	//Set Field of View
+	void SetFOV(float fov);
+	float GetFOV();
 
 private:
 	DirectX::XMFLOAT3 m_position;
@@ -59,4 +63,8 @@ private:
 
 	DirectX::XMFLOAT4X4 m_viewMatrix;
 	DirectX::XMFLOAT4X4 m_projectionMatrix;
+
+	//field of view
+	float m_FoV;
+	float m_screenAspect;
 };

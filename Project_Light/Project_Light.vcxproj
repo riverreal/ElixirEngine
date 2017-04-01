@@ -1,0 +1,473 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B48BC426-8D5F-4F22-8806-EEFDE5D4225C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Project_Light</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(Configuration)\Intermediate\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WINVER=0x0601;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Nextgen\Desktop\directx 11 projects\DX11 win10\Project_Light\External Soruce\irrKlang\include;C:\Users\Nextgen\Desktop\DirecctX\DX11 win10\Project_Light\External Soruce\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>assimp.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Nextgen\Desktop\directx 11 projects\DX11 win10\Project_Light\External Soruce\irrKlang\lib\Win32-visualStudio;C:\Users\Nextgen\Desktop\directx 11 projects\DX11 win10\Project_Light\External Soruce\Assimp\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WINVER=0x0601;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Nextgen\Desktop\DirecctX\DX11 win10\Project_Light\External Soruce\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Nextgen\Desktop\DirecctX\DX11 win10\Project_Light\External Soruce\Assimp\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\External Soruce\DDSTextureLoader\DDSTextureLoader.cpp" />
+    <ClCompile Include="..\External Soruce\imgui\examples\directx11_example\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\External Soruce\imgui\imgui.cpp" />
+    <ClCompile Include="..\External Soruce\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\External Soruce\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\External Soruce\WICTextureLoader\WICTextureLoader.cpp" />
+    <ClCompile Include="..\GameSource\PulseGame.cpp" />
+    <ClCompile Include="..\Source\Graphics\BasicShapes.cpp" />
+    <ClCompile Include="..\Source\Graphics\BlendState.cpp" />
+    <ClCompile Include="..\Source\Graphics\CameraManager.cpp" />
+    <ClCompile Include="..\Source\Graphics\DeferredLightShader.cpp" />
+    <ClCompile Include="..\Source\Graphics\DeferredRendering.cpp" />
+    <ClCompile Include="..\Source\Graphics\DeferredShader.cpp" />
+    <ClCompile Include="..\Source\Graphics\Light.cpp" />
+    <ClCompile Include="..\Source\Graphics\ModelManager.cpp" />
+    <ClCompile Include="..\Source\Graphics\OrthoManager.cpp" />
+    <ClCompile Include="..\Source\Graphics\Post-processingShader.cpp" />
+    <ClCompile Include="..\Source\Graphics\ShadowMap.cpp" />
+    <ClCompile Include="..\Source\Graphics\ShadowMapShader.cpp" />
+    <ClCompile Include="..\Source\Graphics\SkyDome.cpp" />
+    <ClCompile Include="..\Source\Graphics\Terrain.cpp" />
+    <ClCompile Include="..\Source\Graphics\TextureLoader.cpp" />
+    <ClCompile Include="..\Source\Graphics\TextureManager.cpp" />
+    <ClCompile Include="..\Source\Helper\MathHelper.cpp" />
+    <ClCompile Include="..\Source\main.cpp" />
+    <ClCompile Include="..\Source\System\Audio\AudioManager.cpp" />
+    <ClCompile Include="..\Source\System\BaseApp.cpp" />
+    <ClCompile Include="..\Source\System\Components\Render3DComponent.cpp" />
+    <ClCompile Include="..\Source\System\Components\TransformComponent.cpp" />
+    <ClCompile Include="..\Source\System\Editor\ElixirEditor.cpp" />
+    <ClCompile Include="..\Source\System\FileIO.cpp" />
+    <ClCompile Include="..\Source\System\GameManager.cpp" />
+    <ClCompile Include="..\Source\System\GameObject.cpp" />
+    <ClCompile Include="..\Source\System\IElixirGame.cpp" />
+    <ClCompile Include="..\Source\System\Scene.cpp" />
+    <ClCompile Include="..\Source\System\SceneManager.cpp" />
+    <ClCompile Include="..\Source\System\Systems\IScriptSystem.cpp" />
+    <ClCompile Include="..\Source\System\Systems\TestScript.cpp" />
+    <ClCompile Include="..\Source\System\Systems\TransformSystem.cpp" />
+    <ClCompile Include="..\Source\System\Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\External Soruce\DDSTextureLoader\DDSTextureLoader.h" />
+    <ClInclude Include="..\External Soruce\imgui\examples\directx11_example\imgui_impl_dx11.h" />
+    <ClInclude Include="..\External Soruce\imgui\imconfig.h" />
+    <ClInclude Include="..\External Soruce\imgui\imgui.h" />
+    <ClInclude Include="..\External Soruce\imgui\imgui_internal.h" />
+    <ClInclude Include="..\External Soruce\imgui\stb_rect_pack.h" />
+    <ClInclude Include="..\External Soruce\imgui\stb_textedit.h" />
+    <ClInclude Include="..\External Soruce\imgui\stb_truetype.h" />
+    <ClInclude Include="..\External Soruce\json.hpp" />
+    <ClInclude Include="..\External Soruce\WICTextureLoader\WICTextureLoader.h" />
+    <ClInclude Include="..\GameSource\PulseGame.h" />
+    <ClInclude Include="..\Source\Graphics\BasicShapes.h" />
+    <ClInclude Include="..\Source\Graphics\BlendState.h" />
+    <ClInclude Include="..\Source\Graphics\CameraManager.h" />
+    <ClInclude Include="..\Source\Graphics\DeferredLightShader.h" />
+    <ClInclude Include="..\Source\Graphics\DeferredRendering.h" />
+    <ClInclude Include="..\Source\Graphics\DeferredShader.h" />
+    <ClInclude Include="..\Source\Graphics\Light.h" />
+    <ClInclude Include="..\Source\Graphics\ModelManager.h" />
+    <ClInclude Include="..\Source\Graphics\OrthoManager.h" />
+    <ClInclude Include="..\Source\Graphics\Post-processingShader.h" />
+    <ClInclude Include="..\Source\Graphics\ShadowMap.h" />
+    <ClInclude Include="..\Source\Graphics\ShadowMapShader.h" />
+    <ClInclude Include="..\Source\Graphics\SkyDome.h" />
+    <ClInclude Include="..\Source\Graphics\Terrain.h" />
+    <ClInclude Include="..\Source\Graphics\TextureLoader.h" />
+    <ClInclude Include="..\Source\Graphics\TextureManager.h" />
+    <ClInclude Include="..\Source\Helper\GeneralHelper.h" />
+    <ClInclude Include="..\Source\Helper\LightHelper.h" />
+    <ClInclude Include="..\Source\Helper\MathHelper.h" />
+    <ClInclude Include="..\Source\Helper\TypeHelper.h" />
+    <ClInclude Include="..\Source\Includes\LEGraphics.h" />
+    <ClInclude Include="..\Source\Includes\LESystem.h" />
+    <ClInclude Include="..\Source\Includes\RDeferred.h" />
+    <ClInclude Include="..\Source\Interface\IComponent.h" />
+    <ClInclude Include="..\Source\Interface\IComponentSystem.h" />
+    <ClInclude Include="..\Source\Interface\Interfaces.h" />
+    <ClInclude Include="..\Source\System\Audio\AudioManager.h" />
+    <ClInclude Include="..\Source\System\BaseApp.h" />
+    <ClInclude Include="..\Source\System\Components\ComponentIncludes.h" />
+    <ClInclude Include="..\Source\System\Components\Render3DComponent.h" />
+    <ClInclude Include="..\Source\System\Components\TransformComponent.h" />
+    <ClInclude Include="..\Source\System\Editor\ElixirEditor.h" />
+    <ClInclude Include="..\Source\System\Editor\ElixirLog.h" />
+    <ClInclude Include="..\Source\System\Editor\StringData.h" />
+    <ClInclude Include="..\Source\System\FileIO.h" />
+    <ClInclude Include="..\Source\System\GameManager.h" />
+    <ClInclude Include="..\Source\System\GameObject.h" />
+    <ClInclude Include="..\Source\System\IElixirGame.h" />
+    <ClInclude Include="..\Source\System\Scene.h" />
+    <ClInclude Include="..\Source\System\SceneManager.h" />
+    <ClInclude Include="..\Source\System\Systems\IScriptSystem.h" />
+    <ClInclude Include="..\Source\System\Systems\SystemIncludes.h" />
+    <ClInclude Include="..\Source\System\Systems\TestScript.h" />
+    <ClInclude Include="..\Source\System\Systems\TransformSystem.h" />
+    <ClInclude Include="..\Source\System\Timer.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Source\Graphics\Shaders\AdaptedLum.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AdaptedLum</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AL_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/AdaptedLum.h</HeaderFileOutput>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AdaptedLum</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AL_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/AdaptedLum.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\BrightPassFilter.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">BrightPassFilter</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">BrightPassFilter</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">BPF_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/BrightPassFilter.h</HeaderFileOutput>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">BPF_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/BrightPassFilter.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\EyeAdaptation.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\DeferredLightPS.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DeferredLightPS</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DeferredLightPS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DLPS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/DeferredLightPS.h</HeaderFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DLPS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/DeferredLightPS.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\DeferredLightVS.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DeferredLightVS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DLVS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/DeferredLightVS.h</HeaderFileOutput>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DeferredLightVS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DLVS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/DeferredLightVS.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\DeferredPixelShader.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DeferredPixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DPS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/DeferredPixelShader.h</HeaderFileOutput>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DeferredPixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DPS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/DeferredPixelShader.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\DeferredVertexShader.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DeferredVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DVS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/DeferredVertexShader.h</HeaderFileOutput>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DeferredVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DVS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/DeferredVertexShader.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\LightPixelShader.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">LightPixelShader</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">LightPixelShader</EntryPointName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">LPS</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">LPS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/LightPixelShader.h</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/LightPixelShader.h</HeaderFileOutput>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\LightVertexShader.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">LightVertexShader</EntryPointName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">LVS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/LightVertexShader.h</HeaderFileOutput>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">LightVertexShader</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">LVS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/LightVertexShader.h</HeaderFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\PostProcessingPS.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PostProcessingPS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PP_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/PostProcessingPS.h</HeaderFileOutput>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PostProcessingPS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PP_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/PostProcessingPS.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\PostProcessingVS.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PostProcessingVS</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PostProcessingVS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PP_VS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/PostProcessingVS.h</HeaderFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PP_VS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/PostProcessingVS.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\ShadowMapShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ShadowMapShader</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SMS_VS</VariableName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ShadowMapShader</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SMS_VS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/ShadowMapShader.h</HeaderFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/ShadowMapShader.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\SkyPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SkyPS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SKY_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/SkyPS.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\SkyVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SkyVS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SKY_VS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/SkyVS.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\Source\Graphics\Shaders\TwoPassBlur.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TwoPassBlur</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TPB_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../Source/Graphics/Shaders/Compiled/TwoPassBlur.h</HeaderFileOutput>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TwoPassBlur</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TPB_PS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../Source/Graphics/Shaders/Compiled/TwoPassBlur.h</HeaderFileOutput>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\Graphics\Shaders\BRDF.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\FXAA311.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\GeneralHelper.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\LightHelper.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\PostProcessing.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\ShadowMap.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="..\Source\Graphics\Shaders\ToneMapping.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="elixirIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Project_Light.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

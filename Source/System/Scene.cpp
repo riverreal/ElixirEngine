@@ -4,15 +4,15 @@
 
 using namespace Elixir;
 
-Scene::Scene(Model* model, DirectX::XMMATRIX& projMatrix)
+Scene::Scene(Model* model)
 	:m_renderingMode(RENDER_MODE::DEFERRED_RENDERING),
 	m_model(model),
 	m_sceneReady(false),
-	m_name("NewScene")
+	m_name("NewScene"),
+	m_noSky(true)
 {
 	m_camera = new Camera();
 	m_camera->SetPosition(0.0f, 3.0f, 0.0f);
-	m_camera->SetProjection(projMatrix);
 
 	m_lighting = new Light();
 
@@ -37,6 +37,32 @@ Scene::~Scene()
 	CleanMemory();
 	SafeRelease(m_sky);
 	SafeRelease(m_camera);
+}
+
+void Scene::SetInitFunction(std::function<void()> init)
+{
+	InitFunction = init;
+}
+
+void Elixir::Scene::SetUpdateFunction(std::function<void(float)> update)
+{
+	UpdateFunction = update;
+}
+
+void Scene::Init()
+{
+	InitFunction();
+
+	SceneReady();
+}
+
+void Scene::Update(float dt)
+{
+	//call the bind update function first
+	if(UpdateFunction)
+		UpdateFunction(dt);
+
+	UpdateScene(dt);
 }
 
 void Scene::SetName(std::string name)
@@ -119,7 +145,6 @@ void Scene::UpdateScene(F32 deltaTime)
 		
 		auto tSystem = GetSystem<TransformSystem>();
 		tSystem->Update(m_sky, deltaTime);
-		
 	}
 }
 
@@ -205,6 +230,8 @@ unsigned int Scene::GetRenderMode()
 
 void Scene::SetEnvMap(U32 envMap)
 {
+	m_noSky = false;
+
 	m_envMap = envMap;
 
 	//Sky Object will only need albedo texture to work as a skydome.
@@ -362,4 +389,9 @@ GameObject* Scene::CreateObject(OBJECT_PRESET objPreset)
 	}
 
 	return object;
+}
+
+bool Scene::GetNoSky()
+{
+	return m_noSky;
 }

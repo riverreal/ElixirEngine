@@ -37,8 +37,8 @@ namespace Elixir
 {
 	const bool FULL_SCREEN = false;
 	//const bool RESIZEABLE = false; ------------- Feature Not Added
-	const float SCREEN_DEPTH = 1000.0f;
-	const float SCREEN_NEAR = 0.1f;
+	const static float SCREEN_DEPTH = 1000.0f;
+	const static float SCREEN_NEAR = 0.1f;
 	const bool VSYNC_ENABLED = true;
 	const bool MSAA_ENABLED = false; //4X MSAA --- for forward rendering
 	const float FPS_CAP = 60.0f; //When Vsync is disabled --- NOT WORKING
@@ -129,9 +129,6 @@ namespace Elixir
 		D3D11_VIEWPORT m_defaultViewport;
 		D3D11_VIEWPORT m_deferredViewport;
 		D3D11_VIEWPORT m_deferredSkyViewport;
-
-		DirectX::XMMATRIX m_projectionMatrix;
-		DirectX::XMMATRIX m_worldMatrix;
 		DirectX::XMMATRIX m_orthoMatrix;
 
 		SceneManager* m_sceneManager;

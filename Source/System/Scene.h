@@ -8,14 +8,24 @@
 #include "../Graphics/ModelManager.h"
 #include "../Graphics/Light.h"
 #include "../Interface/IComponentSystem.h"
+#include "IElixirGame.h"
+#include <functional>
 
 namespace Elixir
 {
 	class Scene
 	{
 	public:
-		Scene(Model* model, DirectX::XMMATRIX& projMatrix);
+		Scene(Model* model);
 		~Scene();
+
+		//Binds an init function
+		void SetInitFunction(std::function<void()> init);
+		//Binds an update function
+		void SetUpdateFunction(std::function<void(float)> update);
+
+		void Init();
+		void Update(float dt);
 
 		void SetName(std::string name);
 		std::string GetName();
@@ -104,6 +114,9 @@ namespace Elixir
 
 		GameObject* CreateObject(OBJECT_PRESET objPreset);
 
+		//true if there is no sky
+		bool GetNoSky();
+
 	private:
 		//Used recursively to loop through parent object's children too
 		GameObject* GetObjectByName(std::string name, GameObject* parent);
@@ -122,6 +135,12 @@ namespace Elixir
 		void UpdateSceneRec(GameObject* parent, IComponentSystem* system, F32 deltaTime);
 
 	private:
+		//This should be assigned
+		std::function<void()> InitFunction;
+
+		//This should be assigned
+		std::function<void(float dt)> UpdateFunction;
+
 		//A vector of all objects added to the scene
 		std::vector<GameObject*> m_objChildren;
 		GameObject* m_sky;
@@ -139,6 +158,7 @@ namespace Elixir
 		Light* m_lighting;
 		Fog m_fog;
 		bool m_sceneReady;
+		bool m_noSky;
 	};
 }
 

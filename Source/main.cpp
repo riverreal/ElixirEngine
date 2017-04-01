@@ -2,6 +2,7 @@
 #include "Includes/LEGraphics.h"
 #include <stdlib.h>
 #include <time.h>
+#include "../GameSource/PulseGame.h"
 
 //16:9 resolutions
 //480p - WVGA (854 x 480)
@@ -9,8 +10,11 @@
 //900p (1600 x 900)
 //1080p (1920 x 1080)
 
-const int SCREEN_WIDTH = 1600;
-const int SCRENN_HEIGHT = 900;
+namespace Elixir
+{
+	const static int SCREEN_WIDTH = 1600;
+	const static int SCRENN_HEIGHT = 900;
+};
 
 using namespace Elixir;
 
@@ -28,14 +32,10 @@ public:
 	bool SceneInit();
 
 private:
-	Model* m_shapes;
-	
 	Camera m_smoothCamera;
 
-	//Shader for sky
-	SkyDome m_rendererSky;
+	PulseGame pulseGame;
 
-	Scene* m_scene;
 	float m_speedMult;
 
 	POINT m_lastMousePos;
@@ -63,23 +63,21 @@ SimpleApp::SimpleApp(HINSTANCE instance, int width, int height)
 
 SimpleApp::~SimpleApp()
 {
-	m_rendererSky.Shutdown();
-	m_shapes->Shutdown();
-
-	SafeRelease(m_shapes);
-
 	BlendState::Shutdown();
 }
 
 bool SimpleApp::SceneInit()
 {
+	/*
+	AudioManager::GetInstance().AddControlledMusic("Resource/Enthusiast.mp3");
+	AudioManager::GetInstance().GetControlledMusic()->setIsLooped(true);
+
 	m_isRightClick = false;
-	m_shapes = new Model();
-	m_scene = m_sceneManager->CreateScene("TestScene", m_shapes, m_projectionMatrix);
+	m_scene = m_sceneManager->CreateScene("TestScene");
 	m_speedMult = 1.0f;
 
 	m_scene->SetIrradiance(m_textureManager->AddTexture(L"Resources/Textures/Cubemaps/Irradiance/Irradiance.dds"));
-	m_scene->SetEnvMap(m_textureManager->AddTexture(L"Resources/Textures/Cubemaps/dayCube.dds"));
+	m_scene->SetEnvMap(m_textureManager->AddTexture(L"Resources/Textures/Cubemaps/earth_moon_skybox.dds"));
 
 	auto dirL = m_scene->GetLight()->GetModDirectionalLight();
 
@@ -97,23 +95,10 @@ bool SimpleApp::SceneInit()
 	m_scene->GetCamera()->SetPosition(0.0f, 0.0f, 0.0f);
 	m_smoothCamera.SetPosition(0.0f, 0.0f, 0.0f);
 
-	m_sceneManager->GetFileManager()->LoadMaterials();
-
 	//-----------------------------------------------------------------------------------------------------
 	//        Renderer Init
 	//-----------------------------------------------------------------------------------------------------
-
-	if (!m_shapes->Initialize(m_d3dDevice))
-	{
-		return false;
-	}
-
-	if (!m_rendererSky.Initialize(m_d3dDevice, m_hWnd))
-	{
-		return false;
-	}
-
-	m_scene->SceneReady();
+	*/
 	return true;
 }
 
@@ -131,11 +116,10 @@ bool SimpleApp::Init()
 		return false;
 	}
 
-	//Additional init
-	if (!SceneInit())
-	{
-		return false;
-	}
+	//Early initialization of singleton
+	AudioManager::GetInstance();
+
+	pulseGame.StartScene("Pulse");
 
 	return true;
 }
@@ -164,11 +148,12 @@ void SimpleApp::Update(float dt)
 
 		if (GetAsyncKeyState('R') & 0x8000)
 		{
-			//m_smoothCamera.SetPosition(0.0f, 0.0f, 0.0f);
+			AudioManager::GetInstance().GetControlledMusic()->setIsPaused(false);
 		}
 
 		if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 		{
+			AudioManager::GetInstance().GetControlledMusic()->setIsPaused(true);
 			m_speedMult = 4.0f;
 		}
 		else
@@ -176,15 +161,15 @@ void SimpleApp::Update(float dt)
 			m_speedMult = 1.0f;
 		}
 	}
+
+	m_sceneManager->GetCurrentScene()->GetCamera()->SetPosition(MathHelper::lerp(m_sceneManager->GetCurrentScene()->GetCamera()->GetPosition(), m_smoothCamera.GetPosition(), 0.3f));
+	m_sceneManager->GetCurrentScene()->GetCamera()->SetLook(MathHelper::lerp(m_sceneManager->GetCurrentScene()->GetCamera()->GetLook(), m_smoothCamera.GetLook(), 0.3f));
+	m_sceneManager->GetCurrentScene()->GetCamera()->SetRight(MathHelper::lerp(m_sceneManager->GetCurrentScene()->GetCamera()->GetRight(), m_smoothCamera.GetRight(), 0.3f));
+	m_sceneManager->GetCurrentScene()->GetCamera()->SetUp(MathHelper::lerp(m_sceneManager->GetCurrentScene()->GetCamera()->GetUp(), m_smoothCamera.GetUp(), 0.3f));
+
 #endif
 
-	m_scene->GetCamera()->SetPosition(MathHelper::lerp(m_scene->GetCamera()->GetPosition(), m_smoothCamera.GetPosition(), 0.3f));
-	m_scene->GetCamera()->SetLook(MathHelper::lerp(m_scene->GetCamera()->GetLook(), m_smoothCamera.GetLook(), 0.3f));
-	m_scene->GetCamera()->SetRight(MathHelper::lerp(m_scene->GetCamera()->GetRight(), m_smoothCamera.GetRight(), 0.3f));
-	m_scene->GetCamera()->SetUp(MathHelper::lerp(m_scene->GetCamera()->GetUp(), m_smoothCamera.GetUp(), 0.3f));
-
-
-	m_scene->UpdateScene(dt);
+	m_sceneManager->UpdateCurrentScene(dt);
 }
 
 void SimpleApp::OnMouseDown(WPARAM btnState, int x, int y)
@@ -194,7 +179,6 @@ void SimpleApp::OnMouseDown(WPARAM btnState, int x, int y)
 	m_lastMousePos.y = y;
 
 	SetCapture(m_hWnd);
-
 #endif
 }
 
