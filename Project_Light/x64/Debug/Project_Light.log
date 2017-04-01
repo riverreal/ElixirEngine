@@ -1,0 +1,154 @@
+﻿Build started 4/1/2017 9:05:28 PM.
+     1>Project "C:\Users\Nextgen\Desktop\ElixirEngine\Project_Light\Project_Light.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Users\Nextgen\Desktop\ElixirEngine\External Soruce\irrKlang\include" /I"C:\Users\Nextgen\Desktop\ElixirEngine\External Soruce\Assimp\include\assimp" /ZI /nologo /W3 /WX- /Od /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt "..\External Soruce\DDSTextureLoader\DDSTextureLoader.cpp" "..\External Soruce\imgui\examples\directx11_example\imgui_impl_dx11.cpp" "..\External Soruce\imgui\imgui.cpp" "..\External Soruce\imgui\imgui_demo.cpp" "..\External Soruce\imgui\imgui_draw.cpp" "..\External Soruce\WICTextureLoader\WICTextureLoader.cpp" ..\GameSource\PulseGame.cpp ..\Source\Graphics\BasicShapes.cpp ..\Source\Graphics\BlendState.cpp ..\Source\Graphics\CameraManager.cpp ..\Source\Graphics\DeferredLightShader.cpp ..\Source\Graphics\DeferredRendering.cpp ..\Source\Graphics\DeferredShader.cpp ..\Source\Graphics\Light.cpp ..\Source\Graphics\ModelManager.cpp ..\Source\Graphics\OrthoManager.cpp "..\Source\Graphics\Post-processingShader.cpp" ..\Source\Graphics\ShadowMap.cpp ..\Source\Graphics\ShadowMapShader.cpp ..\Source\Graphics\SkyDome.cpp ..\Source\Graphics\Terrain.cpp ..\Source\Graphics\TextureLoader.cpp ..\Source\Graphics\TextureManager.cpp ..\Source\Helper\MathHelper.cpp ..\Source\main.cpp ..\Source\System\Audio\AudioManager.cpp ..\Source\System\BaseApp.cpp ..\Source\System\Components\Render3DComponent.cpp ..\Source\System\Components\TransformComponent.cpp ..\Source\System\Editor\ElixirEditor.cpp ..\Source\System\FileIO.cpp ..\Source\System\GameManager.cpp ..\Source\System\GameObject.cpp ..\Source\System\IElixirGame.cpp ..\Source\System\Scene.cpp ..\Source\System\SceneManager.cpp ..\Source\System\Systems\IScriptSystem.cpp ..\Source\System\Systems\TestScript.cpp ..\Source\System\Systems\TransformSystem.cpp ..\Source\System\Timer.cpp
+         Timer.cpp
+         TransformSystem.cpp
+         TestScript.cpp
+         IScriptSystem.cpp
+         SceneManager.cpp
+         Scene.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\scene.cpp(96): warning C4244: 'argument': conversion from '__int64' to 'unsigned int', possible loss of data
+         IElixirGame.cpp
+         GameObject.cpp
+         GameManager.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(27): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(149): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+         FileIO.cpp
+         ElixirEditor.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\editor\elixireditor.cpp(530): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(346): note: see declaration of 'strncpy'
+         TransformComponent.cpp
+         Render3DComponent.cpp
+         BaseApp.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(27): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(149): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(46): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(135): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(137): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(301): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(319): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(504): warning C4244: 'argument': conversion from 'SIZE_T' to 'int', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(560): warning C4996: 'wcstombs': This function or variable may be unsafe. Consider using wcstombs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\stdlib.h(1008): note: see declaration of 'wcstombs'
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(424): warning C4101: 'screenAspect': unreferenced local variable
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(424): warning C4101: 'fieldOfView': unreferenced local variable
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(423): warning C4101: 'viewport': unreferenced local variable
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(1061): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(1314): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+         AudioManager.cpp
+         main.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(27): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(149): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\main.cpp(129): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\main.cpp(177): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\main.cpp(187): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\main.cpp(196): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+         MathHelper.cpp
+         TextureManager.cpp
+         TextureLoader.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\textureloader.cpp(84): warning C4267: 'initializing': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\textureloader.cpp(168): warning C4267: 'initializing': conversion from 'size_t' to 'UINT', possible loss of data
+         Terrain.cpp
+         Generating Code...
+         Compiling...
+         SkyDome.cpp
+         ShadowMapShader.cpp
+         ShadowMap.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\shadowmap.cpp(113): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\shadowmap.cpp(114): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
+         Post-processingShader.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(68): warning C4101: 'result': unreferenced local variable
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(308): warning C4018: '<': signed/unsigned mismatch
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(390): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(391): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(753): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(758): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+         OrthoManager.cpp
+         ModelManager.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(64): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(65): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(66): warning C4267: '+=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(67): warning C4267: '+=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(89): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(93): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(167): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(171): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(329): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\modelmanager.cpp(333): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+         Light.cpp
+         DeferredShader.cpp
+         DeferredRendering.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\deferredrendering.cpp(37): warning C4101: 'i': unreferenced local variable
+         DeferredLightShader.cpp
+         CameraManager.cpp
+         BlendState.cpp
+         BasicShapes.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\basicshapes.cpp(9): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\basicshapes.cpp(367): warning C4267: 'initializing': conversion from 'size_t' to 'UINT', possible loss of data
+         PulseGame.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(27): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(149): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+         WICTextureLoader.cpp
+         imgui_draw.cpp
+         imgui_demo.cpp
+         imgui.cpp
+         imgui_impl_dx11.cpp
+         DDSTextureLoader.cpp
+         Generating Code...
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D _UNICODE /D UNICODE /l"0x0409" /nologo /fo"x64\Debug\Project_Light.res" Project_Light.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Nextgen\Desktop\ElixirEngine\x64\Debug\Project_Light.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\Nextgen\Desktop\ElixirEngine\External Soruce\irrKlang\lib\Win32-visualStudio" /LIBPATH:"C:\Users\Nextgen\Desktop\ElixirEngine\External Soruce\Assimp\lib\x86" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Nextgen\Desktop\ElixirEngine\x64\Debug\Project_Light.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Nextgen\Desktop\ElixirEngine\x64\Debug\Project_Light.lib" /MACHINE:X64 x64\Debug\Project_Light.res
+         x64\Debug\DDSTextureLoader.obj
+         x64\Debug\imgui_impl_dx11.obj
+         x64\Debug\imgui.obj
+         x64\Debug\imgui_demo.obj
+         x64\Debug\imgui_draw.obj
+         x64\Debug\WICTextureLoader.obj
+         x64\Debug\PulseGame.obj
+         x64\Debug\BasicShapes.obj
+         x64\Debug\BlendState.obj
+         x64\Debug\CameraManager.obj
+         x64\Debug\DeferredLightShader.obj
+         x64\Debug\DeferredRendering.obj
+         x64\Debug\DeferredShader.obj
+         x64\Debug\Light.obj
+         x64\Debug\ModelManager.obj
+         x64\Debug\OrthoManager.obj
+         "x64\Debug\Post-processingShader.obj"
+         x64\Debug\ShadowMap.obj
+         x64\Debug\ShadowMapShader.obj
+         x64\Debug\SkyDome.obj
+         x64\Debug\Terrain.obj
+         x64\Debug\TextureLoader.obj
+         x64\Debug\TextureManager.obj
+         x64\Debug\MathHelper.obj
+         x64\Debug\main.obj
+         x64\Debug\AudioManager.obj
+         x64\Debug\BaseApp.obj
+         x64\Debug\Render3DComponent.obj
+         x64\Debug\TransformComponent.obj
+         x64\Debug\ElixirEditor.obj
+         x64\Debug\FileIO.obj
+         x64\Debug\GameManager.obj
+         x64\Debug\GameObject.obj
+         x64\Debug\IElixirGame.obj
+         x64\Debug\Scene.obj
+         x64\Debug\SceneManager.obj
+         x64\Debug\IScriptSystem.obj
+         x64\Debug\TestScript.obj
+         x64\Debug\TransformSystem.obj
+         x64\Debug\Timer.obj
+     1>ModelManager.obj : error LNK2019: unresolved external symbol "public: __cdecl Assimp::Importer::Importer(void)" (??0Importer@Assimp@@QEAA@XZ) referenced in function "public: struct offsetData __cdecl Model::AddModelFromFile(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?AddModelFromFile@Model@@QEAA?AUoffsetData@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z)
+     1>ModelManager.obj : error LNK2019: unresolved external symbol "public: __cdecl Assimp::Importer::~Importer(void)" (??1Importer@Assimp@@QEAA@XZ) referenced in function "public: struct offsetData __cdecl Model::AddModelFromFile(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?AddModelFromFile@Model@@QEAA?AUoffsetData@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z)
+     1>ModelManager.obj : error LNK2019: unresolved external symbol "public: struct aiScene const * __cdecl Assimp::Importer::ReadFile(char const *,unsigned int)" (?ReadFile@Importer@Assimp@@QEAAPEBUaiScene@@PEBDI@Z) referenced in function "public: struct aiScene const * __cdecl Assimp::Importer::ReadFile(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,unsigned int)" (?ReadFile@Importer@Assimp@@QEAAPEBUaiScene@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@I@Z)
+     1>AudioManager.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) class irrklang::ISoundEngine * __cdecl irrklang::createIrrKlangDevice(enum irrklang::E_SOUND_OUTPUT_DRIVER,int,char const *,char const *)" (__imp_?createIrrKlangDevice@irrklang@@YAPEAVISoundEngine@1@W4E_SOUND_OUTPUT_DRIVER@1@HPEBD1@Z) referenced in function "private: void __cdecl Elixir::AudioManager::Init(void)" (?Init@AudioManager@Elixir@@AEAAXXZ)
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\External Soruce\Assimp\lib\x86\assimp.lib : warning LNK4272: library machine type 'X86' conflicts with target machine type 'x64'
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\External Soruce\irrKlang\lib\Win32-visualStudio\irrKlang.lib : warning LNK4272: library machine type 'X86' conflicts with target machine type 'x64'
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\x64\Debug\Project_Light.exe : fatal error LNK1120: 4 unresolved externals
+     1>Done Building Project "C:\Users\Nextgen\Desktop\ElixirEngine\Project_Light\Project_Light.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:42.58

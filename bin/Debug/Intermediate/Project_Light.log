@@ -1,0 +1,225 @@
+﻿Build started 4/1/2017 9:10:20 PM.
+     1>Project "C:\Users\Nextgen\Desktop\ElixirEngine\Project_Light\Project_Light.vcxproj" on node 2 (Build target(s)).
+     1>FxCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"AdaptedLum" /T ps_5_0 /Fh "../Source/Graphics/Shaders/Compiled/AdaptedLum.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\AdaptedLum.cso" /Vn "AL_PS" /Od /Zi ..\Source\Graphics\Shaders\AdaptedLum.hlsl 
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\AdaptedLum.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\AdaptedLum.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"BrightPassFilter" /T ps_5_0 /Fh "../Source/Graphics/Shaders/Compiled/BrightPassFilter.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\BrightPassFilter.cso" /Vn "BPF_PS" /Od /Zi ..\Source\Graphics\Shaders\BrightPassFilter.hlsl 
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\BrightPassFilter.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\BrightPassFilter.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"DeferredLightPS" /T ps_5_0 /Fh "../Source/Graphics/Shaders/Compiled/DeferredLightPS.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\DeferredLightPS.cso" /Vn "DLPS" /Od /Zi ..\Source\Graphics\Shaders\DeferredLightPS.hlsl 
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(141,2-30): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(142,2-21): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(232,19-59): warning X3206: 'SchlickFres': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(232,19-59): warning X3206: 'SchlickFres': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(244,2-11): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\BRDF.hlsli(176,2-32): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(107,9-70): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(108,9-77): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(112,9-47): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(113,9-57): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(188,10-76): warning X3206: 'GGXSpecFactor': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(212,11-77): warning X3206: 'GGXSpecFactor': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(220,12): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(245,11-77): warning X3206: 'GGXSpecFactor': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredLightPS.hlsl(245,11-110): warning X3206: implicit truncation of vector type
+         
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\DeferredLightPS.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\DeferredLightPS.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"DeferredLightVS" /T vs_5_0 /Fh "../Source/Graphics/Shaders/Compiled/DeferredLightVS.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\DeferredLightVS.cso" /Vn "DLVS" /Od /Zi ..\Source\Graphics\Shaders\DeferredLightVS.hlsl 
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\DeferredLightVS.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\DeferredLightVS.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"DeferredPixelShader" /T ps_5_0 /Fh "../Source/Graphics/Shaders/Compiled/DeferredPixelShader.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\DeferredPixelShader.cso" /Vn "DPS" /Od /Zi ..\Source\Graphics\Shaders\DeferredPixelShader.hlsl 
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredPixelShader.hlsl(27,35-69): warning X3576: semantics in type overridden by variable/function or enclosing type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\DeferredPixelShader.hlsl(35,2): warning X4000: use of potentially uninitialized variable (output)
+         
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\DeferredPixelShader.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\DeferredPixelShader.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"DeferredVertexShader" /T vs_5_0 /Fh "../Source/Graphics/Shaders/Compiled/DeferredVertexShader.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\DeferredVertexShader.cso" /Vn "DVS" /Od /Zi ..\Source\Graphics\Shaders\DeferredVertexShader.hlsl 
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\DeferredVertexShader.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\DeferredVertexShader.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"LightPixelShader" /T ps_5_0 /Fh "../Source/Graphics/Shaders/Compiled/LightPixelShader.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\LightPixelShader.cso" /Vn "LPS" /Od /Zi ..\Source\Graphics\Shaders\LightPixelShader.hlsl 
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(141,2-30): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(142,2-21): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(232,19-59): warning X3206: 'SchlickFres': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(232,19-59): warning X3206: 'SchlickFres': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(244,2-11): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\BRDF.hlsli(176,2-32): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightPixelShader.hlsl(49,2-63): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightPixelShader.hlsl(50,2-63): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightPixelShader.hlsl(97,22-118): warning X3206: 'SchlickFresRough': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightPixelShader.hlsl(97,22-118): warning X3206: 'SchlickFresRough': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightPixelShader.hlsl(99,19-76): warning X3206: 'F_Schlick_Roughness': implicit truncation of vector type
+         
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\LightPixelShader.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\LightPixelShader.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"LightVertexShader" /T vs_5_0 /Fh "../Source/Graphics/Shaders/Compiled/LightVertexShader.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\LightVertexShader.cso" /Vn "LVS" /Od /Zi ..\Source\Graphics\Shaders\LightVertexShader.hlsl 
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(141,2-30): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(142,2-21): warning X3206: implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(232,19-59): warning X3206: 'SchlickFres': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(232,19-59): warning X3206: 'SchlickFres': implicit truncation of vector type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\LightHelper.hlsli(244,2-11): warning X3206: implicit truncation of vector type
+         
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\LightVertexShader.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\LightVertexShader.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"PostProcessingPS" /T ps_5_0 /Fh "../Source/Graphics/Shaders/Compiled/PostProcessingPS.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\PostProcessingPS.cso" /Vn "PP_PS" /Od /Zi ..\Source\Graphics\Shaders\PostProcessingPS.hlsl 
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\PostProcessingPS.hlsl(32,25-54): warning X3576: semantics in type overridden by variable/function or enclosing type
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\FXAA311.hlsli(938,15): warning X4000: use of potentially uninitialized variable (FxaaPixelShader)
+         
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\PostProcessingPS.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\PostProcessingPS.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"PostProcessingVS" /T vs_5_0 /Fh "../Source/Graphics/Shaders/Compiled/PostProcessingVS.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\PostProcessingVS.cso" /Vn "PP_VS" /Od /Zi ..\Source\Graphics\Shaders\PostProcessingVS.hlsl 
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\PostProcessingVS.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\PostProcessingVS.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"ShadowMapShader" /T vs_5_0 /Fh "../Source/Graphics/Shaders/Compiled/ShadowMapShader.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\ShadowMapShader.cso" /Vn "SMS_VS" /Od /Zi ..\Source\Graphics\Shaders\ShadowMapShader.hlsl 
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\ShadowMapShader.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\ShadowMapShader.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"SkyPS" /T ps_5_0 /Fh "../Source/Graphics/Shaders/Compiled/SkyPS.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\SkyPixelShader.cso" /Vn "SKY_PS" /Od /Zi ..\Source\Graphics\Shaders\SkyPixelShader.hlsl 
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\SkyPixelShader.hlsl(16,14-43): warning X3576: semantics in type overridden by variable/function or enclosing type
+         
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\SkyPS.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\SkyPixelShader.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"SkyVS" /T vs_5_0 /Fh "../Source/Graphics/Shaders/Compiled/SkyVS.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\SkyVertexShader.cso" /Vn "SKY_VS" /Od /Zi ..\Source\Graphics\Shaders\SkyVertexShader.hlsl 
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\SkyVS.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\SkyVertexShader.cso
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"TwoPassBlur" /T ps_5_0 /Fh "../Source/Graphics/Shaders/Compiled/TwoPassBlur.h" /Fo "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\TwoPassBlur.cso" /Vn "TPB_PS" /Od /Zi ..\Source\Graphics\Shaders\TwoPassBlur.hlsl 
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\TwoPassBlur.hlsl(28,13-70): warning X3207: Initializer used on a global 'const' variable. This requires setting an external constant. If a literal is desired, use 'static const' instead.
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\TwoPassBlur.hlsl(29,13-81): warning X3207: Initializer used on a global 'const' variable. This requires setting an external constant. If a literal is desired, use 'static const' instead.
+     1>C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\TwoPassBlur.hlsl(30,13): warning X3207: Initializer used on a global 'const' variable. This requires setting an external constant. If a literal is desired, use 'static const' instead.
+         
+         compilation header save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\Source\Graphics\Shaders\Compiled\TwoPassBlur.h
+         compilation object save succeeded; see C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\TwoPassBlur.cso
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I"C:\Users\Nextgen\Desktop\directx 11 projects\DX11 win10\Project_Light\External Soruce\irrKlang\include" /I"C:\Users\Nextgen\Desktop\DirecctX\DX11 win10\Project_Light\External Soruce\Assimp\include" /ZI /nologo /W3 /WX- /Od /Oy- /D _WIN32_WINNT=0x0601 /D WINVER=0x0601 /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\\" /Fd"C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt "..\External Soruce\DDSTextureLoader\DDSTextureLoader.cpp" "..\External Soruce\imgui\examples\directx11_example\imgui_impl_dx11.cpp" "..\External Soruce\imgui\imgui.cpp" "..\External Soruce\imgui\imgui_demo.cpp" "..\External Soruce\imgui\imgui_draw.cpp" "..\External Soruce\WICTextureLoader\WICTextureLoader.cpp" ..\GameSource\PulseGame.cpp ..\Source\Graphics\BasicShapes.cpp ..\Source\Graphics\BlendState.cpp ..\Source\Graphics\CameraManager.cpp ..\Source\Graphics\DeferredLightShader.cpp ..\Source\Graphics\DeferredRendering.cpp ..\Source\Graphics\DeferredShader.cpp ..\Source\Graphics\Light.cpp ..\Source\Graphics\ModelManager.cpp ..\Source\Graphics\OrthoManager.cpp "..\Source\Graphics\Post-processingShader.cpp" ..\Source\Graphics\ShadowMap.cpp ..\Source\Graphics\ShadowMapShader.cpp ..\Source\Graphics\SkyDome.cpp ..\Source\Graphics\Terrain.cpp ..\Source\Graphics\TextureLoader.cpp ..\Source\Graphics\TextureManager.cpp ..\Source\Helper\MathHelper.cpp ..\Source\main.cpp ..\Source\System\Audio\AudioManager.cpp ..\Source\System\BaseApp.cpp ..\Source\System\Components\Render3DComponent.cpp ..\Source\System\Components\TransformComponent.cpp ..\Source\System\Editor\ElixirEditor.cpp ..\Source\System\FileIO.cpp ..\Source\System\GameManager.cpp ..\Source\System\GameObject.cpp ..\Source\System\IElixirGame.cpp ..\Source\System\Scene.cpp ..\Source\System\SceneManager.cpp ..\Source\System\Systems\IScriptSystem.cpp ..\Source\System\Systems\TestScript.cpp ..\Source\System\Systems\TransformSystem.cpp ..\Source\System\Timer.cpp
+         Timer.cpp
+         TransformSystem.cpp
+         TestScript.cpp
+         IScriptSystem.cpp
+         SceneManager.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\scenemanager.cpp(163): warning C4018: '<': signed/unsigned mismatch
+         Scene.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\scene.cpp(17): warning C4316: 'Light': object allocated on the heap may not be aligned 16
+         IElixirGame.cpp
+         GameObject.cpp
+         GameManager.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(27): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(149): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+         FileIO.cpp
+         ElixirEditor.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\editor\elixireditor.cpp(530): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(346): note: see declaration of 'strncpy'
+         TransformComponent.cpp
+         Render3DComponent.cpp
+         BaseApp.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(27): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(149): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(46): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(135): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(137): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(301): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(319): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(560): warning C4996: 'wcstombs': This function or variable may be unsafe. Consider using wcstombs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\stdlib.h(1008): note: see declaration of 'wcstombs'
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(424): warning C4101: 'screenAspect': unreferenced local variable
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(424): warning C4101: 'fieldOfView': unreferenced local variable
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(423): warning C4101: 'viewport': unreferenced local variable
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(1061): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.cpp(1314): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+         AudioManager.cpp
+         main.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(27): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(149): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\main.cpp(129): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\main.cpp(177): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\main.cpp(187): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\main.cpp(196): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+         MathHelper.cpp
+         TextureManager.cpp
+         TextureLoader.cpp
+         Terrain.cpp
+         Generating Code...
+         Compiling...
+         SkyDome.cpp
+         ShadowMapShader.cpp
+         ShadowMap.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\shadowmap.cpp(113): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\shadowmap.cpp(114): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
+         Post-processingShader.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(68): warning C4101: 'result': unreferenced local variable
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(308): warning C4018: '<': signed/unsigned mismatch
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(390): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(391): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(646): warning C4018: '<': signed/unsigned mismatch
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(753): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\post-processingshader.cpp(758): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+         OrthoManager.cpp
+         ModelManager.cpp
+         Light.cpp
+         DeferredShader.cpp
+         DeferredRendering.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\deferredrendering.cpp(37): warning C4101: 'i': unreferenced local variable
+         DeferredLightShader.cpp
+         CameraManager.cpp
+         BlendState.cpp
+         BasicShapes.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\graphics\basicshapes.cpp(9): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+         PulseGame.cpp
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(27): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\nextgen\desktop\elixirengine\source\system\baseapp.h(149): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+         WICTextureLoader.cpp
+         imgui_draw.cpp
+         imgui_demo.cpp
+         imgui.cpp
+         imgui_impl_dx11.cpp
+         DDSTextureLoader.cpp
+         Generating Code...
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D _UNICODE /D UNICODE /l"0x0409" /nologo /fo"C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\Project_Light.res" Project_Light.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Project_Light.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\Nextgen\Desktop\directx 11 projects\DX11 win10\Project_Light\External Soruce\irrKlang\lib\Win32-visualStudio" /LIBPATH:"C:\Users\Nextgen\Desktop\directx 11 projects\DX11 win10\Project_Light\External Soruce\Assimp\lib\x86" assimp.lib irrKlang.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Project_Light.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Project_Light.lib" /MACHINE:X86 C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\Project_Light.res
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\DDSTextureLoader.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\imgui_impl_dx11.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\imgui.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\imgui_demo.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\imgui_draw.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\WICTextureLoader.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\PulseGame.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\BasicShapes.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\BlendState.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\CameraManager.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\DeferredLightShader.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\DeferredRendering.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\DeferredShader.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\Light.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\ModelManager.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\OrthoManager.obj
+         "C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\Post-processingShader.obj"
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\ShadowMap.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\ShadowMapShader.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\SkyDome.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\Terrain.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\TextureLoader.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\TextureManager.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\MathHelper.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\main.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\AudioManager.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\BaseApp.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\Render3DComponent.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\TransformComponent.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\ElixirEditor.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\FileIO.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\GameManager.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\GameObject.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\IElixirGame.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\Scene.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\SceneManager.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\IScriptSystem.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\TestScript.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\TransformSystem.obj
+         C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Intermediate\Timer.obj
+         Project_Light.vcxproj -> C:\Users\Nextgen\Desktop\ElixirEngine\bin\Debug\Project_Light.exe
+     1>Done Building Project "C:\Users\Nextgen\Desktop\ElixirEngine\Project_Light\Project_Light.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:44.76
