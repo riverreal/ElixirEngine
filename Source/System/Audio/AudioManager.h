@@ -1,8 +1,8 @@
 #pragma once
+#pragma comment(lib, "irrKlang.lib")
 
 #include <irrKlang.h>
 #include "../../Helper/GeneralHelper.h"
-//#pragma comment(lib, "irrKlang.lib");
 
 namespace Elixir
 {

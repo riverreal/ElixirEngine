@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma comment(lib, "assimp.lib")
+
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "Terrain.h"
